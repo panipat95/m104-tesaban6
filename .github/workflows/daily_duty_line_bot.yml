@@ -2,8 +2,8 @@ name: 🧹 Automated Daily Duty LINE Reminder
 
 on:
   schedule:
-    # 00:30 UTC = 07:30 AM Thailand Time (UTC+7) Mon-Fri
-    - cron: '30 0 * * 1-5'
+    # 00:25 UTC = 07:25 AM Thailand Time (UTC+7) Mon-Fri
+    - cron: '25 0 * * 1-5'
   workflow_dispatch:
 
 jobs:

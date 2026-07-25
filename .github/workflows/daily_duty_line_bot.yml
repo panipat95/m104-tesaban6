@@ -1,0 +1,23 @@
+name: 🧹 Automated Daily Duty LINE Reminder
+
+on:
+  schedule:
+    # 00:30 UTC = 07:30 AM Thailand Time (UTC+7) Mon-Fri
+    - cron: '30 0 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  send-daily-duty-line-reminder:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🚀 Run Automated Daily Duty LINE Bot
+        run: node scripts/auto_duty_line.js

@@ -3,35 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบผู้ช่วยครู & หัวหน้าห้อง - ม.1/4 (รร.เทศบาล 6 นครเชียงราย)</title>
+    <title>ระบบคณะกรรมการ & หัวหน้าห้อง - ม.1/4 SMT (รร.เทศบาล 6 นครเชียงราย)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Mitr:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #0284c7;
+            --primary-light: #38bdf8;
             --primary-dark: #0369a1;
             --accent-gold: #f59e0b;
+            --accent-pink: #ec4899;
             --bg-main: #f0f9ff;
             --bg-card: #ffffff;
             --text-main: #0f172a;
             --text-muted: #475569;
-            --radius-md: 12px;
-            --radius-lg: 18px;
-            --shadow-soft: 0 10px 25px -5px rgba(2, 132, 199, 0.1);
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --shadow-soft: 0 10px 25px -5px rgba(2, 132, 199, 0.12);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Prompt', 'Sarabun', sans-serif;
+            font-family: 'Prompt', 'Mitr', 'Sarabun', sans-serif;
         }
 
         body {
             background-color: var(--bg-main);
             background-image: 
-                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.1) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.18) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(251, 191, 36, 0.15) 0px, transparent 50%);
             color: var(--text-main);
             min-height: 100vh;
             padding: 1rem;
@@ -64,38 +66,92 @@
         }
 
         .leader-badge-icon {
-            width: 52px;
-            height: 52px;
+            width: 54px;
+            height: 54px;
             background: linear-gradient(135deg, #fef08a 0%, #f59e0b 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.6rem;
+            font-size: 1.7rem;
             color: #78350f;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
-            border: 2px solid #ffffff;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.45);
+            border: 3px solid #ffffff;
         }
 
         .header-text h1 {
             font-size: 1.35rem;
             font-weight: 800;
-            line-height: 1.2;
+            line-height: 1.25;
         }
 
         .header-text p {
-            font-size: 0.85rem;
-            opacity: 0.92;
+            font-size: 0.86rem;
+            opacity: 0.95;
             margin-top: 2px;
         }
+
+        /* Student Officers Banner Box */
+        .officers-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+            border: 1.5px solid #bae6fd;
+            border-radius: var(--radius-lg);
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.06);
+        }
+
+        .officers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .officer-chip {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            transition: transform 0.2s ease;
+        }
+        .officer-chip:hover {
+            transform: translateY(-2px);
+            border-color: #38bdf8;
+        }
+
+        .officer-img {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #0284c7;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .officer-tag {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 2px;
+        }
+        .tag-leader { background: #fef3c7; color: #92400e; border: 1px solid #fde047; }
+        .tag-deputy { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
 
         /* Login Card */
         .auth-card {
             background: #ffffff;
             border-radius: var(--radius-lg);
-            padding: 2.5rem 1.5rem;
-            max-width: 440px;
-            margin: 3rem auto;
+            padding: 2.5rem 1.8rem;
+            max-width: 450px;
+            margin: 2.5rem auto;
             text-align: center;
             box-shadow: var(--shadow-soft);
             border: 1px solid #e2e8f0;
@@ -139,10 +195,6 @@
             box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
         }
 
-        .btn-success {
-            background: #10b981;
-            color: #ffffff;
-        }
         .btn-danger-sm {
             background: #ef4444;
             color: #ffffff;
@@ -164,7 +216,7 @@
             background: #ffffff;
             border: 1px solid #e2e8f0;
             color: var(--text-muted);
-            padding: 10px 18px;
+            padding: 11px 18px;
             border-radius: var(--radius-md);
             font-size: 0.9rem;
             font-weight: 600;
@@ -265,18 +317,35 @@
 
         <!-- Login Screen -->
         <div id="auth-screen" class="auth-card">
-            <div style="font-size:3rem; margin-bottom:10px;">👑</div>
-            <h2 style="color:#0369a1; font-weight:800; font-size:1.4rem; margin-bottom:6px;">เข้าสู่ระบบหัวหน้าห้อง & คณะกรรมการ</h2>
-            <p style="color:#64748b; font-size:0.88rem; margin-bottom:1.5rem;">สำหรับหัวหน้าห้องและคณะกรรมการนักเรียน ม.1/4</p>
+            <div style="font-size:3.2rem; margin-bottom:8px;">👑</div>
+            <h2 style="color:#0369a1; font-weight:800; font-size:1.35rem; margin-bottom:4px;">ระบบเข้าสู่ระบบคณะกรรมการนักเรียน</h2>
+            <p style="color:#64748b; font-size:0.88rem; margin-bottom:1.4rem;">สำหรับผู้ช่วยครู & หัวหน้าห้อง ชั้น ม.1/4 SMT</p>
+
+            <!-- Student Leaders Preview Badges -->
+            <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:10px 12px; margin-bottom:1.5rem; text-align:left;">
+                <div style="font-size:0.78rem; font-weight:700; color:#0369a1; margin-bottom:6px;">✨ คณะกรรมการนักเรียนประจำห้อง:</div>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; align-items:center; gap:8px; font-size:0.83rem;">
+                        <img src="photos/19186.jpg" onerror="this.src='https://ui-avatars.com/api/?name=K+K&background=0284c7&color=fff'" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid #0284c7;">
+                        <span>👑 <strong>หัวหน้าห้อง:</strong> ด.ญ.กชพรรณ กองแสง (ชะเอม)</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; font-size:0.83rem;">
+                        <img src="photos/19187.jpg" onerror="this.src='https://ui-avatars.com/api/?name=C+S&background=38bdf8&color=fff'" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid #38bdf8;">
+                        <span>⭐ <strong>รองหัวหน้าห้อง:</strong> ด.ญ.ชลธิชา แซตูกู (มีน)</span>
+                    </div>
+                </div>
+            </div>
 
             <form id="form-leader-login" onsubmit="event.preventDefault(); handleLeaderLogin();">
-                <div style="margin-bottom:1rem; text-align:left;">
+                <div style="margin-bottom:1.2rem; text-align:left;">
                     <label style="font-size:0.85rem; font-weight:600; color:#334155; display:block; margin-bottom:4px;">🔑 รหัสผ่านเข้าใช้งาน (Passcode):</label>
-                    <input type="password" id="leader-pin-input" class="form-control" placeholder="กรอกรหัสผ่านหัวหน้าห้อง (เช่น 104)" required style="text-align:center; font-size:1.1rem; letter-spacing:2px;">
-                    <small style="color:#94a3b8; font-size:0.78rem; margin-top:4px; display:block;">* รหัสผ่านตั้งต้นสำหรับหัวหน้าห้องคือ: <strong>104</strong></small>
+                    <input type="password" id="leader-pin-input" class="form-control" placeholder="กรอกรหัสผ่าน (เช่น 104104)" required style="text-align:center; font-size:1.15rem; letter-spacing:3px; font-weight:700;">
+                    <small style="color:#0284c7; font-size:0.8rem; margin-top:6px; display:block; text-align:center; font-weight:600;">
+                        * รหัสผ่านสำหรับหัวหน้าห้องคือ: <span style="background:#e0f2fe; padding:2px 8px; border-radius:6px;">104104</span>
+                    </small>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%; padding:12px;">
-                    <i class="fa-solid fa-right-to-bracket"></i> ยืนยันเข้าสู่ระบบ
+                <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:0.95rem;">
+                    <i class="fa-solid fa-right-to-bracket"></i> ยืนยันเข้าสู่ระบบผู้ช่วยครู
                 </button>
             </form>
         </div>
@@ -289,7 +358,7 @@
                 <div class="header-title">
                     <div class="leader-badge-icon">👑</div>
                     <div class="header-text">
-                        <h1>ระบบผู้ช่วยครู & หัวหน้าห้อง (ม.1/4 SMT)</h1>
+                        <h1>ระบบผู้ช่วยครู & คณะกรรมการนักเรียน (ม.1/4 SMT)</h1>
                         <p>🏫 โรงเรียนเทศบาล 6 นครเชียงราย • ห้องเรียนประจำ 332</p>
                     </div>
                 </div>
@@ -297,6 +366,35 @@
                     <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
                 </button>
             </header>
+
+            <!-- Student Officers Showcase Box -->
+            <div class="officers-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <h3 style="font-size:1rem; color:#0369a1; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-award" style="color:#f59e0b;"></i> คณะกรรมการประจำห้อง ม.1/4 SMT (ปีการศึกษา 2569)
+                    </h3>
+                    <span style="font-size:0.78rem; background:#e0f2fe; color:#0284c7; padding:3px 10px; border-radius:12px; font-weight:600;">✨ ผู้ช่วยครูประจำชั้น</span>
+                </div>
+                <div class="officers-grid">
+                    <div class="officer-chip">
+                        <img src="photos/19186.jpg" onerror="this.src='https://ui-avatars.com/api/?name=K+K&background=0284c7&color=fff'" class="officer-img">
+                        <div>
+                            <span class="officer-tag tag-leader">👑 หัวหน้าห้อง</span>
+                            <div style="font-size:0.9rem; font-weight:700; color:#0f172a;">ด.ญ.กชพรรณ กองแสง (ชะเอม)</div>
+                            <div style="font-size:0.78rem; color:#64748b;">เลขที่ 18 | รหัสประจำตัว 19186</div>
+                        </div>
+                    </div>
+
+                    <div class="officer-chip">
+                        <img src="photos/19187.jpg" onerror="this.src='https://ui-avatars.com/api/?name=C+S&background=38bdf8&color=fff'" class="officer-img">
+                        <div>
+                            <span class="officer-tag tag-deputy">⭐ รองหัวหน้าห้อง</span>
+                            <div style="font-size:0.9rem; font-weight:700; color:#0f172a;">ด.ญ.ชลธิชา แซตูกู (มีน)</div>
+                            <div style="font-size:0.78rem; color:#64748b;">เลขที่ 19 | รหัสประจำตัว 19187</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Navigation Tabs -->
             <div class="nav-tabs">
@@ -514,7 +612,7 @@
         <footer>
             <p>🏫 โรงเรียนเทศบาล 6 นครเชียงราย • ครูที่ปรึกษา: ครูพรรณนิภา มูลโมกข์ / ครูปณิพัฒน์ อินทะชัย</p>
             <p style="margin-top:4px; font-weight:600; color:#64748b;">
-                Copyright © 2026 <strong>ผู้พัฒนาครูปอ</strong> • ระบบหัวหน้าห้อง ม.1/4 SMT
+                Copyright © 2026 <strong>ผู้พัฒนาครูปอ</strong> • ระบบคณะกรรมการนักเรียน ม.1/4 SMT
             </p>
         </footer>
 
@@ -522,7 +620,7 @@
 
     <script src="real_db.js?v=1.0.1"></script>
     <script>
-        const LEADER_PIN = "104";
+        const LEADER_PIN = "104104";
         let activeStudentList = typeof studentData !== 'undefined' ? studentData : [];
         let pendingTasks = JSON.parse(localStorage.getItem('pending_homework_tasks')) || [];
 
@@ -539,7 +637,7 @@
                 sessionStorage.setItem('leader_logged_in', 'true');
                 showLeaderPortal();
             } else {
-                alert('❌ รหัสผ่านไม่ถูกต้อง! กรุณาลองใหม่อีกครั้ง (รหัสตั้งต้นคือ 104)');
+                alert('❌ รหัสผ่านไม่ถูกต้อง! กรุณาลองใหม่อีกครั้ง (รหัสผ่านคือ 104104)');
             }
         }
 

@@ -2,7 +2,7 @@ const fs = require('fs');
 const https = require('https');
 
 const POR_NONG_MAEWSOM_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN || "IreTHxq60X+lc2mZR1TdpTnEvYDhvqBAwc/YPWI8llBUETzGurjjqt5Am4zUC4wzKJdinCdl/Kfv8sxchKSDmrHrgirxWtKnKvCEzN01r0+qDfTGrVAoQnNyATuFxZGsLBwQ2C2KNN+2Nd19lwXOpwdB04t89/1O/w1cDnyilFU=";
-const TARGET_GROUP_ID = process.env.LINE_GROUP_ID || "";
+const TARGET_GROUP_ID = process.env.LINE_GROUP_ID || "Ca98a77879c82670dd198ea9f2c549f9d";
 
 function getThaiDateAndDay() {
     const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
@@ -103,7 +103,7 @@ async function main() {
     const students = loadStudentData();
     const dutyStudents = students.filter(s => s.duty_day === targetDayName);
 
-    let msg = `🐱 [ทดสอบบอทน้องแมวส้ม @706jgkro - ระบบแจ้งเตือนเวรเช้าอัตโนมัติ 07.30 น.]\n`;
+    let msg = `🐱 [ทดสอบยิงตรงเข้ากลุ่มแชทส่วนตัวบอทน้องแมวส้ม @706jgkro]\n`;
     if (!isTest) {
         msg = `🧹 [แจ้งเตือนเวรทำความสะอาดประจำวัน ม.1/4 SMT]\n`;
     }

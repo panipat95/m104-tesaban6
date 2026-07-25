@@ -15,6 +15,17 @@ function getThaiDateAndDay() {
     return { dayName, dateStr };
 }
 
+function getNextDutyDayName(currentDayName) {
+    const map = {
+        'จันทร์': 'อังคาร',
+        'อังคาร': 'พุธ',
+        'พุธ': 'พฤหัสบดี',
+        'พฤหัสบดี': 'ศุกร์',
+        'ศุกร์': 'จันทร์'
+    };
+    return map[currentDayName] || 'จันทร์';
+}
+
 function loadStudentData() {
     const fileContent = fs.readFileSync('real_db.js', 'utf8');
     const jsonStart = fileContent.indexOf('[');
@@ -100,27 +111,38 @@ async function main() {
         }
     }
 
-    const students = loadStudentData();
-    const dutyStudents = students.filter(s => s.duty_day === targetDayName);
+    const nextDayName = getNextDutyDayName(targetDayName);
 
-    let msg = `🐱 [ทดสอบยิงตรงเข้ากลุ่มแชทส่วนตัวบอทน้องแมวส้ม @706jgkro]\n`;
-    if (!isTest) {
-        msg = `🧹 [แจ้งเตือนเวรทำความสะอาดประจำวัน ม.1/4 SMT]\n`;
-    }
+    const students = loadStudentData();
+    const todayStudents = students.filter(s => s.duty_day === targetDayName);
+    const nextDayStudents = students.filter(s => s.duty_day === nextDayName);
+
+    let msg = `🧹 [แจ้งเตือนเวรทำความสะอาดประจำวัน ม.1/4 SMT]\n`;
     msg += `📅 ประจำวัน${targetDayName} (${dateStr})\n\n`;
     msg += `⏰ เวลาปฏิบัติหน้าที่: 07.30 - 07.40 น.\n`;
     msg += `📍 ภารกิจ: ทำเขตจิตอาสาถูพื้นศูนย์จีน & ทำความสะอาดห้องเรียน 332\n\n`;
-    msg += `👥 รายชื่อนักเรียนเวรประจำวัน${targetDayName} (${dutyStudents.length} คน):\n`;
 
-    if (dutyStudents.length > 0) {
-        dutyStudents.forEach((s, idx) => {
+    msg += `👥 รายชื่อนักเรียนเวรประจำวันถูพื้น ${targetDayName} (${todayStudents.length} คน):\n`;
+    if (todayStudents.length > 0) {
+        todayStudents.forEach((s, idx) => {
             msg += `${idx + 1}. เลขที่ ${s.no} ${s.fullname} ${s.nickname ? `(${s.nickname})` : ''}\n`;
         });
     } else {
-        msg += `(ไม่มีรายชื่อเวรทำความสะอาด)\n`;
+        msg += `(ไม่มีรายชื่อเวรถูพื้น)\n`;
     }
 
-    msg += `\n✨ ขอให้นักเรียนที่มีรายชื่อมาร่วมทำความสะอาดและถูพื้นตรงตามเวลาด้วยนะครับ/ค่ะ 🙏`;
+    msg += `\n--------- \n\n`;
+
+    msg += `👥 รายชื่อนักเรียนเวรวันถัดไปกวาดพื้น ${nextDayName} (${nextDayStudents.length} คน):\n`;
+    if (nextDayStudents.length > 0) {
+        nextDayStudents.forEach((s, idx) => {
+            msg += `${idx + 1}. เลขที่ ${s.no} ${s.fullname} ${s.nickname ? `(${s.nickname})` : ''}\n`;
+        });
+    } else {
+        msg += `(ไม่มีรายชื่อเวรกวาดพื้น)\n`;
+    }
+
+    msg += `\n✨ ขอให้นักเรียนที่มีรายชื่อมาร่วมทำความสะอาดและถูพื้นตรงตามเวลาด้วยนะครับ`;
 
     console.log('--- Message Preview ---');
     console.log(msg);

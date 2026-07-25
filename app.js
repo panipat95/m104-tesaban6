@@ -612,6 +612,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return days[dateObj.getDay()];
     }
 
+    function getNextDutyDayName(currentDayName) {
+        const map = {
+            'จันทร์': 'อังคาร',
+            'อังคาร': 'พุธ',
+            'พุธ': 'พฤหัสบดี',
+            'พฤหัสบดี': 'ศุกร์',
+            'ศุกร์': 'จันทร์'
+        };
+        return map[currentDayName] || 'จันทร์';
+    }
+
     function generateDailyDutyLineMessage() {
         const daySelect = document.getElementById('line-duty-day-select');
         const selectedDayValue = daySelect ? daySelect.value : 'auto';
@@ -629,7 +640,10 @@ document.addEventListener('DOMContentLoaded', () => {
             targetDayName = 'จันทร์';
         }
 
-        const dutyStudents = studentData.filter(s => s.duty_day === targetDayName);
+        const nextDayName = getNextDutyDayName(targetDayName);
+
+        const todayStudents = studentData.filter(s => s.duty_day === targetDayName);
+        const nextDayStudents = studentData.filter(s => s.duty_day === nextDayName);
 
         const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
         const dateStr = `${now.getDate()} ${thaiMonths[now.getMonth()]} ${now.getFullYear() + 543}`;
@@ -638,17 +652,28 @@ document.addEventListener('DOMContentLoaded', () => {
         msg += `📅 ประจำวัน${targetDayName} (${dateStr})\n\n`;
         msg += `⏰ เวลาปฏิบัติหน้าที่: 07.30 - 07.40 น.\n`;
         msg += `📍 ภารกิจ: ทำเขตจิตอาสาถูพื้นศูนย์จีน & ทำความสะอาดห้องเรียน 332\n\n`;
-        msg += `👥 รายชื่อนักเรียนเวรประจำวัน${targetDayName} (${dutyStudents.length} คน):\n`;
 
-        if (dutyStudents.length > 0) {
-            dutyStudents.forEach((s, idx) => {
+        msg += `👥 รายชื่อนักเรียนเวรประจำวันถูพื้น ${targetDayName} (${todayStudents.length} คน):\n`;
+        if (todayStudents.length > 0) {
+            todayStudents.forEach((s, idx) => {
                 msg += `${idx + 1}. เลขที่ ${s.no} ${s.fullname} ${s.nickname ? `(${s.nickname})` : ''}\n`;
             });
         } else {
-            msg += `(ไม่มีรายชื่อเวรทำความสะอาด)\n`;
+            msg += `(ไม่มีรายชื่อเวรถูพื้น)\n`;
         }
 
-        msg += `\n✨ ขอให้นักเรียนที่มีรายชื่อมาร่วมทำความสะอาดและถูพื้นตรงตามเวลาด้วยนะครับ/ค่ะ 🙏`;
+        msg += `\n--------- \n\n`;
+
+        msg += `👥 รายชื่อนักเรียนเวรวันถัดไปกวาดพื้น ${nextDayName} (${nextDayStudents.length} คน):\n`;
+        if (nextDayStudents.length > 0) {
+            nextDayStudents.forEach((s, idx) => {
+                msg += `${idx + 1}. เลขที่ ${s.no} ${s.fullname} ${s.nickname ? `(${s.nickname})` : ''}\n`;
+            });
+        } else {
+            msg += `(ไม่มีรายชื่อเวรกวาดพื้น)\n`;
+        }
+
+        msg += `\n✨ ขอให้นักเรียนที่มีรายชื่อมาร่วมทำความสะอาดและถูพื้นตรงตามเวลาด้วยนะครับ`;
 
         if (customNote) {
             msg += `\n\n📌 ประกาศเพิ่มเติมจากครูประจำชั้น:\n${customNote}`;

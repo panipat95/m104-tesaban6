@@ -480,21 +480,25 @@
             <div id="tab-midterm" class="tab-content">
                 <div class="card">
                     <h3 style="font-size:1.1rem; color:#0369a1; margin-bottom:1rem; display:flex; align-items:center; gap:8px;">
-                        <i class="fa-solid fa-square-poll-vertical" style="color:#0284c7;"></i> สรุปคะแนนสอบกลางภาคเรียนที่ 1/2569 (ห้อง ม.1/4 SMT)
+                        <i class="fa-solid fa-square-poll-vertical" style="color:#0284c7;"></i> ตารางตรวจสอบคะแนนสอบกลางภาคเรียนที่ 1 / 2569 (ห้อง ม.1/4 SMT)
                     </h3>
                     <div class="table-responsive">
-                        <table>
+                        <table style="min-width:860px;">
                             <thead>
                                 <tr>
-                                    <th style="width:60px; text-align:center;">เลขที่</th>
-                                    <th style="width:75px;">รหัส</th>
+                                    <th style="width:50px; text-align:center;">เลขที่</th>
+                                    <th style="width:80px;">รหัส</th>
                                     <th>ชื่อ-นามสกุล</th>
-                                    <th style="text-align:center;">คณิตพื้น</th>
-                                    <th style="text-align:center;">คณิตเพิ่ม</th>
-                                    <th style="text-align:center;">วิทย์พื้น</th>
+                                    <th style="text-align:center;">อังเพื่อสื่อสาร</th>
+                                    <th style="text-align:center;">สังคมศึกษา</th>
+                                    <th style="text-align:center;">คณิตพื้นฐาน</th>
                                     <th style="text-align:center;">ภาษาไทย</th>
-                                    <th style="text-align:center;">อังพื้น</th>
-                                    <th style="text-align:center; background:#e0f2fe; color:#0369a1;">คะแนนรวม (60)</th>
+                                    <th style="text-align:center;">คณิตเพิ่ม 1</th>
+                                    <th style="text-align:center;">คณิตเพิ่ม 2</th>
+                                    <th style="text-align:center;">ภาษาจีน</th>
+                                    <th style="text-align:center;">อังพื้นฐาน</th>
+                                    <th style="text-align:center; background:#e0f2fe; color:#0369a1;">คะแนนรวม (145)</th>
+                                    <th style="text-align:center;">ร้อยละ</th>
                                 </tr>
                             </thead>
                             <tbody id="leader-midterm-tbody">
@@ -802,17 +806,12 @@
             if (!tbody) return;
 
             const students = getActiveStudents();
-            if (students.length === 0) return;
+            if (!students || students.length === 0) return;
 
             let html = '';
             students.forEach(s => {
-                const sc = s.scores || {};
-                const mathBasic = sc.math_basic ?? '-';
-                const mathAdd = sc.math_add1 ?? '-';
-                const sciBasic = sc.sci_basic ?? sc.math_add2 ?? '-';
-                const thai = sc.thai ?? '-';
-                const engBasic = sc.eng_basic ?? '-';
-                const totalScore = sc.total_score ?? '-';
+                const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, total_score: 0 };
+                const pct = ((sc.total_score / 145) * 100).toFixed(1);
 
                 html += `
                     <tr>
@@ -824,12 +823,16 @@
                                 <strong>${s.fullname}</strong> ${s.nickname ? `<span style="color:#64748b;">(${s.nickname})</span>` : ''}
                             </div>
                         </td>
-                        <td style="text-align:center; font-weight:600;">${mathBasic}</td>
-                        <td style="text-align:center; font-weight:600;">${mathAdd}</td>
-                        <td style="text-align:center; font-weight:600;">${sciBasic}</td>
-                        <td style="text-align:center; font-weight:600;">${thai}</td>
-                        <td style="text-align:center; font-weight:600;">${engBasic}</td>
-                        <td style="text-align:center; background:#f0f9ff; font-weight:700; color:#0369a1;">${totalScore}</td>
+                        <td style="text-align:center;"><span class="badge ${sc.eng_comm >= 10 ? 'badge-success' : 'badge-danger'}">${sc.eng_comm}</span></td>
+                        <td style="text-align:center;"><span class="badge ${sc.social >= 10 ? 'badge-success' : 'badge-danger'}">${sc.social}</span></td>
+                        <td style="text-align:center;"><span class="badge ${sc.math_basic >= 10 ? 'badge-success' : 'badge-danger'}">${sc.math_basic}</span></td>
+                        <td style="text-align:center;"><span class="badge ${sc.thai >= 10 ? 'badge-success' : 'badge-danger'}">${sc.thai}</span></td>
+                        <td style="text-align:center;"><span class="badge ${sc.math_add1 >= 10 ? 'badge-success' : 'badge-danger'}">${sc.math_add1}</span></td>
+                        <td style="text-align:center;"><span class="badge ${sc.math_add2 >= 2.5 ? 'badge-success' : 'badge-danger'}">${sc.math_add2}</span></td>
+                        <td style="text-align:center;"><span class="badge ${sc.chinese >= 10 ? 'badge-success' : 'badge-danger'}">${sc.chinese}</span></td>
+                        <td style="text-align:center;"><span class="badge ${sc.eng_basic >= 10 ? 'badge-success' : 'badge-danger'}">${sc.eng_basic}</span></td>
+                        <td style="text-align:center;"><strong style="color:var(--primary); font-size:0.95rem;">${sc.total_score}</strong></td>
+                        <td style="text-align:center;"><span class="badge ${pct >= 50 ? 'badge-purple' : 'badge-warning'}">${pct}%</span></td>
                     </tr>
                 `;
             });

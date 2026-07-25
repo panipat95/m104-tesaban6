@@ -186,15 +186,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (elAvg) elAvg.textContent = `${avgScore} คะแนน (${avgPct}%)`;
     }
 
-    // Render Overview Table
+    let overviewCurrentPage = 1;
+    const overviewPageSize = 10;
+
+    // Render Overview Table with 10 Students per Page Pagination
     function renderOverviewTable() {
         const tbody = document.querySelector('#table-overview tbody');
         if (!tbody) return;
         tbody.innerHTML = '';
 
         const filtered = filterData(studentData);
+        const totalItems = filtered.length;
+        const totalPages = Math.ceil(totalItems / overviewPageSize) || 1;
 
-        filtered.forEach(s => {
+        if (overviewCurrentPage > totalPages) overviewCurrentPage = totalPages;
+        if (overviewCurrentPage < 1) overviewCurrentPage = 1;
+
+        const startIndex = (overviewCurrentPage - 1) * overviewPageSize;
+        const endIndex = Math.min(startIndex + overviewPageSize, totalItems);
+
+        const pageData = filtered.slice(startIndex, endIndex);
+
+        pageData.forEach(s => {
             const tr = document.createElement('tr');
             const photoSrc = s.photo_url || `photos/${s.student_id}.jpg`;
 
@@ -233,7 +246,51 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             tbody.appendChild(tr);
         });
+
+        renderOverviewPagination(totalItems, totalPages, startIndex, endIndex);
     }
+
+    function renderOverviewPagination(totalItems, totalPages, startIndex, endIndex) {
+        const infoEl = document.getElementById('overview-pagination-info');
+        const ctrlEl = document.getElementById('overview-pagination-controls');
+        if (!infoEl || !ctrlEl) return;
+
+        if (totalItems === 0) {
+            infoEl.textContent = 'ไม่พบข้อมูลนักเรียน';
+            ctrlEl.innerHTML = '';
+            return;
+        }
+
+        infoEl.textContent = `แสดงลำดับที่ ${startIndex + 1} - ${endIndex} จากทั้งหมด ${totalItems} คน (หน้า ${overviewCurrentPage}/${totalPages})`;
+
+        let btnsHtml = `
+            <button class="btn-sm btn-secondary" style="padding:4px 10px; font-weight:600; ${overviewCurrentPage === 1 ? 'opacity:0.5; cursor:not-allowed;' : 'cursor:pointer;'}" ${overviewCurrentPage === 1 ? 'disabled' : ''} onclick="changeOverviewPage(${overviewCurrentPage - 1})">
+                <i class="fa-solid fa-chevron-left"></i> ก่อนหน้า
+            </button>
+        `;
+
+        for (let p = 1; p <= totalPages; p++) {
+            const isActive = (p === overviewCurrentPage);
+            btnsHtml += `
+                <button class="btn-sm" style="min-width:32px; padding:4px 10px; font-weight:700; border-radius:6px; cursor:pointer; ${isActive ? 'background:#0284c7; color:#fff; border:none; box-shadow:0 2px 6px rgba(2,132,199,0.3);' : 'background:#fff; border:1px solid #cbd5e1; color:#334155;'}" onclick="changeOverviewPage(${p})">
+                    ${p}
+                </button>
+            `;
+        }
+
+        btnsHtml += `
+            <button class="btn-sm btn-secondary" style="padding:4px 10px; font-weight:600; ${overviewCurrentPage === totalPages ? 'opacity:0.5; cursor:not-allowed;' : 'cursor:pointer;'}" ${overviewCurrentPage === totalPages ? 'disabled' : ''} onclick="changeOverviewPage(${overviewCurrentPage + 1})">
+                ถัดไป <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        `;
+
+        ctrlEl.innerHTML = btnsHtml;
+    }
+
+    window.changeOverviewPage = function(page) {
+        overviewCurrentPage = page;
+        renderOverviewTable();
+    };
 
     // Render Student 360 Cards Grid
     function renderStudentCards() {
@@ -529,12 +586,14 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.filter-pills .pill').forEach(p => p.classList.remove('active'));
             pill.classList.add('active');
             currentFilter = pill.getAttribute('data-filter');
+            overviewCurrentPage = 1;
             renderOverviewTable();
             renderStudentCards();
         });
     });
 
     globalSearch.addEventListener('input', () => {
+        overviewCurrentPage = 1;
         renderOverviewTable();
         renderStudentCards();
     });

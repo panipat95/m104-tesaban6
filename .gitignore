@@ -1,0 +1,4 @@
+# Temporary PowerShell scripts
+*.ps1
+RUN_SERVER.bat
+server.ps1

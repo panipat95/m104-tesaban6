@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบติดตามข้อมูลนักเรียนสำหรับผู้ปกครอง - ม.1.4 (รร.เทศบาล 6 นครเชียงราย)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pastel-blue: #38bdf8;
+            --pastel-pink: #f472b6;
+            --pastel-purple: #c084fc;
+            --pastel-green: #4ade80;
+            --pastel-yellow: #facc15;
+            --bg-pastel: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-sub: #64748b;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Mitr', 'Sarabun', sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, #f0f9ff 0%, #fce7f3 50%, #f3e8ff 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.2rem 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Header Cute Styling */
+        header {
+            text-align: center;
+            margin-bottom: 1.4rem;
+            padding: 1.5rem 1.2rem;
+            background: linear-gradient(135deg, #38bdf8, #818cf8, #f472b6);
+            color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 25px rgba(244, 114, 182, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '🌸 🐱 🎀 ⭐️ 🧸';
+            position: absolute;
+            top: -6px;
+            left: 0;
+            right: 0;
+            font-size: 0.8rem;
+            opacity: 0.6;
+            letter-spacing: 12px;
+        }
+
+        header h1 { font-size: 1.35rem; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        header p { font-size: 0.88rem; opacity: 0.95; margin-top: 3px; font-weight: 300; }
+
+        .card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            border: 2px solid #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 1.4rem;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 8px 20px rgba(148, 163, 184, 0.12);
+            transition: transform 0.2s;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 1rem;
+            border: 2px solid #bae6fd;
+            border-radius: var(--radius-md);
+            outline: none;
+            background: #f0f9ff;
+            color: var(--text-dark);
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #38bdf8;
+            background: #ffffff;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .btn:active { transform: scale(0.97); }
+        .btn-pink { background: linear-gradient(135deg, #f472b6, #ec4899); color: #ffffff; }
+        .btn-pink:hover { box-shadow: 0 6px 16px rgba(244, 114, 182, 0.4); }
+        .btn-slate { background: #94a3b8; color: #ffffff; }
+
+        /* Cute Login Section */
+        #login-section { text-align: center; }
+        .cute-avatar-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #e0f2fe, #fce7f3);
+            color: #ec4899;
+            font-size: 2.2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.2rem;
+            border: 3px solid #ffffff;
+            box-shadow: 0 8px 18px rgba(236, 72, 153, 0.2);
+        }
+
+        /* Profile Banner Cute */
+        .profile-banner {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(135deg, #ffffff, #f0f9ff);
+            border: 2px solid #bae6fd;
+            padding: 14px 18px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 1.2rem;
+            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.12);
+        }
+
+        .profile-banner img {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #38bdf8;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .profile-banner .info h2 { font-size: 1.15rem; color: #0f172a; font-weight: 700; }
+        .profile-banner .info p { font-size: 0.85rem; color: #64748b; font-weight: 400; }
+
+        /* Tabs Pastel */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 6px;
+            border-radius: 16px;
+            margin-bottom: 1.2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.25s ease;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #ffffff, #fce7f3);
+            color: #ec4899;
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.18);
+            font-weight: 700;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cute Status Notifications */
+        .banner-complete {
+            background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+            border: 2px solid #4ade80;
+            border-radius: var(--radius-lg);
+            padding: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: #14532d;
+            box-shadow: 0 6px 16px rgba(74, 222, 128, 0.15);
+        }
+
+        .banner-pending {
+            background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+            border: 2px solid #fb7185;
+            border-radius: var(--radius-lg);
+            padding: 1.2rem;
+            margin-bottom: 1.2rem;
+            color: #881337;
+            box-shadow: 0 6px 16px rgba(251, 113, 133, 0.15);
+        }
+
+        .task-card {
+            background: #ffffff;
+            border: 1px solid #fecdd3;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(244, 63, 94, 0.05);
+        }
+
+        /* Table Cute */
+        .table-responsive { overflow-x: auto; border-radius: 12px; border: 1px solid #cbd5e1; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th, td { border: 1px solid #cbd5e1; padding: 9px; text-align: center; }
+        th { background: #e0f2fe; color: #0369a1; font-weight: 700; }
+
+        /* Scores Grid */
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            font-size: 0.88rem;
+        }
+
+        .score-item {
+            background: linear-gradient(135deg, #ffffff, #f0f9ff);
+            border: 1px solid #bae6fd;
+            padding: 10px 12px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        /* Footer Copyright Credit */
+        footer {
+            text-align: center;
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-top: 1.8rem;
+            padding-bottom: 1.2rem;
+            line-height: 1.7;
+        }
+
+        footer strong { color: #ec4899; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🏛️ โรงเรียนเทศบาล 6 นครเชียงราย</h1>
+            <p>🌸 ระบบติดตามข้อมูลนักเรียนสำหรับผู้ปกครอง (ม.1.4 SMT) 🌸</p>
+        </header>
+
+        <!-- State 1: Authentication / Student ID Entry -->
+        <div id="login-section" class="card">
+            <div class="cute-avatar-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h2 style="font-size:1.2rem; color:var(--text-dark); margin-bottom:6px;">✨ เช็คงานค้าง & ผลการเรียนรายบุคคล ✨</h2>
+            <p style="font-size:0.85rem; color:#64748b; margin-bottom:1.4rem;">กรุณากรอกเลขประจำตัวนักเรียน 5 หลัก เพื่อเข้าดูข้อมูลเฉพาะของลูกหลานครับ</p>
+
+            <form id="login-form" onsubmit="return false;" style="display:flex; flex-direction:column; gap:14px;">
+                <input type="text" id="input-student-id" class="form-control" placeholder="🎓 กรอกเลขประจำตัวนักเรียน (เช่น 19168)" autocomplete="off" maxlength="10">
+                <button type="submit" id="btn-login" class="btn btn-pink">
+                    <i class="fa-solid fa-sparkles"></i> 🔍 เข้าสู่ระบบ / ตรวจสอบข้อมูล
+                </button>
+            </form>
+            <div id="login-error" style="color:#e11d48; font-size:0.88rem; font-weight:600; margin-top:12px; display:none;"></div>
+        </div>
+
+        <!-- State 2: Student Personal Dashboard -->
+        <div id="dashboard-section" style="display:none;">
+            
+            <!-- Student Header Profile Banner -->
+            <div class="profile-banner">
+                <img id="student-photo" src="" onerror="this.outerHTML='<div style=\\'width:68px; height:68px; border-radius:50%; background:#fce7f3; color:#ec4899; display:flex; align-items:center; justify-content:center; font-size:2rem;\\'><i class=\\'fa-solid fa-user-graduate\\'></i></div>'">
+                <div class="info" style="flex:1;">
+                    <h2 id="student-name">เด็กชายสมชาย เรียนดี</h2>
+                    <p id="student-meta">เลขที่ 1 | รหัสประจำตัว: 19168 | ห้อง ม.1.4</p>
+                </div>
+                <button id="btn-logout" class="btn btn-slate" style="width:auto; padding:6px 12px; font-size:0.8rem;">
+                    <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
+                </button>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab('parent-tab-pending')">📌 เช็คงานค้าง</button>
+                <button class="tab-btn" onclick="switchTab('parent-tab-schedule')">📅 ตารางเรียน</button>
+                <button class="tab-btn" onclick="switchTab('parent-tab-scores')">📊 คะแนนสอบ</button>
+            </div>
+
+            <!-- Tab 1: Pending Tasks -->
+            <div id="parent-tab-pending" class="tab-content active">
+                <div class="card" id="pending-tasks-container">
+                    <!-- Dynamic Pending Content -->
+                </div>
+            </div>
+
+            <!-- Tab 2: Class Timetable -->
+            <div id="parent-tab-schedule" class="tab-content">
+                <div class="card">
+                    <h3 style="font-size:1.1rem; color:#0369a1; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-calendar-days" style="color:#38bdf8;"></i> 📅 ตารางเรียน ชั้น ม.1.4 (ห้องประจำ 332)
+                    </h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>วัน</th>
+                                    <th>คาบ 1 (08.30)</th>
+                                    <th>คาบ 2 (09.20)</th>
+                                    <th>คาบ 3 (10.15)</th>
+                                    <th>คาบ 4 (11.05)</th>
+                                    <th>คาบ 5 (13.00)</th>
+                                    <th>คาบ 6 (13.50)</th>
+                                    <th>คาบ 7 (14.45)</th>
+                                    <th>คาบ 8 (15.35)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="background:#fef9c3; font-weight:700; color:#854d0e;">จันทร์</td>
+                                    <td>อ21101</td>
+                                    <td>ค21101</td>
+                                    <td>ส21101</td>
+                                    <td>ว21101</td>
+                                    <td>ว21101</td>
+                                    <td>ท21101</td>
+                                    <td>แนะแนว</td>
+                                    <td>โฮมรูม</td>
+                                </tr>
+                                <tr>
+                                    <td style="background:#fce7f3; font-weight:700; color:#9d174d;">อังคาร</td>
+                                    <td>ค21201</td>
+                                    <td>ท21101</td>
+                                    <td>ส21101</td>
+                                    <td>อ21101</td>
+                                    <td>ว21103</td>
+                                    <td>ว21103</td>
+                                    <td>ส21102</td>
+                                    <td>จิตรศึกษา</td>
+                                </tr>
+                                <tr>
+                                    <td style="background:#dcfce7; font-weight:700; color:#166534;">พุธ</td>
+                                    <td>ว21101</td>
+                                    <td>ว21101</td>
+                                    <td>อ21101</td>
+                                    <td>ค21101</td>
+                                    <td>ศ21101</td>
+                                    <td>สุขศึกษา</td>
+                                    <td>ชุมนุม</td>
+                                    <td>ลูกเสือ</td>
+                                </tr>
+                                <tr>
+                                    <td style="background:#ffedd5; font-weight:700; color:#9a3412;">พฤหัสบดี</td>
+                                    <td>ส21101</td>
+                                    <td>ท21101</td>
+                                    <td>ค21101</td>
+                                    <td>ว21101</td>
+                                    <td>ง21101</td>
+                                    <td>ง21101</td>
+                                    <td>จ21201</td>
+                                    <td>คุณธรรม</td>
+                                </tr>
+                                <tr>
+                                    <td style="background:#e0f2fe; font-weight:700; color:#0369a1;">ศุกร์</td>
+                                    <td>อ21101</td>
+                                    <td>อ21203</td>
+                                    <td>ส21101</td>
+                                    <td>ค21101</td>
+                                    <td>พ21101</td>
+                                    <td>ค21201</td>
+                                    <td>จ21201</td>
+                                    <td>ค้นคว้า</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Midterm Scores -->
+            <div id="parent-tab-scores" class="tab-content">
+                <div class="card" id="scores-container">
+                    <!-- Dynamic Scores Content -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer Copyright Credit -->
+        <footer>
+            <p>🏫 โรงเรียนเทศบาล 6 นครเชียงราย • ครูที่ปรึกษา: ครูพรรณนิภา มูลโมกข์ / ครูปณิพัฒน์ อินทะชัย</p>
+            <p style="margin-top:6px; font-weight:600; color:#64748b;">
+                Copyright © 2026 <strong>ผู้พัฒนาครูปอ</strong>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Real Database Scripts -->
+    <script src="real_db.js"></script>
+    <script>
+        let currentStudent = null;
+        let pendingTasks = [];
+
+        function loadPendingTasks() {
+            const saved = localStorage.getItem('pending_homework_tasks');
+            if (saved) {
+                try { pendingTasks = JSON.parse(saved); } catch(e){}
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPendingTasks();
+
+            const params = new URLSearchParams(window.location.search);
+            const urlId = params.get('id');
+            const urlNo = params.get('no');
+
+            if (urlId || urlNo) {
+                const found = window.REAL_STUDENT_DB.find(s => 
+                    (urlId && s.student_id.toString() === urlId.toString()) ||
+                    (urlNo && s.no.toString() === urlNo.toString())
+                );
+                if (found) {
+                    loginStudent(found);
+                    return;
+                }
+            }
+
+            document.getElementById('login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                handleLogin();
+            });
+
+            document.getElementById('btn-login').addEventListener('click', handleLogin);
+            document.getElementById('btn-logout').addEventListener('click', handleLogout);
+        });
+
+        function handleLogin() {
+            const inputVal = document.getElementById('input-student-id').value.trim();
+            const errorEl = document.getElementById('login-error');
+            errorEl.style.display = 'none';
+
+            if (!inputVal) {
+                errorEl.textContent = '🌸 กรุณากรอกเลขประจำตัวนักเรียนก่อนครับ';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            const found = window.REAL_STUDENT_DB.find(s => 
+                s.student_id.toString() === inputVal ||
+                s.no.toString() === inputVal
+            );
+
+            if (found) {
+                loginStudent(found);
+            } else {
+                errorEl.textContent = '❌ ไม่พบเลขประจำตัวนักเรียนนี้ในระบบห้อง ม.1.4 กรุณาตรวจสอบรหัสอีกครั้งครับ';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        function loginStudent(student) {
+            currentStudent = student;
+
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('dashboard-section').style.display = 'block';
+
+            document.getElementById('student-name').textContent = `${student.fullname} ${student.nickname ? `(${student.nickname})` : ''}`;
+            document.getElementById('student-meta').textContent = `เลขที่ ${student.no} | รหัสประจำตัว: ${student.student_id} | ชั้น ม.1.4 SMT`;
+            
+            const photoImg = document.getElementById('student-photo');
+            photoImg.src = student.photo_url || `photos/${student.student_id}.jpg`;
+
+            renderPendingTasksTab();
+            renderScoresTab();
+        }
+
+        function handleLogout() {
+            currentStudent = null;
+            document.getElementById('input-student-id').value = '';
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('dashboard-section').style.display = 'none';
+            document.getElementById('login-section').style.display = 'block';
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function renderPendingTasksTab() {
+            const container = document.getElementById('pending-tasks-container');
+            if (!container || !currentStudent) return;
+
+            loadPendingTasks();
+
+            const myTasks = pendingTasks.filter(t => t.pendingStudentIds.includes(currentStudent.student_id.toString()));
+
+            if (myTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="banner-complete">
+                        <div style="font-size:2.5rem; color:#16a34a;"><i class="fa-solid fa-award"></i></div>
+                        <div>
+                            <strong style="font-size:1.15rem;">🎉 ส่งงานครบถ้วนทุกวิชาแล้วครับ!</strong>
+                            <p style="font-size:0.88rem; margin-top:2px;">ขณะนี้ไม่มีรายการงานค้างในระบบ นักเรียนมีความรับผิดชอบตั้งใจเรียนดีมากครับ 👍✨</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                let html = `
+                    <div class="banner-pending">
+                        <strong style="font-size:1.1rem;"><i class="fa-solid fa-bell-concierge"></i> มีรายการงานค้างทั้งหมด ${myTasks.length} ชิ้นงาน</strong>
+                        <p style="font-size:0.88rem; margin-top:2px;">รบกวนผู้ปกครองช่วยติดตามให้นักเรียนทำและนำไปส่งคุณครูประจำวิชาครับ</p>
+                    </div>
+                `;
+
+                myTasks.forEach(t => {
+                    html += `
+                        <div class="task-card">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                <span style="background:#e0f2fe; color:#0369a1; padding:3px 10px; border-radius:6px; font-weight:700; font-size:0.8rem;">วิชา ${t.subject}</span>
+                                <span style="color:#e11d48; font-weight:700; font-size:0.8rem;">🔴 ค้างส่ง</span>
+                            </div>
+                            <strong style="display:block; font-size:1rem; color:#0f172a; margin-top:6px;">${t.title}</strong>
+                            <small style="color:#64748b; margin-top:3px; display:block;"><i class="fa-solid fa-clock"></i> กำหนดส่ง: ${t.dueDate || 'เร็วๆ นี้'}</small>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            }
+        }
+
+        function renderScoresTab() {
+            const container = document.getElementById('scores-container');
+            if (!container || !currentStudent) return;
+
+            const sc = currentStudent.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, total_score: 0 };
+            const pct = ((sc.total_score / 145) * 100).toFixed(1);
+
+            container.innerHTML = `
+                <h3 style="font-size:1.1rem; color:#0369a1; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-square-poll-vertical" style="color:#38bdf8;"></i> ผลการเรียนสอบกลางภาคเรียนที่ 1/2569
+                </h3>
+                
+                <div style="background:linear-gradient(135deg, #f0f9ff, #fce7f3); border:2px solid #bae6fd; padding:14px; border-radius:12px; margin-bottom:14px; text-align:center; box-shadow:0 4px 12px rgba(56, 189, 248, 0.15);">
+                    <span style="font-size:0.88rem; color:#0369a1;">คะแนนรวมทั้งสิ้น:</span>
+                    <strong style="font-size:1.45rem; color:#0284c7; display:block;">${sc.total_score} / 145 คะแนน (${pct}%)</strong>
+                </div>
+
+                <div class="score-grid">
+                    <div class="score-item">• อ.สื่อสาร: <strong>${sc.eng_comm} / 20</strong></div>
+                    <div class="score-item">• สังคมศึกษา: <strong>${sc.social} / 20</strong></div>
+                    <div class="score-item">• คณิตพื้นฐาน: <strong>${sc.math_basic} / 20</strong></div>
+                    <div class="score-item">• ภาษาไทย: <strong>${sc.thai} / 20</strong></div>
+                    <div class="score-item">• คณิตเพิ่มเติม 1: <strong>${sc.math_add1} / 20</strong></div>
+                    <div class="score-item">• คณิตเพิ่มเติม 2: <strong>${sc.math_add2} / 5</strong></div>
+                    <div class="score-item">• ภาษาจีน: <strong>${sc.chinese} / 20</strong></div>
+                    <div class="score-item">• อ.พื้นฐาน: <strong>${sc.eng_basic} / 20</strong></div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

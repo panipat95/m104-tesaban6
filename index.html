@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบ Dashboard ข้อมูลนักเรียน ม.1.4 (ปีการศึกษา 2569)</title>
+    <!-- Google Fonts: Prompt & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS for Excel Reading in Browser -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                <div class="brand-info">
+                    <h2>ครูประจำชั้น & LS Hub</h2>
+                    <span class="school-tag"><i class="fa-solid fa-building-columns"></i> รร.เทศบาล 6 นครเชียงราย</span>
+                    <span class="badge-room"><i class="fa-solid fa-school"></i> ห้อง ม.1.4 (2569)</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-tab="tab-overview">
+                    <i class="fa-solid fa-chart-pie"></i> ภาพรวม (Overview)
+                </button>
+                <button class="nav-btn" data-tab="tab-students">
+                    <i class="fa-solid fa-users-viewfinder"></i> ข้อมูลนักเรียน 360°
+                </button>
+                <button class="nav-btn" data-tab="tab-midterm">
+                    <i class="fa-solid fa-square-poll-vertical"></i> คะแนนกลางภาค 1/2569
+                </button>
+                <button class="nav-btn" data-tab="tab-pending-tasks">
+                    <i class="fa-solid fa-clipboard-list"></i> เช็คงานค้างรายวิชา
+                </button>
+                <button class="nav-btn" data-tab="tab-schedule">
+                    <i class="fa-solid fa-calendar-days"></i> ตารางเรียน ม.1.4
+                </button>
+                <button class="nav-btn" data-tab="tab-duty">
+                    <i class="fa-solid fa-broom"></i> ตารางเวรประจำวัน & เวรจิตอาสาศูนย์จีน
+                </button>
+                <button class="nav-btn" data-tab="tab-home-visit">
+                    <i class="fa-solid fa-house-user"></i> ระบบเยี่ยมบ้านนักเรียน
+                </button>
+                <button class="nav-btn highlight" data-tab="tab-line">
+                    <i class="fa-brands fa-line"></i> แจ้งประชาสัมพันธ์ LINE
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="folder-status">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <div>
+                        <small>แหล่งข้อมูลในเครื่อง:</small>
+                        <strong title="D:\ห้อง 1.4-2569">D:\ห้อง 1.4-2569</strong>
+                    </div>
+                </div>
+                <div class="teacher-credits-box" style="margin-top: 10px; padding: 10px 12px; background: #ffffff; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.8rem; line-height: 1.5; color: var(--text-color);">
+                    <div style="color:var(--primary); font-weight:700; margin-bottom:4px;"><i class="fa-solid fa-graduation-cap"></i> บุคลากรประจำห้อง ม.1.4</div>
+                    <div>👩‍🏫 <strong>ครูที่ปรึกษา:</strong> ครูพรรณนิภา มูลโมกข์</div>
+                    <div>👨‍🏫 <strong>ครู LS:</strong> ครูปณิพัฒน์ อินทะชัย</div>
+                    <div style="margin-top:4px; padding-top:4px; border-top:1px dashed #e2e8f0; color:#0284c7;">💻 <strong>ผู้พัฒนาเว็บไซต์:</strong> ครูปอ</div>
+                </div>
+                <button id="btn-reload-db" class="btn-secondary full-width" style="margin-top:8px;">
+                    <i class="fa-solid fa-arrows-rotate"></i> อัปเดตข้อมูลไฟล์
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header Bar -->
+            <header class="top-header-panel">
+                <div class="header-main-row">
+                    <div class="header-title-box">
+                        <div class="header-title-badge">
+                            <i class="fa-solid fa-building-columns" style="color:#0284c7;"></i> โรงเรียนเทศบาล 6 นครเชียงราย • ห้องประจำ 332
+                        </div>
+                        <h1 id="page-title">ภาพรวมข้อมูลนักเรียน ห้อง ม.1.4</h1>
+                        
+                        <!-- Teacher & Personnel Badges Row -->
+                        <div class="personnel-badges-row">
+                            <span class="personnel-chip chip-academic">
+                                <i class="fa-solid fa-graduation-cap"></i> ปีการศึกษา 2569
+                            </span>
+                            <span class="personnel-chip chip-homeroom">
+                                👩‍🏫 <strong>ครูที่ปรึกษา:</strong> ครูพรรณนิภา มูลโมกข์
+                            </span>
+                            <span class="personnel-chip chip-ls">
+                                👨‍🏫 <strong>ครู LS:</strong> ครูปณิพัฒน์ อินทะชัย
+                            </span>
+                            <span class="personnel-chip chip-dev">
+                                💻 <strong>ผู้พัฒนาเว็บ:</strong> ครูปอ
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="header-actions">
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="global-search" placeholder="ค้นหาชื่อ, รหัสนักเรียน, ผู้ปกครอง...">
+                        </div>
+                        <button id="btn-open-ls-settings" class="btn-secondary">
+                            <i class="fa-solid fa-user-gear"></i> ตั้งค่าเด็กกลุ่ม LS
+                        </button>
+                        <label for="excel-uploader" class="btn-primary">
+                            <i class="fa-solid fa-file-excel"></i> นำเข้า Excel ใหม่
+                            <input type="file" id="excel-uploader" accept=".xlsx, .xls" hidden multiple>
+                        </label>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Tab 1: Overview -->
+            <section id="tab-overview" class="tab-content active">
+                <!-- Stats Summary Cards -->
+                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                    <div class="stat-card blue">
+                        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                        <div class="stat-details">
+                            <h3>นักเรียนทั้งหมด (ม.1.4 SMT)</h3>
+                            <span class="stat-value" id="stat-total">39 คน</span>
+                            <small id="stat-gender-ratio">ชาย 21 | หญิง 18</small>
+                        </div>
+                    </div>
+
+                    <div class="stat-card purple">
+                        <div class="stat-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                        <div class="stat-details">
+                            <h3>เด็กกลุ่มห่วงใย (LS)</h3>
+                            <span class="stat-value" id="stat-ls">0 คน</span>
+                            <small>เลือกตั้งค่าโดยคุณครู</small>
+                        </div>
+                    </div>
+
+                    <div class="stat-card green admin-only">
+                        <div class="stat-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <div class="stat-details">
+                            <h3>คะแนนเฉลี่ยสอบกลางภาค 1/2569</h3>
+                            <span class="stat-value" id="stat-midterm-avg">108.5 คะแนน</span>
+                            <small>คะแนนเต็ม 145 คะแนน (74.8%)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two-Column Section -->
+                <div class="dashboard-row">
+                    <!-- Quick Student List -->
+                    <div class="panel flex-2">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-user-check"></i> รายชื่อนักเรียนห้อง ม.1.4</h3>
+                            <div class="filter-pills">
+                                <button class="pill active" data-filter="all">ทั้งหมด (39 คน)</button>
+                                <button class="pill" data-filter="normal">🟢 ปกติ</button>
+                                <button class="pill" data-filter="risk">🟡 สุ่มเสี่ยง</button>
+                                <button class="pill" data-filter="problem">🔴 มีปัญหา</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table" id="table-overview">
+                                <thead>
+                                    <tr>
+                                        <th>เลขที่</th>
+                                        <th>รหัส</th>
+                                        <th>ชื่อ-นามสกุล</th>
+                                        <th class="admin-only">ผู้ปกครอง / เบอร์โทร</th>
+                                        <th>เวรประจำวัน</th>
+                                        <th>สถานะงานค้าง</th>
+                                        <th>จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Daily Duty Today & Tomorrow -->
+                    <div class="panel flex-1">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-calendar-day"></i> เวรประจำวันวันนี้</h3>
+                            <span class="badge-day" id="current-day-name">วันจันทร์</span>
+                        </div>
+                        <div class="duty-list" id="duty-today-list">
+                            <!-- Dynamic Duty Today List -->
+                        </div>
+
+                        <hr class="divider">
+
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-calendar-week"></i> เวรประจำวันพรุ่งนี้</h3>
+                            <span class="badge-day" id="tomorrow-day-name" style="background:#fef3c7; color:#92400e; border-color:#fde047;">วันอังคาร</span>
+                        </div>
+                        <div class="duty-list" id="duty-tomorrow-list">
+                            <!-- Dynamic Duty Tomorrow List -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 2: Student 360° Profile -->
+            <section id="tab-students" class="tab-content">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3><i class="fa-solid fa-address-card"></i> คลังข้อมูลนักเรียน 360 องศา (ม.1.4)</h3>
+                        <span class="sub-text">รวมข้อมูลจากไฟล์: รายชื่อ, ผู้ปกครอง, วันเกิด, เลขประชาชน, ศาสนา</span>
+                    </div>
+                    <div class="cards-grid" id="students-cards-grid">
+                        <!-- Dynamic Student Cards -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 3: Midterm Scores -->
+            <section id="tab-midterm" class="tab-content">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3><i class="fa-solid fa-square-poll-vertical"></i> ตารางตรวจสอบคะแนนสอบกลางภาคเรียนที่ 1 / 2569 (ห้อง ม.1.4 SMT)</h3>
+                        <div class="action-buttons">
+                            <button class="btn-secondary" id="btn-export-scores-csv"><i class="fa-solid fa-file-csv"></i> ส่งออกตารางคะแนน CSV</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table" id="table-midterm-scores">
+                            <thead>
+                                <tr>
+                                    <th>เลขที่</th>
+                                    <th>ชื่อ-นามสกุล</th>
+                                    <th>อ.สื่อสาร (20)</th>
+                                    <th>สังคมฯ (20)</th>
+                                    <th>คณิตพื้นฯ (20)</th>
+                                    <th>ภาษาไทย (20)</th>
+                                    <th>คณิตเพิ่ม1 (20)</th>
+                                    <th>คณิตเพิ่ม2 (5)</th>
+                                    <th>จีน (20)</th>
+                                    <th>อ.พื้นฐาน (20)</th>
+                                    <th>รวม (145)</th>
+                                    <th>เฉลี่ย (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 4: Pending Homework Manager -->
+            <section id="tab-pending-tasks" class="tab-content">
+                <!-- Top Section: Student Personal Homework Lookup Bar & Card -->
+                <div class="panel" style="margin-bottom:1.5rem; background:linear-gradient(135deg, #ffffff, #f0f9ff); border:1px solid #bae6fd; box-shadow:0 4px 15px rgba(2,132,199,0.06);">
+                    <div class="panel-header" style="border-bottom:1px solid #e0f2fe; padding-bottom:10px; margin-bottom:12px;">
+                        <div>
+                            <h3 style="color:#0369a1;"><i class="fa-solid fa-user-check"></i> 🔍 ค้นหางานค้างรายบุคคล (สำหรับนักเรียน / ผู้ปกครอง)</h3>
+                            <span class="sub-text">เลือกหรือพิมพ์ชื่อ/เลขที่/รหัสประจำตัว เพื่อตรวจสอบรายการงานค้างเฉพาะบุคคล</span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
+                        <div style="flex:1; min-width:260px;">
+                            <select id="lookup-student-select" class="form-control" style="font-weight:700; font-size:0.95rem; border-color:#0284c7;">
+                                <option value="">-- 🎓 เลือกชื่อนักเรียนเพื่อดูงานค้างเฉพาะบุคคล (39 คน) --</option>
+                            </select>
+                        </div>
+                        <div style="flex:1; min-width:200px;">
+                            <input type="text" id="lookup-student-input" class="form-control" placeholder="หรือพิมพ์เลขที่ (เช่น 1), รหัส (19168)...">
+                        </div>
+                        <button id="btn-clear-lookup" class="btn-secondary" style="display:none;"><i class="fa-solid fa-rotate-left"></i> ล้างการค้นหา</button>
+                    </div>
+
+                    <!-- Personal Homework Display Card -->
+                    <div id="personal-homework-result-card" style="display:none;">
+                        <!-- Dynamic Personal Homework Card -->
+                    </div>
+                </div>
+
+                <div class="dashboard-row">
+                    <!-- Left: Create Task & Student Checklist Form -->
+                    <div class="panel flex-1">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-pen-to-square"></i> บันทึกเช็คงานค้างรายวิชา</h3>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-book"></i> เลือกรายวิชาจากตารางเรียน ม.1.4 (หรือพิมพ์ระบุเอง):</label>
+                            <select id="task-subject-select" class="form-control" style="font-weight:700; color:#0f172a; margin-bottom:6px;">
+                                <option value="">-- 📖 เลือกระบุรายวิชาตามตารางเรียน (14 วิชา) --</option>
+                                <option value="คณิตศาสตร์พื้นฐาน (ค21101)">คณิตศาสตร์พื้นฐาน (ค21101)</option>
+                                <option value="คณิตศาสตร์เพิ่มเติม 1 (ค21201)">คณิตศาสตร์เพิ่มเติม 1 (ค21201)</option>
+                                <option value="คณิตศาสตร์เพิ่มเติม 2 (ค21202)">คณิตศาสตร์เพิ่มเติม 2 (ค21202)</option>
+                                <option value="วิทยาศาสตร์และเทคโนโลยี (ว21101)">วิทยาศาสตร์และเทคโนโลยี (ว21101)</option>
+                                <option value="วิทยาการคำนวณ/คอมพิวเตอร์ (ว21103)">วิทยาการคำนวณ/คอมพิวเตอร์ (ว21103)</option>
+                                <option value="ภาษาไทย (ท21101)">ภาษาไทย (ท21101)</option>
+                                <option value="ภาษาอังกฤษพื้นฐาน (อ21101)">ภาษาอังกฤษพื้นฐาน (อ21101)</option>
+                                <option value="ภาษาอังกฤษเพื่อการสื่อสาร (อ21203)">ภาษาอังกฤษเพื่อการสื่อสาร (อ21203)</option>
+                                <option value="สังคมศึกษา (ส21101)">สังคมศึกษา (ส21101)</option>
+                                <option value="ประวัติศาสตร์ (ส21102)">ประวัติศาสตร์ (ส21102)</option>
+                                <option value="ภาษาจีน (จ21201)">ภาษาจีน (จ21201)</option>
+                                <option value="สุขศึกษาและพลศึกษา (พ21101)">สุขศึกษาและพลศึกษา (พ21101)</option>
+                                <option value="ศิลปะ/ดนตรี (ศ21101)">ศิลปะ/ดนตรี (ศ21101)</option>
+                                <option value="การงานอาชีพ (ง21101)">การงานอาชีพ (ง21101)</option>
+                                <option value="custom">-- ✏️ รายวิชาอื่นๆ (พิมพ์ระบุเองด้านล่าง) --</option>
+                            </select>
+                            <input type="text" id="task-subject-input" class="form-control" placeholder="พิมพ์ระบุชื่อรายวิชาเพิ่มเติม..." list="subject-suggestions" style="display:none;">
+                            <datalist id="subject-suggestions">
+                                <option value="คณิตศาสตร์พื้นฐาน (ค21101)"></option>
+                                <option value="คณิตศาสตร์เพิ่มเติม 1 (ค21201)"></option>
+                                <option value="คณิตศาสตร์เพิ่มเติม 2 (ค21202)"></option>
+                                <option value="วิทยาศาสตร์และเทคโนโลยี (ว21101)"></option>
+                                <option value="วิทยาการคำนวณ/คอมพิวเตอร์ (ว21103)"></option>
+                                <option value="ภาษาไทย (ท21101)"></option>
+                                <option value="ภาษาอังกฤษพื้นฐาน (อ21101)"></option>
+                                <option value="ภาษาอังกฤษเพื่อการสื่อสาร (อ21203)"></option>
+                                <option value="สังคมศึกษา (ส21101)"></option>
+                                <option value="ประวัติศาสตร์ (ส21102)"></option>
+                                <option value="ภาษาจีน (จ21201)"></option>
+                                <option value="สุขศึกษาและพลศึกษา (พ21101)"></option>
+                                <option value="ศิลปะ/ดนตรี (ศ21101)"></option>
+                                <option value="การงานอาชีพ (ง21101)"></option>
+                            </datalist>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-file-signature"></i> ชื่อชิ้นงาน / ภาระงานที่ค้างส่ง:</label>
+                            <input type="text" id="task-title-input" class="form-control" placeholder="เช่น ใบงานเรื่องสมการ, แบบฝึกหัดบทที่ 2...">
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-calendar-day"></i> กำหนดส่งงาน (Due Date):</label>
+                            <input type="text" id="task-duedate-input" class="form-control" placeholder="เช่น วันศุกร์นี้, 30 ก.ค. 69">
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-users"></i> เลือกนักเรียนที่ <strong style="color:var(--accent-red)">ค้างส่งงาน</strong> (ติ๊ก ✔️ หน้าชื่อ - แบ่ง 4 ช่องตามเลขที่):</label>
+                            <div style="max-height: 420px; overflow-y: auto; padding: 10px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
+                                <div id="task-student-checklist" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+                                    <!-- Dynamic 4 Columns Checkboxes (1-10, 11-20, 21-30, 31-39) -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="btn-save-pending-task" class="btn-primary full-width">
+                            <i class="fa-solid fa-plus-circle"></i> บันทึกรายการงานค้าง
+                        </button>
+                    </div>
+
+                    <!-- Right: Active Tasks Board -->
+                    <div class="panel flex-1">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-list-check"></i> รายการงานค้างทั้งหมดของห้อง ม.1.4</h3>
+                        </div>
+
+                        <div id="active-tasks-container">
+                            <!-- Dynamic Task Cards -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 5: Class Schedule -->
+            <section id="tab-schedule" class="tab-content">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3><i class="fa-solid fa-calendar-days"></i> ตารางเรียน ชั้น ม.1.4 (ห้องเรียนประจำ 332)</h3>
+                            <span class="sub-text">ภาคเรียนที่ 1/2569 • โรงเรียนเทศบาล 6 นครเชียงราย</span>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table schedule-table" style="text-align: center;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 90px;">วัน / เวลา</th>
+                                    <th>คาบ 1<br><small>08.20-09.10</small></th>
+                                    <th>คาบ 2<br><small>09.10-10.00</small></th>
+                                    <th style="background:#e2e8f0; color:#475569;">พัก 20 นาที<br><small>10.00-10.20</small></th>
+                                    <th>คาบ 4<br><small>10.20-11.10</small></th>
+                                    <th>คาบ 5<br><small>11.10-12.00</small></th>
+                                    <th style="background:#e2e8f0; color:#475569;">พักรับประทานอาหาร<br><small>12.00-12.50</small></th>
+                                    <th>คาบ 7<br><small>12.50-13.40</small></th>
+                                    <th>คาบ 8<br><small>13.40-14.30</small></th>
+                                    <th>คาบ 9<br><small>14.30-15.20</small></th>
+                                    <th>คาบ 10<br><small>15.20-16.10</small></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- จันทร์ -->
+                                <tr>
+                                    <td style="background:#f0f9ff; font-weight:700; color:#0369a1;">จันทร์</td>
+                                    <td><strong>อบรม</strong><br><small>โฮมรูม</small></td>
+                                    <td><strong>อ21201</strong><br><small>ครูพัชรินทร์ (332)</small></td>
+                                    <td rowspan="5" style="background:#f1f5f9; vertical-align:middle; font-weight:600; color:#64748b;">พัก 20 นาที</td>
+                                    <td><strong>ว21101</strong><br><small>ครูอังคณา (332)</small></td>
+                                    <td><strong>ค21201</strong><br><small>ครูเปรมฤดี (332)</small></td>
+                                    <td rowspan="5" style="background:#f1f5f9; vertical-align:middle; font-weight:600; color:#64748b;">พักรับประทานอาหาร</td>
+                                    <td><strong>ท21101</strong><br><small>ครูพรรณนิภา (332)</small></td>
+                                    <td><strong>ศ21101</strong><br><small>ครูอุกฤษฎ์ (332)</small></td>
+                                    <td><strong>ว21201</strong><br><small>ครูวราวุฒิ (231)</small></td>
+                                    <td><strong>ว21201</strong><br><small>ครูวราวุฒิ (231)</small></td>
+                                </tr>
+
+                                <!-- อังคาร -->
+                                <tr>
+                                    <td style="background:#f0f9ff; font-weight:700; color:#0369a1;">อังคาร</td>
+                                    <td><strong>อ21201</strong><br><small>ครูพัชรินทร์ (332)</small></td>
+                                    <td><strong>ส21101</strong><br><small>ครูธนาวัฒน์ (332)</small></td>
+                                    <td><strong>ว20202</strong><br><small>ครูเขตตะวัน (341)</small></td>
+                                    <td><strong>อ21101</strong><br><small>ครูดิ่งธิวา (332)</small></td>
+                                    <td><strong>ท21101</strong><br><small>ครูพรรณนิภา (332)</small></td>
+                                    <td><strong>ค21101</strong><br><small>ครูศิริลักษณ์ (332)</small></td>
+                                    <td><strong>ว20201</strong><br><small>ครูชงโค (332)</small></td>
+                                    <td><strong>พ21102</strong><br><small>ครูภิษกินติ์ (ว่ายน้ำ)</small></td>
+                                </tr>
+
+                                <!-- พุธ -->
+                                <tr>
+                                    <td style="background:#f0f9ff; font-weight:700; color:#0369a1;">พุธ</td>
+                                    <td><strong>ว21103</strong><br><small>ครูวริศลา (321)</small></td>
+                                    <td><strong>ว21103</strong><br><small>ครูวริศลา (321)</small></td>
+                                    <td><strong>จ21201</strong><br><small>ครูภสนันท์ (332)</small></td>
+                                    <td><strong>ค21203</strong><br><small>ครูมลลักษณ (332)</small></td>
+                                    <td><strong>ส21101</strong><br><small>ครูธนาวัฒน์ (332)</small></td>
+                                    <td><strong>ว21101</strong><br><small>ครูอังคณา (221)</small></td>
+                                    <td><strong>ว21101</strong><br><small>ครูอังคณา (221)</small></td>
+                                    <td><strong>ชุมนุม</strong><br><small>กิจกรรมชุมนุม</small></td>
+                                </tr>
+
+                                <!-- พฤหัสบดี -->
+                                <tr>
+                                    <td style="background:#f0f9ff; font-weight:700; color:#0369a1;">พฤหัสฯ</td>
+                                    <td><strong>ค21201</strong><br><small>ครูเปรมฤดี (332)</small></td>
+                                    <td><strong>ส21102</strong><br><small>ครูธีร์สุดา (332)</small></td>
+                                    <td><strong>ท21101</strong><br><small>ครูพรรณนิภา (332)</small></td>
+                                    <td><strong>แนะแนว</strong><br><small>ครูฐิติพร (332)</small></td>
+                                    <td><strong>ค21101</strong><br><small>ครูศิริลักษณ์ (332)</small></td>
+                                    <td><strong>อ21101</strong><br><small>ครูดิ่งธิวา (332)</small></td>
+                                    <td><strong>อ21203</strong><br><small>ครูChang (332)</small></td>
+                                    <td><strong>ง21101</strong><br><small>ครูสิริพรรณ (332)</small></td>
+                                </tr>
+
+                                <!-- ศุกร์ -->
+                                <tr>
+                                    <td style="background:#f0f9ff; font-weight:700; color:#0369a1;">ศุกร์</td>
+                                    <td><strong>อ21101</strong><br><small>ครูดิ่งธิวา (332)</small></td>
+                                    <td><strong>อ21203</strong><br><small>ครูChang (332)</small></td>
+                                    <td><strong>ส21101</strong><br><small>ครูธนาวัฒน์ (332)</small></td>
+                                    <td><strong>ค21101</strong><br><small>ครูศิริลักษณ์ (332)</small></td>
+                                    <td><strong>พ21101</strong><br><small>ครูศักรินทร์ (332)</small></td>
+                                    <td><strong>ค21201</strong><br><small>ครูเปรมฤดี (332)</small></td>
+                                    <td><strong>จ21201</strong><br><small>ครูภสนันท์ (332)</small></td>
+                                    <td><strong>ค้นคว้า</strong><br><small>กิจกรรมค้นคว้า</small></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 4: Duty & Groups -->
+            <section id="tab-duty" class="tab-content">
+                <!-- Today's Active Duty Highlight Banner -->
+                <div id="today-duty-banner" class="panel" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #ffffff; margin-bottom: 1.5rem; border: none; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.25);">
+                    <!-- Dynamic Today's Duty Banner -->
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3><i class="fa-solid fa-broom"></i> ตารางเวรประจำวัน & เวรจิตอาสาศูนย์จีน (ม.1.4)</h3>
+                            <span class="sub-text">รอบเช้า (07.30 - 07.40 น.) & รอบเย็น (16.00 น.) ยึดตามวันจริง</span>
+                        </div>
+                    </div>
+                    <div class="duty-grid" id="duty-week-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.2rem;">
+                        <!-- 5 Days Duty Columns -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 8: Home Visit System -->
+            <section id="tab-home-visit" class="tab-content">
+                <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:1.2rem;">
+                    <div>
+                        <h2><i class="fa-solid fa-house-user" style="color:var(--primary);"></i> ระบบบันทึกข้อมูล & สรุปผลการเยี่ยมบ้านนักเรียน (ม.1.4)</h2>
+                        <p style="color:var(--text-muted); font-size:0.88rem;">บันทึกข้อมูลสภาพความเป็นอยู่ พิกัด GPS รูปถ่ายบ้าน และออกรายงานพิมพ์ PDF สรุปการเยี่ยมบ้าน</p>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button id="btn-open-add-home-visit" class="btn-primary">
+                            <i class="fa-solid fa-plus-circle"></i> ➕ บันทึกข้อมูลเยี่ยมบ้านใหม่
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Home Visit Stats Summary Bar -->
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+                    <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:12px; padding:16px; display:flex; align-items:center; gap:14px; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+                        <div style="width:48px; height:48px; border-radius:10px; background:#e0f2fe; color:#0284c7; display:flex; align-items:center; justify-content:center; font-size:1.4rem;"><i class="fa-solid fa-house-circle-check"></i></div>
+                        <div>
+                            <small style="color:var(--text-muted); font-size:0.82rem;">สถานะการเยี่ยมบ้าน:</small>
+                            <strong style="font-size:1.2rem; display:block; color:#0f172a;" id="home-visit-stat-ratio">บันทึกแล้ว 0 / 39 คน</strong>
+                        </div>
+                    </div>
+                    <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:12px; padding:16px; display:flex; align-items:center; gap:14px; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+                        <div style="width:48px; height:48px; border-radius:10px; background:#dcfce7; color:#166534; display:flex; align-items:center; justify-content:center; font-size:1.4rem;"><i class="fa-solid fa-location-dot"></i></div>
+                        <div>
+                            <small style="color:var(--text-muted); font-size:0.82rem;">ปักหมุดพิกัด GPS แล้ว:</small>
+                            <strong style="font-size:1.2rem; display:block; color:#166534;" id="home-visit-stat-gps">0 นักเรียน</strong>
+                        </div>
+                    </div>
+                    <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:12px; padding:16px; display:flex; align-items:center; gap:14px; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+                        <div style="width:48px; height:48px; border-radius:10px; background:#fef3c7; color:#92400e; display:flex; align-items:center; justify-content:center; font-size:1.4rem;"><i class="fa-solid fa-camera"></i></div>
+                        <div>
+                            <small style="color:var(--text-muted); font-size:0.82rem;">มีรูปถ่ายบ้านแนบแล้ว:</small>
+                            <strong style="font-size:1.2rem; display:block; color:#92400e;" id="home-visit-stat-photo">0 บ้าน</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Controls -->
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:1rem; background:#ffffff; padding:12px 16px; border-radius:10px; border:1px solid #cbd5e1;">
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <strong style="font-size:0.9rem; color:#334155;"><i class="fa-solid fa-filter"></i> กรองสถานะ:</strong>
+                        <button class="filter-btn active" id="filter-visit-all">ทั้งหมด (39 คน)</button>
+                        <button class="filter-btn" id="filter-visit-done">🟢 บันทึกเยี่ยมแล้ว</button>
+                        <button class="filter-btn" id="filter-visit-pending">⚪ ยังไม่ได้เยี่ยม</button>
+                    </div>
+                    <div class="search-box" style="max-width:280px; margin:0;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="visit-search-input" placeholder="ค้นชื่อนักเรียนเยี่ยมบ้าน...">
+                    </div>
+                </div>
+
+                <!-- Home Visit Cards Grid -->
+                <div id="home-visit-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:1.2rem;">
+                    <!-- Dynamic Home Visit Cards -->
+                </div>
+            </section>
+
+            <!-- Tab 5: LINE PR Generator -->
+            <section id="tab-line" class="tab-content">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3><i class="fa-brands fa-line"></i> เครื่องมือสร้างข้อความประชาสัมพันธ์ & แจ้งเตือน LINE</h3>
+                        <span class="sub-text">เลือกรูปแบบข้อความ แล้วกด Copy ส่งใน LINE ได้ทันที!</span>
+                    </div>
+
+                    <div class="line-generator-grid">
+                        <!-- Left Options -->
+                        <div class="generator-controls">
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-list"></i> เลือกประเภทข้อความ:</label>
+                                <select id="line-template-type" class="form-control">
+                                    <option value="midterm_scores">📊 แจ้งสรุปผลสอบกลางภาคเรียนที่ 1/2569 รายบุคคล</option>
+                                    <option value="pending_work">📢 แจ้งเตือนติดตามงานค้าง / LEC</option>
+                                    <option value="duty_reminder">🧹 แจ้งเตือนเวรทำความสะอาดประจำวัน</option>
+                                    <option value="birthday">🎂 อวยพรวันเกิดนักเรียนประจำเดือน</option>
+                                    <option value="ls_support">❤️ แจ้งข่าวสารสำหรับเด็กกลุ่มสนับสนุน LS</option>
+                                    <option value="general_announcement">📣 ประกาศประชาสัมพันธ์ทั่วไปของห้อง 1.4</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-user"></i> เลือกนักเรียน (เฉพาะบุคคล) หรือทั้งห้อง:</label>
+                                <select id="line-student-select" class="form-control">
+                                    <option value="all">-- ประกาศสำหรับนักเรียนทุกคน / กลุ่มห้อง 1.4 --</option>
+                                    <!-- Dynamic Options -->
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-pen-to-square"></i> หมายเหตุ / รายละเอียดเพิ่มเติม (ถ้ามี):</label>
+                                <textarea id="line-custom-note" class="form-control" rows="3" placeholder="ระบุรายละเอียดเพิ่มเติม เช่น กำหนดวันส่งสุดท้าย หรือสถานที่นัดหมาย..."></textarea>
+                            </div>
+
+                            <button id="btn-generate-line" class="btn-primary full-width">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> สร้างข้อความ LINE
+                            </button>
+                        </div>
+
+                        <!-- Right Preview -->
+                        <div class="generator-preview">
+                            <div class="line-chat-box">
+                                <div class="line-chat-header">
+                                    <i class="fa-brands fa-line"></i> ตัวอย่างข้อความที่จะส่งใน LINE
+                                </div>
+                                <div class="line-chat-body" id="line-preview-text">
+                                    กดปุ่ม "สร้างข้อความ LINE" เพื่อดูตัวอย่างข้อความที่นี่...
+                                </div>
+                            </div>
+                            <div class="preview-actions" style="display:flex; gap:8px;">
+                                <button id="btn-copy-line" class="btn-secondary flex-1">
+                                    <i class="fa-solid fa-copy"></i> คัดลอกข้อความ
+                                </button>
+                                <button id="btn-send-line-direct" class="btn-secondary flex-1">
+                                    <i class="fa-brands fa-line"></i> 📱 เปิด LINE ส่งเข้ากลุ่ม
+                                </button>
+                                <button id="btn-broadcast-messaging-api" class="btn-success flex-2" style="background:linear-gradient(135deg, #d97706, #f59e0b); color:#ffffff; font-weight:700;">
+                                    <i class="fa-solid fa-cat"></i> 🐱 บรอดแคสต์ด้วยน้องแมวส้ม (@706jgkro)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LINE Messaging API Configuration Box -->
+                <div class="panel" style="margin-top: 1.5rem; background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1px solid #fde047;">
+                    <div class="panel-header">
+                        <div>
+                            <h3><i class="fa-solid fa-cat" style="color:#d97706;"></i> สถานะการเชื่อมต่อบอท "น้องแมวส้ม 🐱" (ID: @706jgkro)</h3>
+                            <span class="sub-text">ผูกกับระบบ LINE Official Account & Messaging API เรียบร้อยแล้ว</span>
+                        </div>
+                        <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> เชื่อมต่อสำเร็จ (Active)</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.2rem;">
+                        <div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-key"></i> Channel Access Token (น้องแมวส้ม 🐱):</label>
+                                <input type="password" id="line-messaging-token-input" class="form-control" placeholder="รหัส Channel Access Token..." style="background:#ffffff;" value="IreTHxq60X+lc2mZR1TdpTnEvYDhvqBAwc/YPWI8llBUETzGurjjqt5Am4zUC4wzKJdinCdl/Kfv8sxchKSDmrHrgirxWtKnKvCEzN01r0+qDfTGrVAoQnNyATuFxZGsLBwQ2C2KNN+2Nd19lwXOpwdB04t89/1O/w1cDnyilFU=">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-link"></i> Webhook URL (Google Apps Script):</label>
+                                <input type="text" id="line-webhook-url-input" class="form-control" readonly style="background:#f1f5f9; font-size:0.8rem;" value="https://script.google.com/macros/s/AKfycbz6CdgpIJlgAl6a7AaVXeLBrVQ-bDPvZw1UQrbhGKHJFfDQIZVmPbTFAoqkAwxVGR8Eag/exec">
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button id="btn-save-messaging-api" class="btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> บันทึกตั้งค่า</button>
+                                <button id="btn-test-messaging-api" class="btn-success btn-sm" style="background:#d97706;"><i class="fa-solid fa-paper-plane"></i> 🧪 ทดสอบยิงข้อความด้วยน้องแมวส้ม 🐱</button>
+                            </div>
+                        </div>
+
+                        <div style="background:#ffffff; padding:14px; border-radius:10px; border:1px solid #e2e8f0; font-size:0.85rem; line-height:1.6;">
+                            <strong style="color:#b45309;"><i class="fa-solid fa-cat"></i> ข้อมูลบอทประจำห้อง ม.1.4:</strong>
+                            <div style="margin-top:6px; color:#334155;">
+                                <div>• <strong>ชื่อบอท:</strong> น้องแมวส้ม 🐱</div>
+                                <div>• <strong>Bot Basic ID:</strong> <code>@706jgkro</code></div>
+                                <div>• <strong>ลิงก์เพิ่มเพื่อนบอท:</strong> <a href="https://line.me/R/ti/p/@706jgkro" target="_blank" style="color:#0284c7; font-weight:600; text-decoration:underline;">https://line.me/R/ti/p/@706jgkro</a></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Student Detail Modal -->
+    <div id="student-modal" class="modal">
+        <div class="modal-content" style="max-width: 680px; max-height: 85vh; overflow-y: auto;">
+            <button class="modal-close">&times;</button>
+            <div class="modal-header-profile">
+                <div class="profile-avatar"><i class="fa-solid fa-user-graduate"></i></div>
+                <div>
+                    <h2 id="modal-student-name">เด็กชายสมชาย เรียนดี</h2>
+                    <p id="modal-student-meta">รหัส: 569001 | เลขที่: 1 | ชั้น ม.1.4</p>
+                </div>
+            </div>
+            <div class="modal-body-grid" id="modal-body-content">
+                <!-- Dynamic Content -->
+            </div>
+            <div class="modal-footer" style="flex-wrap:wrap;">
+                <button class="btn-primary" id="modal-btn-copy-parent-link"><i class="fa-solid fa-share-nodes"></i> 📱 คัดลอกลิงก์ส่งผู้ปกครอง (parent.html)</button>
+                <button class="btn-line" id="modal-btn-line"><i class="fa-brands fa-line"></i> ส่งข้อความแจ้งผู้ปกครอง</button>
+                <button class="btn-secondary modal-close-btn">ปิด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LS Settings Checklist Modal -->
+    <div id="ls-settings-modal" class="modal">
+        <div class="modal-content" style="max-width: 720px;">
+            <button class="modal-close" id="ls-modal-close">&times;</button>
+            <div class="modal-header-profile">
+                <div class="profile-avatar" style="background: linear-gradient(135deg, #0284c7, #0369a1);"><i class="fa-solid fa-user-gear"></i></div>
+                <div>
+                    <h2>ตั้งค่ากลุ่มดูแลนักเรียน (LS) 3 ระดับ</h2>
+                    <p style="color:var(--text-muted); font-size:0.88rem;">เลือกจัดกลุ่มนักเรียน: <strong style="color:#16a34a">🟢 ปกติ</strong> | <strong style="color:#d97706">🟡 สุ่มเสี่ยง</strong> | <strong style="color:#dc2626">🔴 มีปัญหา / เร่งด่วน</strong></p>
+                </div>
+            </div>
+            <div style="max-height: 400px; overflow-y: auto; padding: 12px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 1.2rem;">
+                <div id="ls-checklist-container" style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- Dynamic Radio Rows -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="btn-save-ls-settings"><i class="fa-solid fa-floppy-disk"></i> บันทึกตั้งค่ากลุ่ม LS</button>
+                <button class="btn-secondary" id="ls-modal-cancel">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Home Visit Input Form Modal -->
+    <div id="home-visit-modal" class="modal">
+        <div class="modal-content" style="max-width: 760px;">
+            <button class="modal-close" id="home-visit-modal-close">&times;</button>
+            <div class="modal-header-profile">
+                <div class="profile-avatar" style="background: linear-gradient(135deg, #0284c7, #0369a1);"><i class="fa-solid fa-house-chimney-user"></i></div>
+                <div>
+                    <h2>🏡 บันทึกข้อมูลการเยี่ยมบ้านนักเรียน (ม.1.4)</h2>
+                    <p style="color:var(--text-muted); font-size:0.88rem;">กรอกข้อมูลสภาพบ้าน พฤติกรรม พิกัด GPS และแนบรูปถ่ายสำหรับออกรายงาน</p>
+                </div>
+            </div>
+
+            <form id="home-visit-form" onsubmit="return false;" style="max-height: 520px; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 14px;">
+                <!-- Student Selector -->
+                <div style="background:#f8fafc; padding:12px; border-radius:10px; border:1px solid #cbd5e1;">
+                    <label style="font-weight:700; color:#0f172a; display:block; margin-bottom:4px;">🎓 เลือกนักเรียนที่เยี่ยมบ้าน *</label>
+                    <select id="visit-student-select" class="form-control" style="font-weight:700; font-size:0.95rem; padding:8px;">
+                        <option value="">-- เลือกระบุนักเรียนห้อง ม.1.4 --</option>
+                    </select>
+                </div>
+
+                <!-- Grid 1: House Condition & Financials -->
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                    <div>
+                        <label style="font-weight:600; font-size:0.85rem; color:#334155;">🏠 ประเภทที่อยู่อาศัย:</label>
+                        <select id="visit-house-type" class="form-control" style="margin-top:3px;">
+                            <option value="บ้านเดี่ยว (ของตนเอง)">บ้านเดี่ยว (ของตนเอง)</option>
+                            <option value="บ้านเช่า">บ้านเช่า</option>
+                            <option value="ห้องเช่า / หอพัก">ห้องเช่า / หอพัก</option>
+                            <option value="อาศัยญาติอยู่">อาศัยญาติอยู่</option>
+                            <option value="บ้านพักพนักงาน / ข้าราชการ">บ้านพักพนักงาน / ข้าราชการ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight:600; font-size:0.85rem; color:#334155;">🧱 ลักษณะสิ่งปลูกสร้าง:</label>
+                        <select id="visit-building-type" class="form-control" style="margin-top:3px;">
+                            <option value="ตึก / ปูน">ตึก / ปูน</option>
+                            <option value="ครึ่งตึกครึ่งไม้">ครึ่งตึกครึ่งไม้</option>
+                            <option value="บ้านไม้">บ้านไม้</option>
+                            <option value="เพิงชั่วคราว">เพิงชั่วคราว</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight:600; font-size:0.85rem; color:#334155;">💰 รายได้ครอบครัวต่อเดือน:</label>
+                        <select id="visit-family-income" class="form-control" style="margin-top:3px;">
+                            <option value="ต่ำกว่า 5,000 บาท">ต่ำกว่า 5,000 บาท (ยากจนพิเศษ)</option>
+                            <option value="5,001 - 10,000 บาท">5,001 - 10,000 บาท</option>
+                            <option value="10,001 - 20,000 บาท">10,001 - 20,000 บาท</option>
+                            <option value="มากกว่า 20,000 บาท">มากกว่า 20,000 บาท</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight:600; font-size:0.85rem; color:#334155;">👨‍👩‍👧‍👦 จำนวนสมาชิกในบ้าน (คน):</label>
+                        <input type="number" id="visit-family-members" class="form-control" value="4" min="1" max="20" style="margin-top:3px;">
+                    </div>
+                </div>
+
+                <!-- Student Behavior at Home -->
+                <div>
+                    <label style="font-weight:600; font-size:0.85rem; color:#334155;">📚 พฤติกรรมนักเรียนขณะอยู่ที่บ้าน:</label>
+                    <input type="text" id="visit-behavior-text" class="form-control" placeholder="เช่น ช่วยงานบ้าน ทบทวนตำราเรียน ทำการบ้านเป็นประจำ..." value="ช่วยงานบ้าน ทบทวนบทเรียน และทำการบ้านเป็นประจำ" style="margin-top:3px;">
+                </div>
+
+                <!-- GPS Location Section -->
+                <div style="background:#f0f9ff; padding:12px; border-radius:10px; border:1px solid #bae6fd;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <strong style="color:#0369a1; font-size:0.9rem;"><i class="fa-solid fa-location-crosshairs"></i> พิกัดสถานที่ (GPS Coordinates):</strong>
+                        <button type="button" id="btn-get-gps" class="btn-success btn-sm" style="background:#0284c7;"><i class="fa-solid fa-crosshairs"></i> 📍 ดึงพิกัด GPS ปัจจุบัน</button>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                        <input type="text" id="visit-lat-input" class="form-control" placeholder="ละติจูด (Latitude) เช่น 19.9071">
+                        <input type="text" id="visit-lng-input" class="form-control" placeholder="ลองจิจูด (Longitude) เช่น 99.8325">
+                    </div>
+                    <input type="text" id="visit-address-text" class="form-control" placeholder="รายละเอียดที่อยู่อาศัยจริง (เลขที่บ้าน ถนน ตำบล)..." style="margin-top:6px;">
+                </div>
+
+                <!-- House Photo Attachment -->
+                <div style="background:#faf5ff; padding:12px; border-radius:10px; border:1px solid #e9d5ff;">
+                    <label style="font-weight:600; font-size:0.85rem; color:#7e22ce; display:block; margin-bottom:4px;">🖼️ แนบรูปถ่ายสภาพบ้าน / การเยี่ยมบ้าน:</label>
+                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <input type="file" id="visit-photo-file" accept="image/*" class="form-control" style="flex:1;">
+                        <input type="text" id="visit-photo-url" class="form-control" placeholder="หรือวาง URL รูปถ่ายบ้าน..." style="flex:1;">
+                    </div>
+                    <div id="visit-photo-preview-box" style="margin-top:8px; display:none; align-items:center; gap:10px;">
+                        <img id="visit-photo-preview-img" src="" style="width:100px; height:70px; object-fit:cover; border-radius:6px; border:1px solid #cbd5e1;">
+                        <small style="color:#16a34a; font-weight:600;">✔️ แนบรูปถ่ายเรียบร้อยแล้ว</small>
+                    </div>
+                </div>
+
+                <!-- Homeroom Teacher Recommendation Notes -->
+                <div>
+                    <label style="font-weight:600; font-size:0.85rem; color:#334155;">📝 ข้อสรุปความเห็นครูผู้เยี่ยมบ้าน (ครูพรรณนิภา / ครูปณิพัฒน์):</label>
+                    <textarea id="visit-notes-input" class="form-control" rows="3" placeholder="สรุปข้อเสนอแนะ การดูแลช่วยเหลือ หรือสิ่งที่ต้องการประสานงานกับผู้ปกครอง...">นักเรียนมีความตั้งใจเรียนดี สภาพครอบครัวอบอุ่น ผู้ปกครองเอาใจใส่และให้ความร่วมมือกับทางโรงเรียนอย่างดียิ่ง</textarea>
+                </div>
+            </form>
+
+            <div class="modal-footer">
+                <button type="button" id="btn-save-home-visit" class="btn-primary"><i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลการเยี่ยมบ้าน</button>
+                <button type="button" class="btn-secondary" id="home-visit-modal-cancel">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printable Official Home Visit Report Modal (A4 PDF) -->
+    <div id="home-visit-print-modal" class="modal">
+        <div class="modal-content" style="max-width: 840px; background:#ffffff; padding:2rem;">
+            <button class="modal-close" id="home-visit-print-close">&times;</button>
+            
+            <div id="printable-report-area" style="color:#000000; font-family:'Sarabun', 'TH Sarabun New', sans-serif, system-ui; line-height:1.5;">
+                <!-- Printable Content Header & Body -->
+            </div>
+
+            <div class="modal-footer no-print" style="margin-top:1.5rem; justify-content:center; gap:12px;">
+                <button class="btn-primary" onclick="window.print();"><i class="fa-solid fa-print"></i> 🖨️ พิมพ์เอกสาร / บันทึกเป็น PDF</button>
+                <button class="btn-secondary" id="home-visit-print-cancel">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="real_db.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

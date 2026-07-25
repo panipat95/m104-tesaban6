@@ -619,12 +619,15 @@
 
     </div>
 
-    <script src="real_db.js?v=1.0.2"></script>
+    <script src="real_db.js?v=1.0.3"></script>
     <script>
         const LEADER_PIN = "104104";
         let pendingTasks = JSON.parse(localStorage.getItem('pending_homework_tasks')) || [];
 
         function getActiveStudents() {
+            if (typeof window.REAL_STUDENT_DB !== 'undefined' && Array.isArray(window.REAL_STUDENT_DB) && window.REAL_STUDENT_DB.length > 0) {
+                return window.REAL_STUDENT_DB;
+            }
             if (typeof studentData !== 'undefined' && Array.isArray(studentData) && studentData.length > 0) {
                 return studentData;
             }

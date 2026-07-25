@@ -323,80 +323,93 @@
 
             <!-- Tab 2: Class Timetable -->
             <div id="parent-tab-schedule" class="tab-content">
-                <div class="card">
-                    <h3 style="font-size:1.1rem; color:#0369a1; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
-                        <i class="fa-solid fa-calendar-days" style="color:#38bdf8;"></i> 📅 ตารางเรียน ชั้น ม.1.4 (ห้องประจำ 332)
-                    </h3>
+                <div class="card" style="padding:1.2rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                        <h3 style="font-size:1.1rem; color:#0369a1; display:flex; align-items:center; gap:6px; margin:0;">
+                            <i class="fa-solid fa-calendar-days" style="color:#38bdf8;"></i> 📅 ตารางเรียน ชั้น ม.1.4 (ภาคเรียนที่ 1/2569)
+                        </h3>
+                        <span style="font-size:0.8rem; background:#e0f2fe; color:#0369a1; padding:4px 10px; border-radius:12px; font-weight:600;">🏫 โรงเรียนเทศบาล 6 นครเชียงราย</span>
+                    </div>
+
                     <div class="table-responsive">
-                        <table>
+                        <table style="min-width:780px;">
                             <thead>
-                                <tr>
-                                    <th>วัน</th>
-                                    <th>คาบ 1 (08.30)</th>
-                                    <th>คาบ 2 (09.20)</th>
-                                    <th>คาบ 3 (10.15)</th>
-                                    <th>คาบ 4 (11.05)</th>
-                                    <th>คาบ 5 (13.00)</th>
-                                    <th>คาบ 6 (13.50)</th>
-                                    <th>คาบ 7 (14.45)</th>
-                                    <th>คาบ 8 (15.35)</th>
+                                <tr style="background:#f0f9ff; color:#0369a1;">
+                                    <th style="width:85px;">วัน / เวลา</th>
+                                    <th>คาบ 1<br><small style="font-weight:400; font-size:0.75rem;">08.20-09.10</small></th>
+                                    <th>คาบ 2<br><small style="font-weight:400; font-size:0.75rem;">09.10-10.00</small></th>
+                                    <th style="background:#f1f5f9; color:#64748b; font-size:0.76rem; width:70px;">พัก 20 นาที<br><small style="font-weight:400; font-size:0.72rem;">10.00-10.20</small></th>
+                                    <th>คาบ 4<br><small style="font-weight:400; font-size:0.75rem;">10.20-11.10</small></th>
+                                    <th>คาบ 5<br><small style="font-weight:400; font-size:0.75rem;">11.10-12.00</small></th>
+                                    <th style="background:#f1f5f9; color:#64748b; font-size:0.76rem; width:80px;">พักทานอาหาร<br><small style="font-weight:400; font-size:0.72rem;">12.00-12.50</small></th>
+                                    <th>คาบ 7<br><small style="font-weight:400; font-size:0.75rem;">12.50-13.40</small></th>
+                                    <th>คาบ 8<br><small style="font-weight:400; font-size:0.75rem;">13.40-14.30</small></th>
+                                    <th>คาบ 9<br><small style="font-weight:400; font-size:0.75rem;">14.30-15.20</small></th>
+                                    <th>คาบ 10<br><small style="font-weight:400; font-size:0.75rem;">15.20-16.10</small></th>
                                 </tr>
                             </thead>
                             <tbody>
+                                <!-- จันทร์ -->
                                 <tr>
                                     <td style="background:#fef9c3; font-weight:700; color:#854d0e;">จันทร์</td>
-                                    <td>อ21101</td>
-                                    <td>ค21101</td>
-                                    <td>ส21101</td>
-                                    <td>ว21101</td>
-                                    <td>ว21101</td>
-                                    <td>ท21101</td>
-                                    <td>แนะแนว</td>
-                                    <td>โฮมรูม</td>
+                                    <td><strong style="display:block; color:#0f172a;">อบรม</strong><small style="color:#64748b;">โฮมรูม</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">อ21201</strong><small style="color:#475569;">ครูพัชรินทร์ (332)</small></td>
+                                    <td rowspan="5" style="background:#f8fafc; color:#94a3b8; font-size:0.75rem; writing-mode:vertical-lr; text-align:center;">พักผ่อน</td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21101</strong><small style="color:#475569;">ครูอังคณา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21201</strong><small style="color:#475569;">ครูเปรมฤดี (332)</small></td>
+                                    <td rowspan="5" style="background:#f8fafc; color:#94a3b8; font-size:0.75rem; writing-mode:vertical-lr; text-align:center;">พักทานอาหาร</td>
+                                    <td><strong style="display:block; color:#0f172a;">ท21101</strong><small style="color:#475569;">ครูพรรณนิภา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ศ21101</strong><small style="color:#475569;">ครูอฤกษ์ฎิ์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21201</strong><small style="color:#475569;">ครูราวุฒิ (231)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21201</strong><small style="color:#475569;">ครูราวุฒิ (231)</small></td>
                                 </tr>
+                                <!-- อังคาร -->
                                 <tr>
                                     <td style="background:#fce7f3; font-weight:700; color:#9d174d;">อังคาร</td>
-                                    <td>ค21201</td>
-                                    <td>ท21101</td>
-                                    <td>ส21101</td>
-                                    <td>อ21101</td>
-                                    <td>ว21103</td>
-                                    <td>ว21103</td>
-                                    <td>ส21102</td>
-                                    <td>จิตรศึกษา</td>
+                                    <td><strong style="display:block; color:#0f172a;">อ21201</strong><small style="color:#475569;">ครูพัชรินทร์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ส21101</strong><small style="color:#475569;">ครูธนาวัฒน์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว20202</strong><small style="color:#475569;">ครูเขตตะวัน (341)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">อ21101</strong><small style="color:#475569;">ครูดิ่งธิวา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ท21101</strong><small style="color:#475569;">ครูพรรณนิภา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21101</strong><small style="color:#475569;">ครูศิริลักษณ์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว20201</strong><small style="color:#475569;">ครูซงโค (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">พ21102</strong><small style="color:#475569;">ครูภิรกันต์ (ว่ายน้ำ)</small></td>
                                 </tr>
+                                <!-- พุธ -->
                                 <tr>
                                     <td style="background:#dcfce7; font-weight:700; color:#166534;">พุธ</td>
-                                    <td>ว21101</td>
-                                    <td>ว21101</td>
-                                    <td>อ21101</td>
-                                    <td>ค21101</td>
-                                    <td>ศ21101</td>
-                                    <td>สุขศึกษา</td>
-                                    <td>ชุมนุม</td>
-                                    <td>ลูกเสือ</td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21103</strong><small style="color:#475569;">ครูวริศลา (321)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21103</strong><small style="color:#475569;">ครูวริศลา (321)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">จ21201</strong><small style="color:#475569;">ครูภสนันท์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21203</strong><small style="color:#475569;">ครูมลลักษณ์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ส21101</strong><small style="color:#475569;">ครูธนาวัฒน์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21101</strong><small style="color:#475569;">ครูอังคณา (221)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21101</strong><small style="color:#475569;">ครูอังคณา (221)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ชุมนุม</strong><small style="color:#64748b;">กิจกรรมชุมนุม</small></td>
                                 </tr>
+                                <!-- พฤหัสบดี -->
                                 <tr>
-                                    <td style="background:#ffedd5; font-weight:700; color:#9a3412;">พฤหัสบดี</td>
-                                    <td>ส21101</td>
-                                    <td>ท21101</td>
-                                    <td>ค21101</td>
-                                    <td>ว21101</td>
-                                    <td>ง21101</td>
-                                    <td>ง21101</td>
-                                    <td>จ21201</td>
-                                    <td>คุณธรรม</td>
+                                    <td style="background:#ffedd5; font-weight:700; color:#9a3412;">พฤหัสฯ</td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21201</strong><small style="color:#475569;">ครูเปรมฤดี (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ส21102</strong><small style="color:#475569;">ครูธีร์สุดา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ท21101</strong><small style="color:#475569;">ครูพรรณนิภา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">แนะแนว</strong><small style="color:#475569;">ครูฐิติพร (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21101</strong><small style="color:#475569;">ครูศิริลักษณ์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">อ21101</strong><small style="color:#475569;">ครูดิ่งธิวา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">อ21203</strong><small style="color:#475569;">ครู Chang (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ง21101</strong><small style="color:#475569;">ครูสิริพรรณ (332)</small></td>
                                 </tr>
+                                <!-- ศุกร์ -->
                                 <tr>
                                     <td style="background:#e0f2fe; font-weight:700; color:#0369a1;">ศุกร์</td>
-                                    <td>อ21101</td>
-                                    <td>อ21203</td>
-                                    <td>ส21101</td>
-                                    <td>ค21101</td>
-                                    <td>พ21101</td>
-                                    <td>ค21201</td>
-                                    <td>จ21201</td>
-                                    <td>ค้นคว้า</td>
+                                    <td><strong style="display:block; color:#0f172a;">อ21101</strong><small style="color:#475569;">ครูดิ่งธิวา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">อ21203</strong><small style="color:#475569;">ครู Chang (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ส21101</strong><small style="color:#475569;">ครูธนาวัฒน์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21101</strong><small style="color:#475569;">ครูศิริลักษณ์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">พ21101</strong><small style="color:#475569;">ครูศักรินทร์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21201</strong><small style="color:#475569;">ครูเปรมฤดี (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">จ21201</strong><small style="color:#475569;">ครูภสนันท์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค้นคว้า</strong><small style="color:#64748b;">กิจกรรมค้นคว้า</small></td>
                                 </tr>
                             </tbody>
                         </table>

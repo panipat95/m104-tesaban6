@@ -789,24 +789,30 @@
 
             let html = '';
             activeStudentList.forEach(s => {
-                const total60 = (s.midterm_math_basic || 0) + (s.midterm_math_add || 0) + (s.midterm_sci_basic || 0) + (s.midterm_thai || 0) + (s.midterm_eng_basic || 0);
+                const sc = s.scores || {};
+                const mathBasic = sc.math_basic ?? '-';
+                const mathAdd = sc.math_add1 ?? '-';
+                const sciBasic = sc.sci_basic ?? sc.math_add2 ?? '-';
+                const thai = sc.thai ?? '-';
+                const engBasic = sc.eng_basic ?? '-';
+                const totalScore = sc.total_score ?? '-';
 
                 html += `
                     <tr>
                         <td style="text-align:center; font-weight:700;">${s.no}</td>
                         <td><span class="badge badge-purple">${s.student_id}</span></td>
                         <td>
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <img src="${s.photo_url || 'photos/' + s.student_id + '.jpg'}" onerror="this.style.display='none'" style="width:26px; height:26px; border-radius:50%; object-fit:cover; border:1px solid #0284c7;">
-                                <strong>${s.fullname}</strong> ${s.nickname ? `(${s.nickname})` : ''}
+                            <div style="display:flex; align-items:center; gap:8px; white-space:nowrap;">
+                                <img src="${s.photo_url || 'photos/' + s.student_id + '.jpg'}" onerror="this.style.display='none'" style="width:26px; height:26px; border-radius:50%; object-fit:cover; border:1px solid #0284c7; flex-shrink:0;">
+                                <strong>${s.fullname}</strong> ${s.nickname ? `<span style="color:#64748b;">(${s.nickname})</span>` : ''}
                             </div>
                         </td>
-                        <td style="text-align:center;">${s.midterm_math_basic ?? '-'}</td>
-                        <td style="text-align:center;">${s.midterm_math_add ?? '-'}</td>
-                        <td style="text-align:center;">${s.midterm_sci_basic ?? '-'}</td>
-                        <td style="text-align:center;">${s.midterm_thai ?? '-'}</td>
-                        <td style="text-align:center;">${s.midterm_eng_basic ?? '-'}</td>
-                        <td style="text-align:center; background:#f0f9ff; font-weight:700; color:#0369a1;">${total60}</td>
+                        <td style="text-align:center; font-weight:600;">${mathBasic}</td>
+                        <td style="text-align:center; font-weight:600;">${mathAdd}</td>
+                        <td style="text-align:center; font-weight:600;">${sciBasic}</td>
+                        <td style="text-align:center; font-weight:600;">${thai}</td>
+                        <td style="text-align:center; font-weight:600;">${engBasic}</td>
+                        <td style="text-align:center; background:#f0f9ff; font-weight:700; color:#0369a1;">${totalScore}</td>
                     </tr>
                 `;
             });

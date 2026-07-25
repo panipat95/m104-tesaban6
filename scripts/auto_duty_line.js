@@ -2,6 +2,7 @@ const fs = require('fs');
 const https = require('https');
 
 const POR_NONG_MAEWSOM_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN || "IreTHxq60X+lc2mZR1TdpTnEvYDhvqBAwc/YPWI8llBUETzGurjjqt5Am4zUC4wzKJdinCdl/Kfv8sxchKSDmrHrgirxWtKnKvCEzN01r0+qDfTGrVAoQnNyATuFxZGsLBwQ2C2KNN+2Nd19lwXOpwdB04t89/1O/w1cDnyilFU=";
+const TARGET_GROUP_ID = process.env.LINE_GROUP_ID || "";
 
 function getThaiDateAndDay() {
     const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
@@ -25,20 +26,31 @@ function loadStudentData() {
     return [];
 }
 
-async function sendLineBroadcast(messageText) {
+async function sendLineMessage(messageText) {
     return new Promise((resolve, reject) => {
-        const data = JSON.stringify({
+        let endpointPath = '/v2/bot/message/broadcast';
+        let payload = {
             messages: [
                 {
                     type: "text",
                     text: messageText
                 }
             ]
-        });
+        };
+
+        if (TARGET_GROUP_ID) {
+            endpointPath = '/v2/bot/message/push';
+            payload.to = TARGET_GROUP_ID;
+            console.log(`🎯 Sending direct push message to Group ID: ${TARGET_GROUP_ID}`);
+        } else {
+            console.log(`📢 Sending broadcast message to all friends/subscribers...`);
+        }
+
+        const data = JSON.stringify(payload);
 
         const options = {
             hostname: 'api.line.me',
-            path: '/v2/bot/message/broadcast',
+            path: endpointPath,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -52,10 +64,10 @@ async function sendLineBroadcast(messageText) {
             res.on('data', (chunk) => responseBody += chunk);
             res.on('end', () => {
                 if (res.statusCode >= 200 && res.statusCode < 300) {
-                    console.log('✅ LINE Broadcast sent successfully! Status:', res.statusCode);
+                    console.log('✅ LINE message sent successfully! Status:', res.statusCode);
                     resolve(responseBody);
                 } else {
-                    console.error('❌ LINE Broadcast failed! Status:', res.statusCode, responseBody);
+                    console.error('❌ LINE message failed! Status:', res.statusCode, responseBody);
                     reject(new Error(`HTTP ${res.statusCode}: ${responseBody}`));
                 }
             });
@@ -114,7 +126,7 @@ async function main() {
     console.log(msg);
     console.log('-----------------------');
 
-    await sendLineBroadcast(msg);
+    await sendLineMessage(msg);
 }
 
 main().catch(err => {

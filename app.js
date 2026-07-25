@@ -598,71 +598,73 @@ document.addEventListener('DOMContentLoaded', () => {
         renderStudentCards();
     });
 
-    // LINE Generator Logic
+    // LINE Daily Duty Generator Logic
     const btnGenerateLine = document.getElementById('btn-generate-line');
     const linePreviewText = document.getElementById('line-preview-text');
     const btnCopyLine = document.getElementById('btn-copy-line');
 
-    btnGenerateLine.addEventListener('click', generateLineMessage);
+    if (btnGenerateLine) {
+        btnGenerateLine.addEventListener('click', generateDailyDutyLineMessage);
+    }
 
-    function generateLineMessage() {
-        const templateType = document.getElementById('line-template-type').value;
-        const studentId = document.getElementById('line-student-select').value;
-        const customNote = document.getElementById('line-custom-note').value.trim();
+    function getThaiDayName(dateObj) {
+        const days = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+        return days[dateObj.getDay()];
+    }
 
-        const student = studentData.find(s => s.student_id === studentId);
-        let msg = '';
+    function generateDailyDutyLineMessage() {
+        const daySelect = document.getElementById('line-duty-day-select');
+        const selectedDayValue = daySelect ? daySelect.value : 'auto';
+        const customNoteElem = document.getElementById('line-custom-note');
+        const customNote = customNoteElem ? customNoteElem.value.trim() : '';
 
-        if (student) {
-            // Individual Message
-            if (templateType === 'midterm_scores') {
-                const sc = student.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, total_score: 0 };
-                const pct = ((sc.total_score / 145) * 100).toFixed(1);
-                msg = `📊 [รายงานผลสอบกลางภาคเรียนที่ 1/2569 - ห้อง ม.1.4 SMT]\n`;
-                msg += `เรียน ผู้ปกครองของ ${student.fullname} (เลขที่ ${student.no})\n\n`;
-                msg += `ขอแจ้งสรุปคะแนนสอบกลางภาคเรียนที่ 1/2569 ของนักเรียนดังนี้ครับ:\n`;
-                msg += `• ภาษาอังกฤษเพื่อการสื่อสาร: ${sc.eng_comm}/20\n`;
-                msg += `• สังคมศึกษา: ${sc.social}/20\n`;
-                msg += `• คณิตศาสตร์พื้นฐาน: ${sc.math_basic}/20\n`;
-                msg += `• ภาษาไทย: ${sc.thai}/20\n`;
-                msg += `• คณิตศาสตร์เพิ่มเติม ตอนที่ 1: ${sc.math_add1}/20\n`;
-                msg += `• คณิตศาสตร์เพิ่มเติม ตอนที่ 2: ${sc.math_add2}/5\n`;
-                msg += `• ภาษาจีน: ${sc.chinese}/20\n`;
-                msg += `• ภาษาอังกฤษพื้นฐาน: ${sc.eng_basic}/20\n`;
-                msg += `🏆 คะแนนรวมทั้งหมด: ${sc.total_score} / 145 คะแนน (${pct}%)\n`;
-                if (customNote) msg += `\nหมายเหตุเพิ่มเติม: ${customNote}\n`;
-                msg += `\nหากมีข้อสงสัยเกี่ยวกับผลการเรียน สอบถามคุณครูประจำชั้นได้เลยครับ 🙏`;
-            } else if (templateType === 'pending_work') {
-                msg = `📌 [แจ้งเตือนงานค้าง / LEC - ห้อง ม.1.4]\n`;
-                msg += `เรียน ผู้ปกครองของ ${student.fullname} (เลขที่ ${student.no})\n\n`;
-                msg += `คุณครูประจำชั้นขอแจ้งเตือนสถานะงานค้างของนักเรียน: ${student.pending_work}\n`;
-                msg += `${customNote ? 'เพิ่มเติม: ' + customNote + '\n' : ''}`;
-                msg += `รบกวนผู้ปกครองช่วยติดตามให้นักเรียนนำมาส่งคุณครูด้วยนะครับ/ค่ะ 🙏`;
-            } else if (templateType === 'duty_reminder') {
-                msg = `🧹 [แจ้งเตือนเวรทำความสะอาด - ห้อง ม.1.4]\n`;
-                msg += `แจ้ง ${student.fullname} (เลขที่ ${student.no})\n`;
-                msg += `มีเวรทำความสะอาดประจำวัน: ${student.duty_day}\n`;
-                msg += `อย่าลืมช่วยเพื่อนทำความสะอาดห้องเรียนนะครับ ✨`;
-            } else if (templateType === 'birthday') {
-                msg = `🎂 [สุขสันต์วันเกิดนักเรียนห้อง ม.1.4]\n`;
-                msg += `ขออวยพรวันเกิดให้ ${student.fullname}!\n`;
-                msg += `ขอให้มีความสุข เรียนหนังสือเก่งๆ และมีความสุขในทุกๆ วันนะครับ 🎉🎈`;
-            } else {
-                msg = `📣 [แจ้งข่าวสารรายบุคคล - ห้อง ม.1.4]\n`;
-                msg += `เรียน ผู้ปกครองของ ${student.fullname}\n`;
-                msg += `${customNote || 'แจ้งข้อมูลข่าวสารและการพัฒนาการเรียนรู้นักเรียน'}\n`;
-                msg += `ขอบคุณครับ 🙏`;
-            }
-        } else {
-            // Group Announcement
-            msg = `📢 [ประกาศประชาสัมพันธ์ - ห้อง ม.1.4 ปี 2569]\n\n`;
-            msg += `เรียน ผู้ปกครองนักเรียนห้อง ม.1.4 ทุกท่าน\n`;
-            msg += `${customNote || 'ขอแจ้งกำหนดการและกิจกรรมสำคัญประจำสัปดาห์ให้นักเรียนทราบ'}\n\n`;
-            msg += `ขอบคุณครับ/ค่ะ 🙏`;
+        const now = new Date();
+        let targetDayName = getThaiDayName(now);
+
+        if (selectedDayValue !== 'auto') {
+            targetDayName = selectedDayValue;
         }
 
-        linePreviewText.textContent = msg;
+        if (selectedDayValue === 'auto' && (targetDayName === 'อาทิตย์' || targetDayName === 'เสาร์')) {
+            targetDayName = 'จันทร์';
+        }
+
+        const dutyStudents = studentData.filter(s => s.duty_day === targetDayName);
+
+        const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+        const dateStr = `${now.getDate()} ${thaiMonths[now.getMonth()]} ${now.getFullYear() + 543}`;
+
+        let msg = `🧹 [แจ้งเตือนเวรทำความสะอาดประจำวัน ม.1/4 SMT]\n`;
+        msg += `📅 ประจำวัน${targetDayName} (${dateStr})\n\n`;
+        msg += `⏰ เวลาปฏิบัติหน้าที่: 07.30 - 07.40 น.\n`;
+        msg += `📍 ภารกิจ: ทำเขตจิตอาสาถูพื้นศูนย์จีน & ทำความสะอาดห้องเรียน 332\n\n`;
+        msg += `👥 รายชื่อนักเรียนเวรประจำวัน${targetDayName} (${dutyStudents.length} คน):\n`;
+
+        if (dutyStudents.length > 0) {
+            dutyStudents.forEach((s, idx) => {
+                msg += `${idx + 1}. เลขที่ ${s.no} ${s.fullname} ${s.nickname ? `(${s.nickname})` : ''}\n`;
+            });
+        } else {
+            msg += `(ไม่มีรายชื่อเวรทำความสะอาด)\n`;
+        }
+
+        msg += `\n✨ ขอให้นักเรียนที่มีรายชื่อมาร่วมทำความสะอาดและถูพื้นตรงตามเวลาด้วยนะครับ/ค่ะ 🙏`;
+
+        if (customNote) {
+            msg += `\n\n📌 ประกาศเพิ่มเติมจากครูประจำชั้น:\n${customNote}`;
+        }
+
+        if (linePreviewText) {
+            linePreviewText.textContent = msg;
+        }
     }
+
+    // Auto-generate today's duty reminder on load
+    setTimeout(() => {
+        if (linePreviewText) {
+            generateDailyDutyLineMessage();
+        }
+    }, 300);
 
     btnCopyLine.addEventListener('click', () => {
         const text = linePreviewText.textContent;

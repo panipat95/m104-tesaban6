@@ -563,62 +563,54 @@
                 </div>
             </section>
 
-            <!-- Tab 5: LINE PR Generator -->
+            <!-- Tab 5: LINE Daily Duty Reminder Generator -->
             <section id="tab-line" class="tab-content">
                 <div class="panel">
                     <div class="panel-header">
-                        <h3><i class="fa-brands fa-line"></i> เครื่องมือสร้างข้อความประชาสัมพันธ์ & แจ้งเตือน LINE</h3>
-                        <span class="sub-text">เลือกรูปแบบข้อความ แล้วกด Copy ส่งใน LINE ได้ทันที!</span>
+                        <h3><i class="fa-brands fa-line" style="color:#06c755;"></i> ระบบแจ้งเตือนเวรประจำวัน & จิตอาสาศูนย์จีน (กลุ่ม LINE นักเรียน)</h3>
+                        <span class="sub-text">สร้างข้อความแจ้งเตือนเวรตอนเช้า 07.30 - 07.40 น. ส่งเข้ากลุ่ม LINE นักเรียน ม.1/4 ทุกๆ เช้าได้ง่ายๆ ใน 1 คลิก!</span>
                     </div>
 
                     <div class="line-generator-grid">
-                        <!-- Left Options -->
+                        <!-- Left Controls -->
                         <div class="generator-controls">
                             <div class="form-group">
-                                <label><i class="fa-solid fa-list"></i> เลือกประเภทข้อความ:</label>
-                                <select id="line-template-type" class="form-control">
-                                    <option value="midterm_scores">📊 แจ้งสรุปผลสอบกลางภาคเรียนที่ 1/2569 รายบุคคล</option>
-                                    <option value="pending_work">📢 แจ้งเตือนติดตามงานค้าง / LEC</option>
-                                    <option value="duty_reminder">🧹 แจ้งเตือนเวรทำความสะอาดประจำวัน</option>
-                                    <option value="birthday">🎂 อวยพรวันเกิดนักเรียนประจำเดือน</option>
-                                    <option value="ls_support">❤️ แจ้งข่าวสารสำหรับเด็กกลุ่มสนับสนุน LS</option>
-                                    <option value="general_announcement">📣 ประกาศประชาสัมพันธ์ทั่วไปของห้อง 1.4</option>
+                                <label><i class="fa-solid fa-calendar-day" style="color:#0284c7;"></i> เลือกวันเวรประจำสัปดาห์ (จันทร์ - ศุกร์):</label>
+                                <select id="line-duty-day-select" class="form-control" style="font-weight:700; font-size:0.95rem; color:#0369a1;">
+                                    <option value="auto">⚡ วันปัจจุบัน (ตรวจจับอัตโนมัติ)</option>
+                                    <option value="จันทร์">🧹 วันจันทร์ (เวรจิตอาสาศูนย์จีน 07.30 - 07.40 น.)</option>
+                                    <option value="อังคาร">🧹 วันอังคาร (เวรจิตอาสาศูนย์จีน 07.30 - 07.40 น.)</option>
+                                    <option value="พุธ">🧹 วันพุธ (เวรจิตอาสาศูนย์จีน 07.30 - 07.40 น.)</option>
+                                    <option value="พฤหัสบดี">🧹 วันพฤหัสบดี (เวรจิตอาสาศูนย์จีน 07.30 - 07.40 น.)</option>
+                                    <option value="ศุกร์">🧹 วันศุกร์ (เวรจิตอาสาศูนย์จีน 07.30 - 07.40 น.)</option>
                                 </select>
                             </div>
 
                             <div class="form-group">
-                                <label><i class="fa-solid fa-user"></i> เลือกนักเรียน (เฉพาะบุคคล) หรือทั้งห้อง:</label>
-                                <select id="line-student-select" class="form-control">
-                                    <option value="all">-- ประกาศสำหรับนักเรียนทุกคน / กลุ่มห้อง 1.4 --</option>
-                                    <!-- Dynamic Options -->
-                                </select>
+                                <label><i class="fa-solid fa-pen-to-square" style="color:#0284c7;"></i> ข้อความประกาศเพิ่มเติมสำหรับเช้านี้ (ถ้ามี):</label>
+                                <textarea id="line-custom-note" class="form-control" rows="3" placeholder="ระบุประกาศเพิ่มเติม เช่น นำอุปกรณ์มาเพิ่ม หรือนัดหมายพิเศษ..."></textarea>
                             </div>
 
-                            <div class="form-group">
-                                <label><i class="fa-solid fa-pen-to-square"></i> หมายเหตุ / รายละเอียดเพิ่มเติม (ถ้ามี):</label>
-                                <textarea id="line-custom-note" class="form-control" rows="3" placeholder="ระบุรายละเอียดเพิ่มเติม เช่น กำหนดวันส่งสุดท้าย หรือสถานที่นัดหมาย..."></textarea>
-                            </div>
-
-                            <button id="btn-generate-line" class="btn-primary full-width">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i> สร้างข้อความ LINE
+                            <button id="btn-generate-line" class="btn-primary full-width" style="padding:12px; font-size:1rem; background:linear-gradient(135deg, #06c755, #059669);">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> สร้างข้อความแจ้งเตือนเวรเช้า LINE
                             </button>
                         </div>
 
                         <!-- Right Preview -->
                         <div class="generator-preview">
                             <div class="line-chat-box">
-                                <div class="line-chat-header">
-                                    <i class="fa-brands fa-line"></i> ตัวอย่างข้อความที่จะส่งใน LINE
+                                <div class="line-chat-header" style="background:#06c755; color:#ffffff;">
+                                    <i class="fa-brands fa-line"></i> ตัวอย่างข้อความที่จะส่งเข้ากลุ่ม LINE นักเรียน
                                 </div>
-                                <div class="line-chat-body" id="line-preview-text">
-                                    กดปุ่ม "สร้างข้อความ LINE" เพื่อดูตัวอย่างข้อความที่นี่...
+                                <div class="line-chat-body" id="line-preview-text" style="white-space:pre-line; font-family:sans-serif; font-size:0.9rem; line-height:1.5;">
+                                    กดปุ่ม "สร้างข้อความแจ้งเตือนเวรเช้า LINE" เพื่อดูตัวอย่างข้อความประจำวัน...
                                 </div>
                             </div>
-                            <div class="preview-actions" style="display:flex; gap:8px;">
-                                <button id="btn-copy-line" class="btn-secondary flex-1">
-                                    <i class="fa-solid fa-copy"></i> คัดลอกข้อความ
+                            <div class="preview-actions" style="display:flex; gap:8px; margin-top:10px;">
+                                <button id="btn-copy-line" class="btn-secondary flex-1" style="font-weight:700; background:#f0f9ff; color:#0369a1; border-color:#bae6fd;">
+                                    <i class="fa-solid fa-copy"></i> คัดลอกข้อความ LINE
                                 </button>
-                                <button id="btn-send-line-direct" class="btn-secondary flex-1">
+                                <button id="btn-send-line-direct" class="btn-secondary flex-1" style="font-weight:700; background:#dcfce7; color:#15803d; border-color:#86efac;">
                                     <i class="fa-brands fa-line"></i> 📱 เปิด LINE ส่งเข้ากลุ่ม
                                 </button>
                                 <button id="btn-broadcast-messaging-api" class="btn-success flex-2" style="background:linear-gradient(135deg, #d97706, #f59e0b); color:#ffffff; font-weight:700;">

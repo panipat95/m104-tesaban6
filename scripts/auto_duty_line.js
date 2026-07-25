@@ -73,21 +73,32 @@ async function sendLineBroadcast(messageText) {
 
 async function main() {
     const { dayName, dateStr } = getThaiDateAndDay();
-    console.log(`📅 Today is: ${dayName} (${dateStr})`);
+    const isTest = process.argv.includes('--test') || process.env.FORCE_TEST === 'true';
+    console.log(`📅 Today is: ${dayName} (${dateStr}) | Test mode: ${isTest ? 'YES' : 'NO'}`);
+
+    let targetDayName = dayName;
 
     if (dayName === 'เสาร์' || dayName === 'อาทิตย์') {
-        console.log('😴 Today is a weekend. Skipping automated daily duty reminder.');
-        return;
+        if (isTest) {
+            console.log('🧪 Weekend detected during test mode. Testing for Monday roster...');
+            targetDayName = 'จันทร์';
+        } else {
+            console.log('😴 Today is a weekend. Skipping automated daily duty reminder.');
+            return;
+        }
     }
 
     const students = loadStudentData();
-    const dutyStudents = students.filter(s => s.duty_day === dayName);
+    const dutyStudents = students.filter(s => s.duty_day === targetDayName);
 
-    let msg = `🧹 [แจ้งเตือนเวรทำความสะอาดประจำวัน ม.1/4 SMT]\n`;
-    msg += `📅 ประจำวัน${dayName} (${dateStr})\n\n`;
+    let msg = `🐱 [ทดสอบบอทน้องแมวส้ม @706jgkro - ระบบแจ้งเตือนเวรเช้าอัตโนมัติ 07.30 น.]\n`;
+    if (!isTest) {
+        msg = `🧹 [แจ้งเตือนเวรทำความสะอาดประจำวัน ม.1/4 SMT]\n`;
+    }
+    msg += `📅 ประจำวัน${targetDayName} (${dateStr})\n\n`;
     msg += `⏰ เวลาปฏิบัติหน้าที่: 07.30 - 07.40 น.\n`;
     msg += `📍 ภารกิจ: ทำเขตจิตอาสาถูพื้นศูนย์จีน & ทำความสะอาดห้องเรียน 332\n\n`;
-    msg += `👥 รายชื่อนักเรียนเวรประจำวัน${dayName} (${dutyStudents.length} คน):\n`;
+    msg += `👥 รายชื่อนักเรียนเวรประจำวัน${targetDayName} (${dutyStudents.length} คน):\n`;
 
     if (dutyStudents.length > 0) {
         dutyStudents.forEach((s, idx) => {

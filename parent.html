@@ -280,12 +280,22 @@
             <div class="cute-avatar-icon">
                 <i class="fa-solid fa-graduation-cap"></i>
             </div>
-            <h2 style="font-size:1.2rem; color:var(--text-dark); margin-bottom:6px;">✨ เช็คงานค้าง & ผลการเรียนรายบุคคล ✨</h2>
-            <p style="font-size:0.85rem; color:#64748b; margin-bottom:1.4rem;">กรุณากรอกเลขประจำตัวนักเรียน 5 หลัก เพื่อเข้าดูข้อมูลเฉพาะของลูกหลานครับ</p>
+            <h2 style="font-size:1.2rem; color:var(--text-dark); margin-bottom:4px;">✨ เช็คงานค้าง & ผลการเรียนรายบุคคล ✨</h2>
+            <p style="font-size:0.85rem; color:#64748b; margin-bottom:1.2rem;">กรุณากรอก <strong>เลขที่</strong> และ <strong>รหัสประจำตัว 5 หลัก</strong> เพื่อยืนยันตัวตนครับ</p>
 
-            <form id="login-form" onsubmit="return false;" style="display:flex; flex-direction:column; gap:14px;">
-                <input type="text" id="input-student-id" class="form-control" placeholder="🎓 กรอกเลขประจำตัวนักเรียน (เช่น 19168)" autocomplete="off" maxlength="10">
-                <button type="submit" id="btn-login" class="btn btn-pink">
+            <form id="login-form" onsubmit="return false;" style="display:flex; flex-direction:column; gap:12px; text-align:left;">
+                <div>
+                    <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:4px;">🔢 เลขที่นักเรียน (1 - 39):</label>
+                    <input type="text" id="input-student-no" class="form-control" placeholder="กรอกเลขที่ (เช่น 01)" autocomplete="off" maxlength="2" style="text-align:center; font-weight:700; font-size:1rem;">
+                    <small style="color:#0284c7; font-size:0.78rem; margin-top:3px; display:block;">* เลขที่ 1 - 9 ให้กรอกมี 0 นำหน้า เช่น 01, 02, 09</small>
+                </div>
+
+                <div>
+                    <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:4px;">🎓 รหัสประจำตัวนักเรียน (5 หลัก):</label>
+                    <input type="text" id="input-student-id" class="form-control" placeholder="กรอกรหัสประจำตัว 5 หลัก (เช่น 19168)" autocomplete="off" maxlength="5" style="text-align:center; font-weight:700; font-size:1rem;">
+                </div>
+
+                <button type="submit" id="btn-login" class="btn btn-pink" style="margin-top:6px; padding:12px; font-size:1rem;">
                     <i class="fa-solid fa-sparkles"></i> 🔍 เข้าสู่ระบบ / ตรวจสอบข้อมูล
                 </button>
             </form>
@@ -476,25 +486,28 @@
         });
 
         function handleLogin() {
-            const inputVal = document.getElementById('input-student-id').value.trim();
+            const inputNo = document.getElementById('input-student-no').value.trim();
+            const inputId = document.getElementById('input-student-id').value.trim();
             const errorEl = document.getElementById('login-error');
             errorEl.style.display = 'none';
 
-            if (!inputVal) {
-                errorEl.textContent = '🌸 กรุณากรอกเลขประจำตัวนักเรียนก่อนครับ';
+            if (!inputNo || !inputId) {
+                errorEl.textContent = '🌸 กรุณากรอกทั้ง "เลขที่" และ "รหัสประจำตัวนักเรียน" ให้ครบถ้วนครับ';
                 errorEl.style.display = 'block';
                 return;
             }
 
+            const parsedNo = parseInt(inputNo, 10);
+
             const found = window.REAL_STUDENT_DB.find(s => 
-                s.student_id.toString() === inputVal ||
-                s.no.toString() === inputVal
+                s.student_id.toString() === inputId &&
+                parseInt(s.no, 10) === parsedNo
             );
 
             if (found) {
                 loginStudent(found);
             } else {
-                errorEl.textContent = '❌ ไม่พบเลขประจำตัวนักเรียนนี้ในระบบห้อง ม.1.4 กรุณาตรวจสอบรหัสอีกครั้งครับ';
+                errorEl.textContent = '❌ ข้อมูลไม่ถูกต้อง! เลขที่ หรือ รหัสประจำตัวนักเรียนไม่ตรงกัน กรุณาตรวจสอบอีกครั้งครับ';
                 errorEl.style.display = 'block';
             }
         }
@@ -506,7 +519,7 @@
             document.getElementById('dashboard-section').style.display = 'block';
 
             document.getElementById('student-name').textContent = `${student.fullname} ${student.nickname ? `(${student.nickname})` : ''}`;
-            document.getElementById('student-meta').textContent = `เลขที่ ${student.no} | รหัสประจำตัว: ${student.student_id} | ชั้น ม.1.4 SMT`;
+            document.getElementById('student-meta').textContent = `เลขที่ ${student.no} | รหัสประจำตัว: ${student.student_id} | ชั้น ม.1/4 SMT`;
             
             const photoImg = document.getElementById('student-photo');
             photoImg.src = student.photo_url || `photos/${student.student_id}.jpg`;
@@ -517,6 +530,7 @@
 
         function handleLogout() {
             currentStudent = null;
+            document.getElementById('input-student-no').value = '';
             document.getElementById('input-student-id').value = '';
             document.getElementById('login-error').style.display = 'none';
             document.getElementById('dashboard-section').style.display = 'none';

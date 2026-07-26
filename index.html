@@ -643,8 +643,12 @@
                                 <input type="password" id="line-messaging-token-input" class="form-control" placeholder="รหัส Channel Access Token..." style="background:#ffffff;" value="IreTHxq60X+lc2mZR1TdpTnEvYDhvqBAwc/YPWI8llBUETzGurjjqt5Am4zUC4wzKJdinCdl/Kfv8sxchKSDmrHrgirxWtKnKvCEzN01r0+qDfTGrVAoQnNyATuFxZGsLBwQ2C2KNN+2Nd19lwXOpwdB04t89/1O/w1cDnyilFU=">
                             </div>
                             <div class="form-group">
-                                <label><i class="fa-solid fa-link"></i> Webhook URL (Google Apps Script):</label>
-                                <input type="text" id="line-webhook-url-input" class="form-control" readonly style="background:#f1f5f9; font-size:0.8rem;" value="https://script.google.com/macros/s/AKfycbz6CdgpIJlgAl6a7AaVXeLBrVQ-bDPvZw1UQrbhGKHJFfDQIZVmPbTFAoqkAwxVGR8Eag/exec">
+                                <label><i class="fa-solid fa-people-group"></i> Group ID กลุ่มรับแจ้งเตือน (กลุ่มส่วนตัว/กลุ่มนักเรียน):</label>
+                                <input type="text" id="line-group-id-input" class="form-control" style="background:#ffffff; font-weight:700;" value="Ca98a77879c82670dd198ea9f2c549f9d">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-link"></i> Webhook Proxy URL (Google Apps Script):</label>
+                                <input type="text" id="line-webhook-url-input" class="form-control" style="background:#ffffff; font-size:0.8rem;" placeholder="วางลิงก์ Google Apps Script Webhook URL..." value="https://script.google.com/macros/s/AKfycbz6CdgpIJlgAl6a7AaVXeLBrVQ-bDPvZw1UQrbhGKHJFfDQIZVmPbTFAoqkAwxVGR8Eag/exec">
                             </div>
                             <div style="display:flex; gap:8px;">
                                 <button id="btn-save-messaging-api" class="btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> บันทึกตั้งค่า</button>
@@ -653,11 +657,15 @@
                         </div>
 
                         <div style="background:#ffffff; padding:14px; border-radius:10px; border:1px solid #e2e8f0; font-size:0.85rem; line-height:1.6;">
-                            <strong style="color:#b45309;"><i class="fa-solid fa-cat"></i> ข้อมูลบอทประจำห้อง ม.1.4:</strong>
+                            <strong style="color:#b45309;"><i class="fa-solid fa-cat"></i> ข้อมูลบอท & การยิงข้อความประจำห้อง ม.1.4:</strong>
                             <div style="margin-top:6px; color:#334155;">
                                 <div>• <strong>ชื่อบอท:</strong> น้องแมวส้ม 🐱</div>
                                 <div>• <strong>Bot Basic ID:</strong> <code>@706jgkro</code></div>
-                                <div>• <strong>ลิงก์เพิ่มเพื่อนบอท:</strong> <a href="https://line.me/R/ti/p/@706jgkro" target="_blank" style="color:#0284c7; font-weight:600; text-decoration:underline;">https://line.me/R/ti/p/@706jgkro</a></div>
+                                <div>• <strong>Group ID ปัจจุบัน:</strong> <code>Ca98a77879c82670dd198ea9f2c549f9d</code></div>
+                                <hr style="margin:8px 0; border:0; border-top:1px dashed #cbd5e1;">
+                                <small style="color:#0284c7; display:block;">
+                                    💡 <strong>หมายเหตุ:</strong> ระบบอัตโนมัติทุกเช้า 07.25 น. (วันจันทร์-ศุกร์) ทำงานผ่าน GitHub Cloud ยิงตรงเข้ากลุ่มอัตโนมัติ 100% โดยไม่ต้องกดปุ่มครับ
+                                </small>
                             </div>
                         </div>
                     </div>

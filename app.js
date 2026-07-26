@@ -691,14 +691,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 300);
 
+    function showToast(message, icon = '✨') {
+        const existingToast = document.querySelector('.toast-notification');
+        if (existingToast) existingToast.remove();
+
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
     btnCopyLine.addEventListener('click', () => {
         const text = linePreviewText.textContent;
         if (!text || text.includes('กดปุ่ม "สร้างข้อความ LINE"')) {
-            alert('กรุณากดปุ่ม "สร้างข้อความ LINE" ก่อนครับ');
+            showToast('กรุณากดปุ่ม "สร้างข้อความ LINE" ก่อนครับ', '⚠️');
             return;
         }
         navigator.clipboard.writeText(text).then(() => {
-            alert('คัดลอกข้อความ LINE เรียบร้อยแล้ว!');
+            showToast('คัดลอกข้อความ LINE เรียบร้อยแล้ว!', '📋');
         });
     });
 
@@ -707,11 +723,12 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSendLineDirect.addEventListener('click', () => {
             const text = linePreviewText.textContent;
             if (!text || text.includes('กดปุ่ม "สร้างข้อความ LINE"')) {
-                alert('กรุณากดปุ่ม "สร้างข้อความ LINE" ก่อนครับ');
+                showToast('กรุณากดปุ่ม "สร้างข้อความ LINE" ก่อนครับ', '⚠️');
                 return;
             }
 
             navigator.clipboard.writeText(text);
+            showToast('กำลังสลับไปเปิดแอป LINE...', '📱');
             const shareUrl = `https://line.me/R/share?text=${encodeURIComponent(text)}`;
             window.open(shareUrl, '_blank');
         });

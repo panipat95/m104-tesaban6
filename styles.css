@@ -1,35 +1,44 @@
 :root {
-    /* Tesaban 6 School Blue-White Palette */
+    /* UI/UX Pro Max - Tesaban 6 School Light Mode Palette */
     --primary: #0284c7;           /* Vibrant Ocean Blue */
     --primary-light: #38bdf8;     /* Sky Blue */
     --primary-dark: #0369a1;      /* Deep Royal Blue */
     --secondary: #0ea5e9;        /* Bright Azure */
-    --accent-blue: #2563eb;       /* Sapphire Accent */
-    --accent-green: #10b981;      /* Mint Green */
-    --accent-orange: #f59e0b;     /* Warm Amber */
-    --accent-red: #ef4444;        /* Crimson Red */
+    --accent-pink: #ec4899;       /* Soft Pastel Pink */
+    --accent-pink-light: #fce7f3; /* Ice Pink */
+    --accent-green: #059669;      /* Mint Emerald */
+    --accent-green-light: #d1fae5;/* Ice Mint */
+    --accent-orange: #d97706;     /* Warm Amber */
+    --accent-orange-light: #fef3c7;/* Ice Amber */
+    --accent-red: #e11d48;        /* Crimson Red */
     --line-color: #06c755;
 
-    /* Theme Backgrounds: Crisp Blue & Pure White */
-    --bg-main: #f0f9ff;           /* Ice Blue Tinted Soft White */
+    /* Theme Backgrounds: Crisp Clean Ice Blue Light Mode */
+    --bg-main: #f8fafc;           /* Ultra Clean Light Background */
     --bg-card: #ffffff;           /* Pure White Cards */
-    --bg-card-hover: #f8fafc;
+    --bg-card-hover: #f0f9ff;
     --border-color: #e2e8f0;      /* Clean Soft Border */
     --border-focus: #38bdf8;
 
+    /* Glassmorphism Tokens */
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-blur: blur(14px);
+
     /* Typography Colors */
-    --text-main: #0f172a;         /* Deep Navy Dark Text */
-    --text-muted: #475569;        /* Slate Gray */
-    --text-dim: #64748b;          /* Light Slate */
+    --text-main: #0f172a;         /* Deep Navy Text */
+    --text-muted: #334155;        /* Dark Slate */
+    --text-dim: #64748b;          /* Soft Slate */
 
     --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 18px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
 
-    --shadow-soft: 0 10px 25px -5px rgba(2, 132, 199, 0.1), 0 8px 10px -6px rgba(2, 132, 199, 0.05);
+    --shadow-soft: 0 10px 25px -5px rgba(2, 132, 199, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.03);
+    --shadow-hover: 0 14px 30px -5px rgba(2, 132, 199, 0.16), 0 8px 15px -4px rgba(0, 0, 0, 0.05);
     --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.3);
 
-    --font-family: 'Prompt', 'Inter', sans-serif;
+    --font-family: 'Prompt', 'Mitr', 'Sarabun', sans-serif;
 }
 
 * {
@@ -37,17 +46,63 @@
     padding: 0;
     box-sizing: border-box;
     font-family: var(--font-family);
+    -webkit-font-smoothing: antialiased;
 }
 
 body {
     background-color: var(--bg-main);
     background-image: 
         radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(2, 132, 199, 0.08) 0px, transparent 50%);
+        radial-gradient(at 100% 100%, rgba(2, 132, 199, 0.08) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.04) 0px, transparent 60%);
     background-attachment: fixed;
     color: var(--text-main);
     min-height: 100vh;
     overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* Glassmorphism Utility */
+.glass-panel {
+    background: var(--glass-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+}
+
+/* Pulse Dot Indicator */
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+}
+
+.pulse-dot.green { background-color: #10b981; box-shadow: 0 0 0 rgba(16, 185, 129, 0.4); animation: pulseGreen 2s infinite; }
+.pulse-dot.red { background-color: #ef4444; box-shadow: 0 0 0 rgba(239, 68, 68, 0.4); animation: pulseRed 2s infinite; }
+.pulse-dot.orange { background-color: #f59e0b; box-shadow: 0 0 0 rgba(245, 158, 11, 0.4); animation: pulseOrange 2s infinite; }
+
+@keyframes pulseGreen {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes pulseRed {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Card Elevation Hover Effect */
+.card-hover {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease !important;
+}
+
+.card-hover:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: var(--shadow-hover) !important;
 }
 
 /* App Container Layout */
@@ -783,4 +838,29 @@ body {
         padding: 0 !important;
     }
     .no-print, .modal-close { display: none !important; }
+}
+
+/* Toast Notification UI/UX Pro Max */
+.toast-notification {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #ffffff;
+    padding: 12px 22px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 9999;
+    animation: slideUpToast 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideUpToast {
+    from { opacity: 0; transform: translateY(30px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }

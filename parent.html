@@ -593,27 +593,96 @@
             if (!container || !currentStudent) return;
 
             const sc = currentStudent.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, total_score: 0 };
-            const pct = ((sc.total_score / 145) * 100).toFixed(1);
+            const totalScore = sc.total_score || 0;
+            const pct = ((totalScore / 145) * 100).toFixed(1);
+
+            const subjects = [
+                { code: 'อ21201', name: 'ภาษาอังกฤษเพื่อการสื่อสาร', score: sc.eng_comm, max: 20, icon: 'fa-language', color: '#0284c7', bg: '#e0f2fe' },
+                { code: 'ส21101', name: 'สังคมศึกษา', score: sc.social, max: 20, icon: 'fa-earth-americas', color: '#d97706', bg: '#fef3c7' },
+                { code: 'ค21101', name: 'คณิตศาสตร์พื้นฐาน', score: sc.math_basic, max: 20, icon: 'fa-calculator', color: '#2563eb', bg: '#dbeafe' },
+                { code: 'ท21101', name: 'ภาษาไทย', score: sc.thai, max: 20, icon: 'fa-book-open', color: '#059669', bg: '#d1fae5' },
+                { code: 'ค21201', name: 'คณิตศาสตร์เพิ่มเติม ตอนที่ 1', score: sc.math_add1, max: 20, icon: 'fa-square-root-variable', color: '#7c3aed', bg: '#ede9fe' },
+                { code: 'ค21203', name: 'คณิตศาสตร์เพิ่มเติม ตอนที่ 2', score: sc.math_add2, max: 5, icon: 'fa-chart-pie', color: '#c026d3', bg: '#fae8ff' },
+                { code: 'จ21201', name: 'ภาษาจีน', score: sc.chinese, max: 20, icon: 'fa-yin-yang', color: '#dc2626', bg: '#fee2e2' },
+                { code: 'อ21101', name: 'ภาษาอังกฤษพื้นฐาน', score: sc.eng_basic, max: 20, icon: 'fa-spell-check', color: '#0284c7', bg: '#e0f2fe' }
+            ];
+
+            let subjectsHtml = '';
+            subjects.forEach(sub => {
+                const itemPct = Math.min(100, Math.max(0, ((sub.score / sub.max) * 100).toFixed(0)));
+                const isHigh = itemPct >= 70;
+                const isMedium = itemPct >= 50 && itemPct < 70;
+                const statusColor = isHigh ? '#059669' : (isMedium ? '#d97706' : '#dc2626');
+
+                subjectsHtml += `
+                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,0.03); transition:all 0.2s ease;" class="card-hover">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                            <span style="font-size:0.75rem; font-weight:700; background:${sub.bg}; color:${sub.color}; padding:3px 10px; border-radius:12px;">
+                                ${sub.code}
+                            </span>
+                            <span style="font-size:0.88rem; font-weight:700; color:${statusColor};">
+                                ${sub.score} / ${sub.max} คะแนน
+                            </span>
+                        </div>
+                        <strong style="font-size:0.95rem; color:#0f172a; display:block; margin-bottom:10px; line-height:1.4;">
+                            <i class="fa-solid ${sub.icon}" style="color:${sub.color}; margin-right:4px;"></i> ${sub.name}
+                        </strong>
+                        <div style="background:#f1f5f9; height:8px; border-radius:10px; overflow:hidden;">
+                            <div style="width:${itemPct}%; background:${sub.color}; height:100%; border-radius:10px; transition:width 0.5s ease;"></div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:0.75rem; color:#64748b;">
+                            <span>คิดเป็น ${itemPct}%</span>
+                            <span style="font-weight:600; color:${statusColor};">${isHigh ? '🟢 ผ่านเกณฑ์ดี' : (isMedium ? '🟡 ผ่านเกณฑ์' : '🔴 ควรปรับปรุง')}</span>
+                        </div>
+                    </div>
+                `;
+            });
 
             container.innerHTML = `
-                <h3 style="font-size:1.1rem; color:#0369a1; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
-                    <i class="fa-solid fa-square-poll-vertical" style="color:#38bdf8;"></i> ผลการเรียนสอบกลางภาคเรียนที่ 1/2569
-                </h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+                    <h3 style="font-size:1.15rem; color:#0369a1; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-award" style="color:#0284c7;"></i> 📊 สรุปผลการเรียนสอบกลางภาคเรียนที่ 1/2569 (ม.1/4 SMT)
+                    </h3>
+                    <span style="font-size:0.8rem; background:#f0f9ff; color:#0284c7; padding:4px 12px; border-radius:16px; border:1px solid #bae6fd; font-weight:600;">
+                        🏫 โรงเรียนเทศบาล 6 นครเชียงราย
+                    </span>
+                </div>
                 
-                <div style="background:linear-gradient(135deg, #f0f9ff, #fce7f3); border:2px solid #bae6fd; padding:14px; border-radius:12px; margin-bottom:14px; text-align:center; box-shadow:0 4px 12px rgba(56, 189, 248, 0.15);">
-                    <span style="font-size:0.88rem; color:#0369a1;">คะแนนรวมทั้งสิ้น:</span>
-                    <strong style="font-size:1.45rem; color:#0284c7; display:block;">${sc.total_score} / 145 คะแนน (${pct}%)</strong>
+                <!-- Summary Main Card -->
+                <div style="background:linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); border:2px solid #bae6fd; padding:18px; border-radius:16px; margin-bottom:1.4rem; box-shadow:0 6px 20px rgba(2, 132, 199, 0.1);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <span style="font-size:0.85rem; color:#64748b; font-weight:500;">คะแนนสอบกลางภาคเรียนรวมทั้งหมด (8 รายวิชา):</span>
+                            <div style="display:flex; align-items:baseline; gap:10px; margin-top:4px;">
+                                <strong style="font-size:2rem; color:#0284c7; font-weight:800;">${totalScore}</strong>
+                                <span style="font-size:1rem; color:#64748b; font-weight:600;">/ 145 คะแนน</span>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="font-size:1.35rem; font-weight:800; background:linear-gradient(135deg, #0284c7, #ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+                                ${pct}%
+                            </span>
+                            <div style="margin-top:2px;">
+                                <span class="badge ${pct >= 70 ? 'badge-success' : 'badge-warning'}" style="font-size:0.82rem; padding:4px 12px;">
+                                    ${pct >= 70 ? '🟢 ผลการเรียนอยู่ในเกณฑ์ดีมาก' : '🟡 ผ่านเกณฑ์การประเมิน'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overall Progress Bar -->
+                    <div style="background:#e2e8f0; height:10px; border-radius:10px; overflow:hidden; margin-top:14px;">
+                        <div style="width:${pct}%; background:linear-gradient(90deg, #0284c7, #38bdf8, #ec4899); height:100%; border-radius:10px;"></div>
+                    </div>
                 </div>
 
-                <div class="score-grid">
-                    <div class="score-item">• อ.สื่อสาร: <strong>${sc.eng_comm} / 20</strong></div>
-                    <div class="score-item">• สังคมศึกษา: <strong>${sc.social} / 20</strong></div>
-                    <div class="score-item">• คณิตพื้นฐาน: <strong>${sc.math_basic} / 20</strong></div>
-                    <div class="score-item">• ภาษาไทย: <strong>${sc.thai} / 20</strong></div>
-                    <div class="score-item">• คณิตเพิ่มเติม 1: <strong>${sc.math_add1} / 20</strong></div>
-                    <div class="score-item">• คณิตเพิ่มเติม 2: <strong>${sc.math_add2} / 5</strong></div>
-                    <div class="score-item">• ภาษาจีน: <strong>${sc.chinese} / 20</strong></div>
-                    <div class="score-item">• อ.พื้นฐาน: <strong>${sc.eng_basic} / 20</strong></div>
+                <!-- Subject Scores Grid (Clear Official Names) -->
+                <h4 style="font-size:1rem; color:#334155; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-list-check" style="color:#0284c7;"></i> คะแนนจำแนกตามรายวิชา (8 รายวิชาหลัก):
+                </h4>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:12px;">
+                    ${subjectsHtml}
                 </div>
             `;
         }

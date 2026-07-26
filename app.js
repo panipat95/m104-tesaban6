@@ -764,21 +764,24 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่งผ่านบอทน้องแมวส้ม 🐱...';
         }
 
-        const webhookUrl = 'https://script.google.com/macros/s/AKfycbz6CdgpIJlgAl6a7AaVXeLBrVQ-bDPvZw1UQrbhGKHJFfDQIZVmPbTFAoqkAwxVGR8Eag/exec';
+        const webhookUrlInput = document.getElementById('line-webhook-url-input');
+        const webhookUrl = (webhookUrlInput && webhookUrlInput.value.trim()) || 'https://script.google.com/macros/s/AKfycbyPphz43aLcZAq_r6XYtTEHnmNQAViMg_gwBJ2e_eb2QMOrHPlM4zwPf-BT09ZYASyyNg/exec';
 
-        // Post to Google Apps Script Webhook (no-cors mode works in file://)
+        const groupIdInput = document.getElementById('line-group-id-input');
+        const groupId = (groupIdInput && groupIdInput.value.trim()) || 'Ca98a77879c82670dd198ea9f2c549f9d';
+
         fetch(webhookUrl, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: messageText, text: messageText, token: token })
+            body: JSON.stringify({ message: messageText, text: messageText, token: token, groupId: groupId })
         })
         .then(() => {
             if (btn) {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-cat"></i> 🐱 บรอดแคสต์ด้วยน้องแมวส้ม (@706jgkro)';
             }
-            alert('🚀 คำสั่งส่งข้อความผ่านบอทน้องแมวส้ม 🐱 (@706jgkro) ทำงานเรียบร้อยแล้ว!\n\nหากบอทอยู่ในกลุ่มแชท ข้อความจะเด้งขึ้นในกลุ่มทันทีครับ ✨');
+            alert('🚀 คำสั่งส่งข้อความผ่านบอทน้องแมวส้ม 🐱 (@706jgkro) ทำงานเรียบร้อยแล้ว!\n\nข้อความถูกส่งเข้าไปในกลุ่ม LINE เรียบร้อยครับ ✨');
         })
         .catch(err => {
             if (btn) {

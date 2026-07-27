@@ -174,8 +174,8 @@ document.addEventListener('DOMContentLoaded', () => {
         studentData.forEach(s => {
             if (s.scores && s.scores.total_score) totalScoreSum += s.scores.total_score;
         });
-        const avgScore = total > 0 ? (totalScoreSum / total).toFixed(1) : '123.5';
-        const avgPct = ((avgScore / 165) * 100).toFixed(1);
+        const avgScore = total > 0 ? (totalScoreSum / total) : 0;
+        const avgPct = ((avgScore / 170) * 100).toFixed(1);
 
         const elTotal = document.getElementById('stat-total');
         if (elTotal) elTotal.textContent = `${total} คน`;
@@ -337,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Render Midterm Scores Table (165 Max Score)
+    // Render Midterm Scores Table (170 Max Score)
     function renderMidtermTable() {
         const tbody = document.querySelector('#table-midterm-scores tbody');
         if (!tbody) return;
@@ -345,8 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         studentData.forEach(s => {
             const tr = document.createElement('tr');
-            const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, total_score: 0 };
-            const pct = ((sc.total_score / 165) * 100).toFixed(1);
+            const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, total_score: 0 };
+            const pct = ((sc.total_score / 170) * 100).toFixed(1);
             const photoSrc = s.photo_url || `photos/${s.student_id}.jpg`;
 
             tr.innerHTML = `
@@ -369,6 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><span class="badge ${sc.chinese >= 10 ? 'badge-success' : 'badge-danger'}">${sc.chinese}</span></td>
                 <td><span class="badge ${sc.eng_basic >= 10 ? 'badge-success' : 'badge-danger'}">${sc.eng_basic}</span></td>
                 <td><span class="badge ${(sc.sci_basic || 0) >= 10 ? 'badge-success' : 'badge-danger'}">${sc.sci_basic || 0}</span></td>
+                <td><span class="badge ${(sc.eng_rw || 0) >= 10 ? 'badge-success' : 'badge-danger'}">${sc.eng_rw || 0}</span></td>
                 <td><strong style="color:var(--primary); font-size:1.05rem;">${sc.total_score}</strong></td>
                 <td><span class="badge ${pct >= 50 ? 'badge-purple' : 'badge-warning'}">${pct}%</span></td>
             `;
@@ -837,8 +838,8 @@ document.addEventListener('DOMContentLoaded', () => {
             avatarEl.innerHTML = `<img src="${photoSrc}" onerror="this.outerHTML='<i class=\\'fa-solid fa-user-graduate\\'></i>'">`;
         }
 
-        const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, total_score: 0 };
-        const pct = ((sc.total_score / 165) * 100).toFixed(1);
+        const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, total_score: 0 };
+        const pct = ((sc.total_score / 170) * 100).toFixed(1);
 
         const myPendingTasks = pendingHomeworkTasks.filter(t => t.pendingStudentIds.includes(s.student_id.toString()));
 
@@ -868,7 +869,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <div style="grid-column: 1 / -1; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:14px; margin-top:4px;">
-                    <h4 style="color:#0369a1; margin-bottom:8px; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-square-poll-vertical"></i> ผลการเรียนสอบกลางภาคเรียนที่ 1/2569 (รวม ${sc.total_score}/165 - คิดเป็น ${pct}%)</h4>
+                    <h4 style="color:#0369a1; margin-bottom:8px; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-square-poll-vertical"></i> ผลการเรียนสอบกลางภาคเรียนที่ 1/2569 (รวม ${sc.total_score}/170 - คิดเป็น ${pct}%)</h4>
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:8px; font-size:0.88rem;">
                         <div>• อ.สื่อสาร: <strong>${sc.eng_comm}/20</strong></div>
                         <div>• สังคมศึกษา: <strong>${sc.social}/20</strong></div>
@@ -879,6 +880,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div>• ภาษาจีน: <strong>${sc.chinese}/20</strong></div>
                         <div>• อ.พื้นฐาน: <strong>${sc.eng_basic}/20</strong></div>
                         <div>• วิทย์พื้นฐาน: <strong>${sc.sci_basic || 0}/20</strong></div>
+                        <div>• อ.อ่าน-เขียน: <strong>${sc.eng_rw || 0}/20</strong></div>
                     </div>
                 </div>
             `;
@@ -948,12 +950,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!studentData || studentData.length === 0) return;
             
             let csvContent = "\uFEFF"; // UTF-8 BOM for Excel Thai text
-            csvContent += "เลขที่,รหัสประจำตัว,คำนำหน้า,ชื่อ,นามสกุล,ชื่อเล่น,เพศ,อ.สื่อสาร(20),สังคม(20),คณิตพื้น(20),ภาษาไทย(20),คณิตเพิ่ม1(20),คณิตเพิ่ม2(5),จีน(20),อ.พื้นฐาน(20),วิทย์พื้น(20),คะแนนรวม(165),คิดเป็น(%)\n";
+            csvContent += "เลขที่,รหัสประจำตัว,คำนำหน้า,ชื่อ,นามสกุล,ชื่อเล่น,เพศ,อ.สื่อสาร(20),สังคม(20),คณิตพื้น(20),ภาษาไทย(20),คณิตเพิ่ม1(20),คณิตเพิ่ม2(5),จีน(20),อ.พื้นฐาน(20),วิทย์พื้น(20),อ.อ่าน-เขียน(20),คะแนนรวม(170),คิดเป็น(%)\n";
 
             studentData.forEach(s => {
-                const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, total_score: 0 };
-                const pct = ((sc.total_score / 165) * 100).toFixed(1);
-                csvContent += `"${s.no}","${s.student_id}","${s.title}","${s.firstname}","${s.lastname}","${s.nickname || ''}","${s.gender}","${sc.eng_comm}","${sc.social}","${sc.math_basic}","${sc.thai}","${sc.math_add1}","${sc.math_add2}","${sc.chinese}","${sc.eng_basic}","${sc.sci_basic || 0}","${sc.total_score}","${pct}%"\n`;
+                const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, total_score: 0 };
+                const pct = ((sc.total_score / 170) * 100).toFixed(1);
+                csvContent += `"${s.no}","${s.student_id}","${s.title}","${s.firstname}","${s.lastname}","${s.nickname || ''}","${s.gender}","${sc.eng_comm}","${sc.social}","${sc.math_basic}","${sc.thai}","${sc.math_add1}","${sc.math_add2}","${sc.chinese}","${sc.eng_basic}","${sc.sci_basic || 0}","${sc.eng_rw || 0}","${sc.total_score}","${pct}%"\n`;
             });
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

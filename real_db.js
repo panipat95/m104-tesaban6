@@ -35,7 +35,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 15,
             "eng_basic": 16,
             "sci_basic": 15,
-            "total_score": 123
+            "eng_rw": 13,
+            "total_score": 136
         }
     },
     {
@@ -74,7 +75,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 14,
             "eng_basic": 15,
             "sci_basic": 16,
-            "total_score": 124
+            "eng_rw": 11,
+            "total_score": 135
         }
     },
     {
@@ -113,7 +115,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 13,
             "eng_basic": 10,
             "sci_basic": 11,
-            "total_score": 93
+            "eng_rw": 8,
+            "total_score": 101
         }
     },
     {
@@ -152,7 +155,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 15,
             "eng_basic": 17,
             "sci_basic": 11,
-            "total_score": 109
+            "eng_rw": 18,
+            "total_score": 127
         }
     },
     {
@@ -191,7 +195,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 14,
             "eng_basic": 11,
             "sci_basic": 8,
-            "total_score": 70
+            "eng_rw": 12,
+            "total_score": 82
         }
     },
     {
@@ -230,7 +235,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 14,
             "eng_basic": 15,
             "sci_basic": 12,
-            "total_score": 100
+            "eng_rw": 13,
+            "total_score": 113
         }
     },
     {
@@ -269,7 +275,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 17,
             "eng_basic": 11,
             "sci_basic": 7,
-            "total_score": 107
+            "eng_rw": 13,
+            "total_score": 120
         }
     },
     {
@@ -308,7 +315,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 17,
             "eng_basic": 11,
             "sci_basic": 7,
-            "total_score": 88
+            "eng_rw": 8,
+            "total_score": 96
         }
     },
     {
@@ -347,7 +355,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 14,
             "eng_basic": 13,
             "sci_basic": 7,
-            "total_score": 90
+            "eng_rw": 9,
+            "total_score": 99
         }
     },
     {
@@ -386,7 +395,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 14,
             "eng_basic": 12,
             "sci_basic": 11,
-            "total_score": 88
+            "eng_rw": 11,
+            "total_score": 99
         }
     },
     {
@@ -425,7 +435,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 14,
             "eng_basic": 7,
             "sci_basic": 11,
-            "total_score": 80
+            "eng_rw": 3,
+            "total_score": 83
         }
     },
     {
@@ -464,7 +475,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 14,
             "eng_basic": 13,
             "sci_basic": 11,
-            "total_score": 101
+            "eng_rw": 10,
+            "total_score": 111
         }
     },
     {
@@ -503,7 +515,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 12,
             "eng_basic": 14,
             "sci_basic": 11,
-            "total_score": 102
+            "eng_rw": 13,
+            "total_score": 115
         }
     },
     {
@@ -542,7 +555,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 17,
             "eng_basic": 13,
             "sci_basic": 14,
-            "total_score": 121
+            "eng_rw": 15,
+            "total_score": 136
         }
     },
     {
@@ -581,7 +595,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 11,
             "eng_basic": 10,
             "sci_basic": 14,
-            "total_score": 100
+            "eng_rw": 5,
+            "total_score": 105
         }
     },
     {
@@ -620,7 +635,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 11,
             "eng_basic": 14,
             "sci_basic": 11,
-            "total_score": 96
+            "eng_rw": 11,
+            "total_score": 107
         }
     },
     {
@@ -659,7 +675,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 15,
             "eng_basic": 15,
             "sci_basic": 9,
-            "total_score": 102
+            "eng_rw": 11,
+            "total_score": 113
         }
     },
     {
@@ -698,7 +715,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 18,
             "eng_basic": 16,
             "sci_basic": 13,
-            "total_score": 130
+            "eng_rw": 13,
+            "total_score": 143
         }
     },
     {
@@ -737,7 +755,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 17,
             "eng_basic": 16,
             "sci_basic": 15,
-            "total_score": 115
+            "eng_rw": 8,
+            "total_score": 123
         }
     },
     {
@@ -776,7 +795,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 18,
             "eng_basic": 13,
             "sci_basic": 13,
-            "total_score": 112
+            "eng_rw": 10,
+            "total_score": 122
         }
     },
     {
@@ -815,7 +835,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 13,
             "eng_basic": 8,
             "sci_basic": 11,
-            "total_score": 79
+            "eng_rw": 9,
+            "total_score": 88
         }
     },
     {
@@ -854,7 +875,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 17,
             "eng_basic": 17,
             "sci_basic": 17,
-            "total_score": 127
+            "eng_rw": 15,
+            "total_score": 142
         }
     },
     {
@@ -893,7 +915,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 16,
             "eng_basic": 18,
             "sci_basic": 13,
-            "total_score": 117
+            "eng_rw": 17,
+            "total_score": 134
         }
     },
     {
@@ -932,7 +955,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 11,
             "eng_basic": 9,
             "sci_basic": 10,
-            "total_score": 83
+            "eng_rw": 7,
+            "total_score": 90
         }
     },
     {
@@ -971,7 +995,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 13,
             "eng_basic": 16,
             "sci_basic": 13,
-            "total_score": 117
+            "eng_rw": 7,
+            "total_score": 124
         }
     },
     {
@@ -1010,7 +1035,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 15,
             "eng_basic": 15,
             "sci_basic": 13,
-            "total_score": 113
+            "eng_rw": 10,
+            "total_score": 123
         }
     },
     {
@@ -1049,7 +1075,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 10,
             "eng_basic": 9,
             "sci_basic": 13,
-            "total_score": 84
+            "eng_rw": 5,
+            "total_score": 89
         }
     },
     {
@@ -1088,7 +1115,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 15,
             "eng_basic": 17,
             "sci_basic": 14,
-            "total_score": 122
+            "eng_rw": 17,
+            "total_score": 139
         }
     },
     {
@@ -1127,7 +1155,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 18,
             "eng_basic": 14,
             "sci_basic": 16,
-            "total_score": 129
+            "eng_rw": 13,
+            "total_score": 142
         }
     },
     {
@@ -1166,7 +1195,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 13,
             "eng_basic": 18,
             "sci_basic": 12,
-            "total_score": 109
+            "eng_rw": 19,
+            "total_score": 128
         }
     },
     {
@@ -1205,7 +1235,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 16,
             "eng_basic": 11,
             "sci_basic": 10,
-            "total_score": 99
+            "eng_rw": 8,
+            "total_score": 107
         }
     },
     {
@@ -1244,7 +1275,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 17,
             "eng_basic": 9,
             "sci_basic": 14,
-            "total_score": 103
+            "eng_rw": 7,
+            "total_score": 110
         }
     },
     {
@@ -1283,7 +1315,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 18,
             "eng_basic": 15,
             "sci_basic": 15,
-            "total_score": 131
+            "eng_rw": 14,
+            "total_score": 145
         }
     },
     {
@@ -1322,7 +1355,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 14,
             "eng_basic": 15,
             "sci_basic": 6,
-            "total_score": 97
+            "eng_rw": 9,
+            "total_score": 106
         }
     },
     {
@@ -1361,7 +1395,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 14,
             "eng_basic": 15,
             "sci_basic": 13,
-            "total_score": 125
+            "eng_rw": 13,
+            "total_score": 138
         }
     },
     {
@@ -1400,7 +1435,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 17,
             "eng_basic": 15,
             "sci_basic": 13,
-            "total_score": 111
+            "eng_rw": 11,
+            "total_score": 122
         }
     },
     {
@@ -1439,7 +1475,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 19,
             "eng_basic": 7,
             "sci_basic": 13,
-            "total_score": 96
+            "eng_rw": 5,
+            "total_score": 101
         }
     },
     {
@@ -1478,7 +1515,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 9,
             "eng_basic": 8,
             "sci_basic": 9,
-            "total_score": 78
+            "eng_rw": 5,
+            "total_score": 83
         }
     },
     {
@@ -1517,7 +1555,8 @@ window.REAL_STUDENT_DB = [
             "chinese": 12,
             "eng_basic": 5,
             "sci_basic": 9,
-            "total_score": 71
+            "eng_rw": 6,
+            "total_score": 77
         }
     }
 ];

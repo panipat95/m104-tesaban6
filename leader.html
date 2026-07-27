@@ -499,7 +499,8 @@
                                     <th style="text-align:center;">ภาษาจีน</th>
                                     <th style="text-align:center;">อังพื้นฐาน</th>
                                     <th style="text-align:center;">วิทย์พื้นฐาน</th>
-                                    <th style="text-align:center; background:#e0f2fe; color:#0369a1;">คะแนนรวม (165)</th>
+                                    <th style="text-align:center;">อังอ่าน-เขียน</th>
+                                    <th style="text-align:center; background:#e0f2fe; color:#0369a1;">คะแนนรวม (170)</th>
                                     <th style="text-align:center;">ร้อยละ</th>
                                 </tr>
                             </thead>
@@ -815,8 +816,8 @@
 
             let html = '';
             students.forEach(s => {
-                const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, total_score: 0 };
-                const pct = ((sc.total_score / 165) * 100).toFixed(1);
+                const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, total_score: 0 };
+                const pct = ((sc.total_score / 170) * 100).toFixed(1);
 
                 html += `
                     <tr>
@@ -837,6 +838,7 @@
                         <td style="text-align:center;"><span class="badge ${sc.chinese >= 10 ? 'badge-success' : 'badge-danger'}">${sc.chinese}</span></td>
                         <td style="text-align:center;"><span class="badge ${sc.eng_basic >= 10 ? 'badge-success' : 'badge-danger'}">${sc.eng_basic}</span></td>
                         <td style="text-align:center;"><span class="badge ${(sc.sci_basic || 0) >= 10 ? 'badge-success' : 'badge-danger'}">${sc.sci_basic || 0}</span></td>
+                        <td style="text-align:center;"><span class="badge ${(sc.eng_rw || 0) >= 10 ? 'badge-success' : 'badge-danger'}">${sc.eng_rw || 0}</span></td>
                         <td style="text-align:center;"><strong style="color:var(--primary); font-size:0.95rem;">${sc.total_score}</strong></td>
                         <td style="text-align:center;"><span class="badge ${pct >= 50 ? 'badge-purple' : 'badge-warning'}">${pct}%</span></td>
                     </tr>

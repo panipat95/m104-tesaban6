@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบเยี่ยมบ้านนักเรียน ม.1/4 - โรงเรียนเทศบาล 6 นครเชียงราย</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6.4.0 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .visit-hero {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #0f172a 100%);
+            color: #ffffff;
+            padding: 2.5rem 1.5rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        .visit-hero::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .wizard-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        .wizard-step {
+            flex: 1;
+            min-width: 140px;
+            text-align: center;
+            padding: 12px 8px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-weight: 500;
+            font-size: 0.88rem;
+            color: #64748b;
+        }
+        .wizard-step.active {
+            background: #e0f2fe;
+            border-color: #0284c7;
+            color: #0369a1;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+        }
+        .wizard-step.completed {
+            background: #f0fdf4;
+            border-color: #10b981;
+            color: #15803d;
+        }
+        .form-section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #0369a1;
+            margin-bottom: 1.2rem;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0f2fe;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .gps-box {
+            background: #f0f9ff;
+            border: 2px dashed #0284c7;
+            border-radius: 14px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .rating-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 8px;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+        }
+        .rating-grid:nth-child(even) {
+            background: #f8fafc;
+        }
+        .rating-grid-header {
+            font-weight: 700;
+            color: #334155;
+            background: #e0f2fe !important;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .admin-map-card {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .step-content {
+            display: none;
+        }
+        .step-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">🌸</div>
+                <div class="logo-text">
+                    <h2>ห้อง ม.1/4 SMT</h2>
+                    <p>โรงเรียนเทศบาล 6 นครเชียงราย</p>
+                </div>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="index.html" class="menu-item">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>ภาพรวมชั้นเรียน</span>
+                </a>
+                <a href="parent.html" class="menu-item">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>พอร์ทัลนักเรียน & ผู้ปกครอง</span>
+                </a>
+                <a href="visit.html" class="menu-item active">
+                    <i class="fa-solid fa-house-user"></i>
+                    <span>ระบบเยี่ยมบ้านนักเรียน</span>
+                </a>
+                <a href="leader.html" class="menu-item">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span>พอร์ทัลหัวหน้าห้อง</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>📍 ห้องเรียนประจำ 332</p>
+                <small>ปีการศึกษา 2569</small>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header Bar -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1>🏠 ระบบเยี่ยมบ้านนักเรียน ม.1/4 ออนไลน์</h1>
+                    <p>แบบบันทึกข้อมูลการเยี่ยมบ้าน อ้างอิงโรงเรียนเทศบาล 6 นครเชียงราย</p>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="btn btn-outline" id="btn-toggle-visit-mode" onclick="toggleVisitMode()">
+                        <i class="fa-solid fa-list-check"></i> <span id="text-mode-btn">ดูแดชบอร์ดติดตาม (ครู)</span>
+                    </button>
+                    <a href="index.html" class="btn btn-outline" title="กลับหน้าหลัก">
+                        <i class="fa-solid fa-arrow-left"></i> กลับแดชบอร์ดหลัก
+                    </a>
+                </div>
+            </header>
+
+            <!-- Mode 1: Parent & Student Form Container -->
+            <div id="mode-form-container">
+                <div class="visit-hero">
+                    <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 6px;">
+                        📝 แบบบันทึกข้อมูลการเยี่ยมบ้านนักเรียน ม.1/4
+                    </h2>
+                    <p style="opacity: 0.95; font-size: 0.95rem;">
+                        กรุณาเลือกรายชื่อนักเรียนและกรอกข้อมูลตามความเป็นจริง เพื่อให้คุณครูประจำชั้นนำไปใช้วางแผนการเยี่ยมบ้านและดูแลช่วยเหลือนักเรียนครับ
+                    </p>
+                </div>
+
+                <!-- Student Select Card -->
+                <div class="card" style="margin-bottom: 1.5rem; border-left: 4px solid #0284c7;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="select-visit-student" style="font-weight: 700; font-size: 1.05rem; color: #0369a1;">
+                            👤 เลือกรายชื่อนักเรียน ม.1/4 (ระบบจะเติมข้อมูลเบื้องต้นให้อัตโนมัติ):
+                        </label>
+                        <select id="select-visit-student" class="form-control" style="font-size: 1.05rem; padding: 12px;" onchange="handleStudentSelectChange()">
+                            <option value="">-- กรุณาเลือกรายชื่อนักเรียน --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Wizard Navigation -->
+                <div class="wizard-nav">
+                    <div class="wizard-step active" id="step-btn-1" onclick="goToStep(1)">
+                        <span>1. ที่อยู่ & ครอบครัว</span>
+                    </div>
+                    <div class="wizard-step" id="step-btn-2" onclick="goToStep(2)">
+                        <span>2. รายได้ & การเดินทาง</span>
+                    </div>
+                    <div class="wizard-step" id="step-btn-3" onclick="goToStep(3)">
+                        <span>3. การเรียน & เพื่อน</span>
+                    </div>
+                    <div class="wizard-step" id="step-btn-4" onclick="goToStep(4)">
+                        <span>4. ประเมิน & ข้อเสนอแนะ</span>
+                    </div>
+                </div>
+
+                <form id="form-home-visit" onsubmit="handleVisitFormSubmit(event)">
+                    <!-- Step 1: Address & Family -->
+                    <div class="step-content active" id="step-1">
+                        <div class="card">
+                            <div class="form-section-title">
+                                <i class="fa-solid fa-map-location-dot"></i> ข้อมูลที่อยู่ปัจจุบัน & พิกัด GPS บ้านนักเรียน
+                            </div>
+
+                            <!-- GPS Pinpoint Box -->
+                            <div class="gps-box">
+                                <i class="fa-solid fa-location-crosshairs" style="font-size: 2.2rem; color: #0284c7; margin-bottom: 8px;"></i>
+                                <h4 style="color: #0369a1; font-weight: 700; margin-bottom: 4px;">📍 ดึงพิกัด GPS ตำแหน่งบ้านปัจจุบัน</h4>
+                                <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">กดปุ่มด้านล่างเมื่ออยู่ที่บ้านเพื่อปักหมุดตำแหน่งบ้านให้คุณครูเดินทางไปเยี่ยมบ้านได้แม่นยำ</p>
+                                <button type="button" class="btn btn-primary" onclick="getCurrentGPSLocation()">
+                                    <i class="fa-solid fa-crosshairs"></i> กดดึงพิกัด GPS บ้านปัจจุบัน
+                                </button>
+                                <div id="gps-status-result" style="margin-top: 10px; font-weight: 600; font-size: 0.9rem; color: #059669;"></div>
+                                <input type="hidden" id="v_lat" name="v_lat">
+                                <input type="hidden" id="v_lng" name="v_lng">
+                            </div>
+
+                            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+                                <div class="form-group">
+                                    <label>บ้านเลขที่</label>
+                                    <input type="text" id="v_house_no" class="form-control" placeholder="เช่น 123/45">
+                                </div>
+                                <div class="form-group">
+                                    <label>หมู่ที่</label>
+                                    <input type="text" id="v_moo" class="form-control" placeholder="เช่น 5">
+                                </div>
+                                <div class="form-group">
+                                    <label>หมู่บ้าน / อาคาร / ชุมชน</label>
+                                    <input type="text" id="v_village" class="form-control" placeholder="เช่น ชุมชนศรีทรายมูล">
+                                </div>
+                                <div class="form-group">
+                                    <label>ถนน / ซอย</label>
+                                    <input type="text" id="v_road" class="form-control" placeholder="เช่น ถนนพหลโยธิน">
+                                </div>
+                                <div class="form-group">
+                                    <label>ตำบล / แขวง</label>
+                                    <input type="text" id="v_subdistrict" class="form-control" value="เวียง">
+                                </div>
+                                <div class="form-group">
+                                    <label>อำเภอ / เขต</label>
+                                    <input type="text" id="v_district" class="form-control" value="เมืองเชียงราย">
+                                </div>
+                                <div class="form-group">
+                                    <label>จังหวัด</label>
+                                    <input type="text" id="v_province" class="form-control" value="เชียงราย">
+                                </div>
+                            </div>
+
+                            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-top: 10px;">
+                                <div class="form-group">
+                                    <label>สถานะที่อยู่อาศัย</label>
+                                    <select id="v_housing_type" class="form-control">
+                                        <option value="ของตนเอง">ของตนเอง</option>
+                                        <option value="บ้านญาติ">บ้านญาติ</option>
+                                        <option value="บ้านพัก/บ้านเช่า">บ้านพัก / บ้านเช่า</option>
+                                        <option value="อื่นๆ">อื่นๆ</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>สภาพภายในบ้าน</label>
+                                    <select id="v_house_condition" class="form-control">
+                                        <option value="สะอาดมีระเบียบ">สะอาดมีระเบียบ</option>
+                                        <option value="ไม่ค่อยสะอาดมีระเบียบ">ไม่ค่อยสะอาดมีระเบียบ</option>
+                                        <option value="สกปรกไม่มีระเบียบ">สกปรกไม่มีระเบียบ</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-section-title" style="margin-top: 1.5rem;">
+                                <i class="fa-solid fa-users"></i> ข้อมูลสมาชิกครอบครัว & สถานภาพผู้ปกครอง
+                            </div>
+                            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+                                <div class="form-group">
+                                    <label>สมาชิกครอบครัวทั้งหมด (คน)</label>
+                                    <input type="number" id="v_family_members_count" class="form-control" value="4">
+                                </div>
+                                <div class="form-group">
+                                    <label>พี่น้องบิดามารดาเดียวกัน (คน)</label>
+                                    <input type="number" id="v_siblings_same_parents" class="form-control" value="1">
+                                </div>
+                                <div class="form-group">
+                                    <label>ความสัมพันธ์ในครอบครัว</label>
+                                    <select id="v_family_relation" class="form-control">
+                                        <option value="รักใคร่กันดี">รักใคร่กันดี</option>
+                                        <option value="ขัดแย้งทะเลาะกันบางครั้ง">ขัดแย้งทะเลาะกันบางครั้ง</option>
+                                        <option value="ขัดแย้งทะเลาะกันบ่อยครั้ง">ขัดแย้งทะเลาะกันบ่อยครั้ง</option>
+                                        <option value="ขัดแย้งและทำร้ายร่างกายบางครั้ง">ขัดแย้งและทำร้ายร่างกายบางครั้ง</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>สถานภาพบิดามารดา</label>
+                                    <select id="v_parent_status" class="form-control">
+                                        <option value="อยู่ด้วยกัน">อยู่ด้วยกัน</option>
+                                        <option value="หย่าร้าง">หย่าร้าง / แยกกันอยู่</option>
+                                        <option value="บิดาเสียชีวิต">บิดาเสียชีวิต</option>
+                                        <option value="มารดาเสียชีวิต">มารดาเสียชีวิต</option>
+                                        <option value="บิดามารดาเสียชีวิต">บิดามารดาเสียชีวิต</option>
+                                        <option value="บิดาสมรสใหม่">บิดาสมรสใหม่</option>
+                                        <option value="มารดาสมรสใหม่">มารดาสมรสใหม่</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>ปัจจุบันนักเรียนอาศัยอยู่กับ</label>
+                                    <select id="v_living_with" class="form-control">
+                                        <option value="บิดามารดา">บิดามารดา</option>
+                                        <option value="บิดา">บิดา</option>
+                                        <option value="มารดา">มารดา</option>
+                                        <option value="ญาติ">ญาติ</option>
+                                        <option value="ตามลำพัง">ตามลำพัง</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>การอบรมเลี้ยงดู</label>
+                                    <select id="v_upbringing" class="form-control">
+                                        <option value="ใช้เหตุผล">ใช้เหตุผล</option>
+                                        <option value="ตามใจ">ตามใจ</option>
+                                        <option value="เข้มงวดกวดขัน">เข้มงวดกวดขัน</option>
+                                        <option value="ปล่อยปละละเลย">ปล่อยปละละเลย</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="text-align: right; margin-top: 1.5rem;">
+                                <button type="button" class="btn btn-primary" onclick="goToStep(2)">
+                                    ถัดไป: รายได้ & การเดินทาง <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Income & Daily Routine -->
+                    <div class="step-content" id="step-2">
+                        <div class="card">
+                            <div class="form-section-title">
+                                <i class="fa-solid fa-coins"></i> อาชีพ รายได้ และเศรษฐกิจครอบครัว
+                            </div>
+                            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+                                <div class="form-group">
+                                    <label>อาชีพหลักของผู้ปกครอง</label>
+                                    <select id="v_guardian_job" class="form-control">
+                                        <option value="ค้าขาย">ค้าขาย / ธุรกิจส่วนตัว</option>
+                                        <option value="รับจ้าง">รับจ้างทั่วไป</option>
+                                        <option value="รับราชการ">รับราชการ / รัฐวิสาหกิจ</option>
+                                        <option value="เกษตรกร">เกษตรกร</option>
+                                        <option value="อื่นๆ">อื่นๆ</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>รายได้ครอบครัวต่อปี</label>
+                                    <select id="v_yearly_income" class="form-control">
+                                        <option value="ไม่เกิน 40,000 บาท">ไม่เกิน 40,000 บาท</option>
+                                        <option value="40,001 - 99,999 บาท" selected>40,001 - 99,999 บาท</option>
+                                        <option value="100,000 บาทขึ้นไป">100,000 บาทขึ้นไป</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>รายได้เทียบกับรายจ่าย</label>
+                                    <select id="v_income_expense_balance" class="form-control">
+                                        <option value="เพียงพอ">เพียงพอ</option>
+                                        <option value="ไม่เพียงพอในบางครั้ง">ไม่เพียงพอในบางครั้ง</option>
+                                        <option value="ขัดสน">ขัดสน</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-section-title" style="margin-top: 1.5rem;">
+                                <i class="fa-solid fa-bus"></i> การเดินทางมาโรงเรียน & เงินมาโรงเรียน
+                            </div>
+                            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+                                <div class="form-group">
+                                    <label>เดินทางมาโรงเรียนโดย</label>
+                                    <select id="v_commute_method" class="form-control">
+                                        <option value="รถจักรยานยนต์">รถจักรยานยนต์</option>
+                                        <option value="รถประจำทาง/รถรับส่ง">รถประจำทาง / รถรับส่งนักเรียน</option>
+                                        <option value="เดิน">เดิน</option>
+                                        <option value="รถจักรยาน">รถจักรยาน</option>
+                                        <option value="อื่นๆ">อื่นๆ</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>ระยะทางจากบ้านถึงโรงเรียน (กม.)</label>
+                                    <input type="number" step="0.1" id="v_distance_km" class="form-control" value="3.5">
+                                </div>
+                                <div class="form-group">
+                                    <label>เวลาเดินทาง (นาที)</label>
+                                    <input type="number" id="v_travel_time_mins" class="form-control" value="15">
+                                </div>
+                                <div class="form-group">
+                                    <label>เงินมาโรงเรียนต่อวัน (บาท)</label>
+                                    <input type="number" id="v_daily_allowance" class="form-control" value="60">
+                                </div>
+                            </div>
+
+                            <div class="form-section-title" style="margin-top: 1.5rem;">
+                                <i class="fa-solid fa-clock"></i> การดำเนินชีวิตประจำวัน & พฤติกรรมที่บ้าน
+                            </div>
+                            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+                                <div class="form-group">
+                                    <label>เวลา เข้านอน</label>
+                                    <select id="v_sleep_time" class="form-control">
+                                        <option value="ก่อน 22.00 น.">ก่อน 22.00 น.</option>
+                                        <option value="22.00 - 24.00 น.">22.00 - 24.00 น.</option>
+                                        <option value="หลัง 24.00 น.">หลัง 24.00 น.</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>เวลา ตื่นนอน</label>
+                                    <select id="v_wake_time" class="form-control">
+                                        <option value="ก่อน 05.00 น.">ก่อน 05.00 น.</option>
+                                        <option value="05.00 - 06.00 น.">05.00 - 06.00 น.</option>
+                                        <option value="หลัง 06.00 น.">หลัง 06.00 น.</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>การนอนค้างบ้านเพื่อน/คนอื่น</label>
+                                    <select id="v_stay_overnight_freq" class="form-control">
+                                        <option value="ไม่เคย">ไม่เคย</option>
+                                        <option value="ครั้งคราว">ครั้งคราว</option>
+                                        <option value="บ่อยครั้ง">บ่อยครั้ง</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>การเล่นเกมมือถือ/คอมพิวเตอร์</label>
+                                    <select id="v_gaming_freq" class="form-control">
+                                        <option value="ครั้งคราว">ครั้งคราว</option>
+                                        <option value="บ่อยครั้ง">บ่อยครั้ง</option>
+                                        <option value="ประจำ">ประจำ</option>
+                                        <option value="ไม่เคย">ไม่เคย</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+                                <button type="button" class="btn btn-outline" onclick="goToStep(1)">
+                                    <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="goToStep(3)">
+                                    ถัดไป: การเรียน & เพื่อน <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Study & Behavior -->
+                    <div class="step-content" id="step-3">
+                        <div class="card">
+                            <div class="form-section-title">
+                                <i class="fa-solid fa-book-open-reader"></i> การเรียน ทัศนคติ และความต้องการในอนาคต
+                            </div>
+                            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+                                <div class="form-group">
+                                    <label>การขยันอ่านหนังสือ / ทำการบ้าน</label>
+                                    <select id="v_study_at_home_freq" class="form-control">
+                                        <option value="บ่อยครั้ง">บ่อยครั้ง</option>
+                                        <option value="ครั้งคราว">ครั้งคราว</option>
+                                        <option value="ประจำ">ประจำ</option>
+                                        <option value="ไม่เคย">ไม่เคย</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>เป้าหมายผู้ปกครองเมื่อจบ ม.6</label>
+                                    <select id="v_parent_goal_m6" class="form-control">
+                                        <option value="ศึกษาต่อระดับมหาวิทยาลัย/สูงกว่า">ศึกษาต่อระดับมหาวิทยาลัย / สูงกว่า</option>
+                                        <option value="ประกอบอาชีพ">ประกอบอาชีพ</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>อาชีพที่นักเรียนใฝ่ฝันในอนาคต</label>
+                                    <input type="text" id="v_student_dream_job" class="form-control" placeholder="เช่น หมอ, วิศวกร, ครู, นักธุรกิจ">
+                                </div>
+                                <div class="form-group">
+                                    <label>การเข้ากับเพื่อนในโรงเรียน</label>
+                                    <select id="v_friendship_ease" class="form-control">
+                                        <option value="ง่าย">เข้ากับเพื่อนได้ง่าย</option>
+                                        <option value="ค่อนข้างง่าย">ค่อนข้างง่าย</option>
+                                        <option value="ยาก">ยาก / เก็บตัว</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>ปัญหาทางการเรียนในปัจจุบัน (เลือกได้หลายข้อ)</label>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin-top: 6px;">
+                                    <label><input type="checkbox" name="v_study_problems" value="ไม่มีปัญหา"> 🟢 ไม่มีปัญหา</label>
+                                    <label><input type="checkbox" name="v_study_problems" value="เรียนไม่เข้าใจ"> ⚠️ เรียนไม่เข้าใจ</label>
+                                    <label><input type="checkbox" name="v_study_problems" value="เบื่อเรียนบางวิชา"> ⚠️ เบื่อเรียนบางวิชา</label>
+                                    <label><input type="checkbox" name="v_study_problems" value="เรียนไม่ทันเพื่อน"> ⚠️ เรียนไม่ทันเพื่อน</label>
+                                    <label><input type="checkbox" name="v_study_problems" value="ต้องการให้เพื่อนช่วย"> 🤝 ต้องการให้เพื่อนช่วย</label>
+                                    <label><input type="checkbox" name="v_study_problems" value="ต้องการครูที่เข้าใจ"> 👨‍🏫 ต้องการครูที่เข้าใจ</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>เมื่อมีปัญหาเกิดขึ้น นักเรียนมักจะ</label>
+                                <select id="v_problem_solving_way" class="form-control">
+                                    <option value="ปรึกษาบิดามารดา/ผู้ปกครอง">ปรึกษาบิดามารดา / ผู้ปกครอง</option>
+                                    <option value="ปรึกษาเพื่อน">ปรึกษาเพื่อน</option>
+                                    <option value="ปรึกษาครู">ปรึกษาครู</option>
+                                    <option value="แก้ปัญหาด้วยตนเอง">แก้ปัญหาด้วยตนเอง</option>
+                                    <option value="เก็บไว้คนเดียว">เก็บไว้คนเดียว</option>
+                                </select>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+                                <button type="button" class="btn btn-outline" onclick="goToStep(2)">
+                                    <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="goToStep(4)">
+                                    ถัดไป: ประเมิน & ข้อเสนอแนะ <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Assessment & Summary -->
+                    <div class="step-content" id="step-4">
+                        <div class="card">
+                            <div class="form-section-title">
+                                <i class="fa-solid fa-clipboard-check"></i> การประเมินพฤติกรรมนักเรียนที่บ้าน (10 ด้าน)
+                            </div>
+                            <p style="font-size: 0.88rem; color: #64748b; margin-bottom: 12px;">ประเมินตามสภาพความเป็นจริงเมื่อนักเรียนอยู่ที่บ้าน:</p>
+
+                            <div class="rating-grid rating-grid-header">
+                                <div>คุณลักษณะ / พฤติกรรม</div>
+                                <div style="text-align: center;">ดี</div>
+                                <div style="text-align: center;">ปานกลาง</div>
+                                <div style="text-align: center;">ปรับปรุง</div>
+                            </div>
+
+                            <div id="rating-items-container">
+                                <!-- Dynamic Rating Items -->
+                            </div>
+
+                            <div class="form-section-title" style="margin-top: 1.5rem;">
+                                <i class="fa-solid fa-comment-dots"></i> ข้อเสนอแนะ & ความช่วยเหลือจากโรงเรียน
+                            </div>
+                            <div class="form-group">
+                                <label>สิ่งที่ผู้ปกครองต้องการให้โรงเรียนช่วยเหลือ / ส่งเสริม:</label>
+                                <textarea id="v_parent_request_school" class="form-control" rows="2" placeholder="เช่น การกู้ยืมทุนการศึกษา, การกวดวิชาเพิ่มเติมนอกเวลา, สวัสดิการ"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>ข้อเสนอแนะเพิ่มเติมของผู้ปกครองที่มีต่อโรงเรียน:</label>
+                                <textarea id="v_parent_comments" class="form-control" rows="2" placeholder="ความเห็นเกี่ยวกับสภาพแวดล้อม การเรียน หรือกิจกรรมของโรงเรียน"></textarea>
+                            </div>
+
+                            <div class="form-section-title" style="margin-top: 1.5rem;">
+                                <i class="fa-solid fa-pen-fancy"></i> สรุปภาพรวมและลงชื่อผู้ให้ข้อมูล
+                            </div>
+                            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+                                <div class="form-group">
+                                    <label>ชื่อ-นามสกุล ผู้ให้ข้อมูล</label>
+                                    <input type="text" id="v_informant_name" class="form-control" placeholder="ชื่อผู้ปกครอง / นักเรียน">
+                                </div>
+                                <div class="form-group">
+                                    <label>เกี่ยวข้องเป็น</label>
+                                    <input type="text" id="v_informant_relation" class="form-control" value="บิดา/มารดา">
+                                </div>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+                                <button type="button" class="btn btn-outline" onclick="goToStep(3)">
+                                    <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
+                                </button>
+                                <button type="submit" class="btn btn-success" style="padding: 12px 24px; font-size: 1.05rem;">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูลเยี่ยมบ้าน 💾
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Mode 2: Teacher Admin Tracking Dashboard -->
+            <div id="mode-admin-container" style="display: none;">
+                <div class="card" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h3 style="color: #166534; font-weight: 700; margin-bottom: 4px;">
+                                📍 แดชบอร์ดติดตามข้อมูลการเยี่ยมบ้าน & แผนที่ GPS (ม.1/4)
+                            </h3>
+                            <p style="font-size: 0.9rem; color: #15803d; margin: 0;">
+                                ติดตามสถานะการกรอกข้อมูล นำทาง GPS และสรุปรายงานสำหรับคุณครูประจำชั้น
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <span class="badge badge-success" id="badge-visit-done-count" style="font-size: 0.95rem; padding: 8px 14px;">
+                                เยี่ยมบ้านแล้ว 0 / 39 คน
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GPS Map Overview Section -->
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <h3 style="color: #0369a1; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-map-marked-alt" style="color: #0284c7;"></i> หมุดตำแหน่งบ้านนักเรียนบน Google Maps
+                    </h3>
+                    <div id="admin-gps-list-container">
+                        <!-- Dynamic GPS Pins List -->
+                    </div>
+                </div>
+
+                <!-- Visit Status Table -->
+                <div class="card">
+                    <h3 style="color: #0369a1; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-table-list" style="color: #0284c7;"></i> ตารางสรุปการเยี่ยมบ้านนักเรียนรายบุคคล (39 คน)
+                    </h3>
+                    <div class="table-responsive">
+                        <table class="data-table" id="table-visit-status">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px; text-align: center;">เลขที่</th>
+                                    <th>ชื่อ-นามสกุล</th>
+                                    <th>ที่อยู่ปัจจุบัน</th>
+                                    <th>พิกัด GPS / นำทาง</th>
+                                    <th style="text-align: center;">สถานะ</th>
+                                    <th style="text-align: center;">การจัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamic Status Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Real DB Script -->
+    <script src="real_db.js"></script>
+    <!-- Home Visit App Logic -->
+    <script src="visit.js"></script>
+</body>
+</html>

@@ -344,16 +344,31 @@
                             <input type="text" id="v_road" class="form-control" placeholder="เช่น ถนนพหลโยธิน">
                         </div>
                         <div class="form-group">
-                            <label>ตำบล / แขวง</label>
-                            <input type="text" id="v_subdistrict" class="form-control" value="เวียง">
+                            <label>จังหวัด <span style="color:#ef4444;">*</span></label>
+                            <select id="v_province" class="form-control" onchange="handleProvinceChange()">
+                                <option value="เชียงราย" selected>เชียงราย</option>
+                                <option value="เชียงใหม่">เชียงใหม่</option>
+                                <option value="พะเยา">พะเยา</option>
+                                <option value="ลำปาง">ลำปาง</option>
+                                <option value="แพร่">แพร่</option>
+                                <option value="น่าน">น่าน</option>
+                                <option value="ลำพูน">ลำพูน</option>
+                                <option value="แม่ฮ่องสอน">แม่ฮ่องสอน</option>
+                                <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option>
+                                <option value="อื่นๆ">อื่นๆ</option>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label>อำเภอ / เขต</label>
-                            <input type="text" id="v_district" class="form-control" value="เมืองเชียงราย">
+                            <label>อำเภอ / เขต <span style="color:#ef4444;">*</span></label>
+                            <select id="v_district" class="form-control" onchange="handleDistrictChange()">
+                                <!-- Dynamic Chiang Rai District Options -->
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label>จังหวัด</label>
-                            <input type="text" id="v_province" class="form-control" value="เชียงราย">
+                            <label>ตำบล / แขวง <span style="color:#ef4444;">*</span></label>
+                            <select id="v_subdistrict" class="form-control">
+                                <!-- Dynamic Chiang Rai Subdistrict Options -->
+                            </select>
                         </div>
                     </div>
 

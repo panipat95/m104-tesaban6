@@ -7,6 +7,28 @@ let currentVisitStep = 1;
 let homeVisitStore = {}; // Key: student_id, Value: visit object
 let ratingSelections = {}; // Key: catKey, Value: 'ดี' | 'ปานกลาง' | 'ปรับปรุง'
 
+// Official Chiang Rai Province Geographic Dictionary (18 Districts & All Subdistricts)
+const chiangRaiGeography = {
+    'เมืองเชียงราย': ['เวียง', 'รอบเวียง', 'บ้านดู่', 'นางแล', 'แม่ข้าวต้ม', 'แม่ยาว', 'ห้วยชมภู', 'ห้วยสัก', 'แม่กรณ์', 'ดอยฮาง', 'ดอยลาน', 'สันทราย', 'ท่าสาย', 'ท่าสุด', 'ป่าอ้อพะยูน', 'ฝาง'],
+    'แม่สาย': ['แม่สาย', 'ห้วยไคร้', 'เกาะช้าง', 'โป่งผา', 'โป่งงาม', 'เวียงพางคำ', 'บ้านด้าย', 'ศรีเมืองชุม'],
+    'แม่จัน': ['แม่จัน', 'จันจว้า', 'แม่คำ', 'ป่าซาง', 'สันซาย', 'ท่าข้าวเปลือก', 'แม่ไร่', 'ศรีค้ำ', 'จันจว้าใต้', 'จอมสวรรค์', 'ป่าตึง'],
+    'เชียงแสน': ['เวียง', 'โยนก', 'ป่าสัก', 'บ้านแซว', 'ศรีดอนมูล', 'แม่เงิน'],
+    'เชียงของ': ['เวียง', 'สถาน', 'ห้วยซ้อ', 'บุญเรือง', 'แม่ต๋ำ', 'ศรีดอนชัย', 'ริมโขง'],
+    'เทิง': ['เวียง', 'งิ้ว', 'แม่ลอย', 'เชียงเคี่ยน', 'ตับเต่า', 'หงาว', 'สันทรายงาม', 'ศรีดอนไชย', 'หนองแรด', 'ป่าตาล'],
+    'พาน': ['เมืองพาน', 'เขื่อนผาก', 'สันติสุข', 'ดอยงาม', 'หัวง้ม', 'เจดีย์หลวง', 'ป่าหุ่ง', 'ม่วงคำ', 'ทรายขาว', 'สันกลาง', 'สันเย็น', 'ทานตะวัน', 'แม่อ้อ', 'เวียงห้าว', 'สันมะเค็ด'],
+    'เวียงป่าเป้า': ['เวียง', 'แม่เจดีย์', 'แม่เจดีย์ใหม่', 'ป่างิ้ว', 'เวียงกาหลง', 'บ้านโป่ง', 'สันสลี'],
+    'แม่สรวย': ['แม่สรวย', 'ป่าแดด', 'แม่พริก', 'ศรีถ้อย', 'ท่าก๊อ', 'เจดีย์หลวง', 'วาวี'],
+    'เวียงชัย': ['เวียงชัย', 'ผางาม', 'เวียงเหนือ', 'ดอนศิลา', 'เมืองชุม'],
+    'พญาเม็งราย': ['แม่ต๋ำ', 'ไม้ยา', 'เม็งราย', 'ตาดควัน', 'สุขไพบูลย์'],
+    'ขุนตาล': ['ต้า', 'ป่าแมต', 'ยางฮอม'],
+    'เวียงเชียงรุ้ง': ['ทุ่งก่อ', 'ดงมหาวัน', 'ป่าซาง'],
+    'แม่ฟ้าหลวง': ['เทอดไทย', 'แม่สลองนอก', 'แม่สลองใน', 'แม่ฟ้าหลวง'],
+    'แม่ลาว': ['ดงมาดะ', 'ป่าก่อดำ', 'จอมหมอกแก้ว', 'บัวสลี', 'โป่งแพร่'],
+    'เวียงแก่น': ['ม่วงยาย', 'ปอ', 'หล่ายงาว', 'ท่าข้าม'],
+    'ป่าแดด': ['ป่าแดด', 'ป่าแงะ', 'สันมะค่า', 'โรงช้าง', 'ศรีโพธิ์เงิน'],
+    'ดอยหลวง': ['ปงน้อย', 'โชคชัย', 'หนองป่าก่อ']
+};
+
 const ratingCategories = [
     { key: 'responsibility', title: '1. ความรับผิดชอบ' },
     { key: 'diligence', title: '2. ความขยันหมั่นเพียร' },
@@ -34,9 +56,79 @@ function getVisitStudentList() {
 document.addEventListener('DOMContentLoaded', () => {
     loadHomeVisitStore();
     populateStudentSelectOptions();
+    initAddressDropdowns();
     renderRatingItemsGrid();
     updateProgressBar();
 });
+
+// Initialize Address Cascading Dropdowns for Chiang Rai
+function initAddressDropdowns(selectedDistrict = 'เมืองเชียงราย', selectedSubdistrict = 'เวียง') {
+    const provinceSelect = document.getElementById('v_province');
+    if (!provinceSelect) return;
+
+    if (provinceSelect.value === 'เชียงราย') {
+        populateChiangRaiDistricts(selectedDistrict, selectedSubdistrict);
+    }
+}
+
+// Populate Chiang Rai District Options
+function populateChiangRaiDistricts(targetDistrict = 'เมืองเชียงราย', targetSubdistrict = 'เวียง') {
+    const districtSelect = document.getElementById('v_district');
+    if (!districtSelect) return;
+
+    districtSelect.innerHTML = '';
+    const districts = Object.keys(chiangRaiGeography);
+
+    districts.forEach(dist => {
+        const option = document.createElement('option');
+        option.value = dist;
+        option.textContent = `อำเภอ${dist}`;
+        if (dist === targetDistrict) option.selected = true;
+        districtSelect.appendChild(option);
+    });
+
+    populateChiangRaiSubdistricts(districtSelect.value || targetDistrict, targetSubdistrict);
+}
+
+// Populate Chiang Rai Subdistrict Options based on selected District
+function populateChiangRaiSubdistricts(districtName, targetSubdistrict = 'เวียง') {
+    const subdistrictSelect = document.getElementById('v_subdistrict');
+    if (!subdistrictSelect) return;
+
+    subdistrictSelect.innerHTML = '';
+    const subdistricts = chiangRaiGeography[districtName] || [];
+
+    subdistricts.forEach(sub => {
+        const option = document.createElement('option');
+        option.value = sub;
+        option.textContent = `ตำบล${sub}`;
+        if (sub === targetSubdistrict) option.selected = true;
+        subdistrictSelect.appendChild(option);
+    });
+}
+
+// Handle Province Change Event
+function handleProvinceChange() {
+    const provinceSelect = document.getElementById('v_province');
+    const districtSelect = document.getElementById('v_district');
+    const subdistrictSelect = document.getElementById('v_subdistrict');
+
+    if (provinceSelect.value === 'เชียงราย') {
+        populateChiangRaiDistricts();
+    } else {
+        // Fallback for other provinces
+        districtSelect.innerHTML = '<option value="เมือง">อำเภอเมือง</option><option value="อื่นๆ">อำเภออื่นๆ</option>';
+        subdistrictSelect.innerHTML = '<option value="ในเมือง">ตำบลในเมือง</option><option value="อื่นๆ">ตำบลอื่นๆ</option>';
+    }
+}
+
+// Handle District Change Event
+function handleDistrictChange() {
+    const districtSelect = document.getElementById('v_district');
+    if (districtSelect) {
+        populateChiangRaiSubdistricts(districtSelect.value);
+    }
+}
 
 // Load existing visits from LocalStorage
 function loadHomeVisitStore() {
@@ -247,6 +339,7 @@ function resetFormState() {
     document.getElementById('gps-status-result').innerHTML = '';
     ratingSelections = {};
     renderRatingItemsGrid();
+    initAddressDropdowns();
     goToStep(1);
 }
 
@@ -352,6 +445,14 @@ function submitVisitDataToGoogleScript(visitData) {
 // Fill form from object
 function fillFormFromObject(obj) {
     if (!obj) return;
+
+    if (obj.province) {
+        const provEl = document.getElementById('v_province');
+        if (provEl) provEl.value = obj.province;
+    }
+
+    initAddressDropdowns(obj.district || 'เมืองเชียงราย', obj.subdistrict || 'เวียง');
+
     Object.keys(obj).forEach(key => {
         const el = document.getElementById(`v_${key}`);
         if (el) el.value = obj[key];

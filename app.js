@@ -170,8 +170,8 @@ document.addEventListener('DOMContentLoaded', () => {
         studentData.forEach(s => {
             if (s.scores && s.scores.total_score) totalScoreSum += s.scores.total_score;
         });
-        const avgScore = total > 0 ? (totalScoreSum / total).toFixed(1) : '108.5';
-        const avgPct = ((avgScore / 145) * 100).toFixed(1);
+        const avgScore = total > 0 ? (totalScoreSum / total).toFixed(1) : '123.5';
+        const avgPct = ((avgScore / 165) * 100).toFixed(1);
 
         const elTotal = document.getElementById('stat-total');
         if (elTotal) elTotal.textContent = `${total} คน`;
@@ -184,6 +184,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const elAvg = document.getElementById('stat-midterm-avg');
         if (elAvg) elAvg.textContent = `${avgScore} คะแนน (${avgPct}%)`;
+
+        const elSubtext = document.getElementById('overview-avg-midterm-subtext');
+        if (elSubtext) elSubtext.textContent = `คะแนนเต็ม 165 คะแนน (9 วิชาหลัก)`;
     }
 
     let overviewCurrentPage = 1;
@@ -830,8 +833,8 @@ document.addEventListener('DOMContentLoaded', () => {
             avatarEl.innerHTML = `<img src="${photoSrc}" onerror="this.outerHTML='<i class=\\'fa-solid fa-user-graduate\\'></i>'">`;
         }
 
-        const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, total_score: 0 };
-        const pct = ((sc.total_score / 145) * 100).toFixed(1);
+        const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, total_score: 0 };
+        const pct = ((sc.total_score / 165) * 100).toFixed(1);
 
         const myPendingTasks = pendingHomeworkTasks.filter(t => t.pendingStudentIds.includes(s.student_id.toString()));
 
@@ -861,7 +864,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <div style="grid-column: 1 / -1; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:14px; margin-top:4px;">
-                    <h4 style="color:#0369a1; margin-bottom:8px; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-square-poll-vertical"></i> ผลการเรียนสอบกลางภาคเรียนที่ 1/2569 (รวม ${sc.total_score}/145 - คิดเป็น ${pct}%)</h4>
+                    <h4 style="color:#0369a1; margin-bottom:8px; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-square-poll-vertical"></i> ผลการเรียนสอบกลางภาคเรียนที่ 1/2569 (รวม ${sc.total_score}/165 - คิดเป็น ${pct}%)</h4>
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:8px; font-size:0.88rem;">
                         <div>• อ.สื่อสาร: <strong>${sc.eng_comm}/20</strong></div>
                         <div>• สังคมศึกษา: <strong>${sc.social}/20</strong></div>
@@ -871,6 +874,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div>• คณิตเพิ่มเติม 2: <strong>${sc.math_add2}/5</strong></div>
                         <div>• ภาษาจีน: <strong>${sc.chinese}/20</strong></div>
                         <div>• อ.พื้นฐาน: <strong>${sc.eng_basic}/20</strong></div>
+                        <div>• วิทย์พื้นฐาน: <strong>${sc.sci_basic || 0}/20</strong></div>
                     </div>
                 </div>
             `;
@@ -940,12 +944,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!studentData || studentData.length === 0) return;
             
             let csvContent = "\uFEFF"; // UTF-8 BOM for Excel Thai text
-            csvContent += "เลขที่,รหัสประจำตัว,คำนำหน้า,ชื่อ,นามสกุล,ชื่อเล่น,เพศ,อ.สื่อสาร(20),สังคม(20),คณิตพื้น(20),ภาษาไทย(20),คณิตเพิ่ม1(20),คณิตเพิ่ม2(5),จีน(20),อ.พื้นฐาน(20),คะแนนรวม(145),คิดเป็น(%)\n";
+            csvContent += "เลขที่,รหัสประจำตัว,คำนำหน้า,ชื่อ,นามสกุล,ชื่อเล่น,เพศ,อ.สื่อสาร(20),สังคม(20),คณิตพื้น(20),ภาษาไทย(20),คณิตเพิ่ม1(20),คณิตเพิ่ม2(5),จีน(20),อ.พื้นฐาน(20),วิทย์พื้น(20),คะแนนรวม(165),คิดเป็น(%)\n";
 
             studentData.forEach(s => {
-                const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, total_score: 0 };
-                const pct = ((sc.total_score / 145) * 100).toFixed(1);
-                csvContent += `"${s.no}","${s.student_id}","${s.title}","${s.firstname}","${s.lastname}","${s.nickname || ''}","${s.gender}","${sc.eng_comm}","${sc.social}","${sc.math_basic}","${sc.thai}","${sc.math_add1}","${sc.math_add2}","${sc.chinese}","${sc.eng_basic}","${sc.total_score}","${pct}%"\n`;
+                const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, total_score: 0 };
+                const pct = ((sc.total_score / 165) * 100).toFixed(1);
+                csvContent += `"${s.no}","${s.student_id}","${s.title}","${s.firstname}","${s.lastname}","${s.nickname || ''}","${s.gender}","${sc.eng_comm}","${sc.social}","${sc.math_basic}","${sc.thai}","${sc.math_add1}","${sc.math_add2}","${sc.chinese}","${sc.eng_basic}","${sc.sci_basic || 0}","${sc.total_score}","${pct}%"\n`;
             });
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

@@ -62,14 +62,39 @@ document.addEventListener('DOMContentLoaded', () => {
     goToStep(1); // Set initial step state cleanly
 });
 
-// Initialize Address Cascading Dropdowns for Chiang Rai
-function initAddressDropdowns(selectedDistrict = 'เมืองเชียงราย', selectedSubdistrict = 'เวียง') {
-    const provinceSelect = document.getElementById('v_province');
-    if (!provinceSelect) return;
+// Official Thailand 77 Provinces Array
+const thailandProvinces = [
+    'เชียงราย', 'กรุงเทพมหานคร',
+    'กระบี่', 'กาญจนบุรี', 'กาฬสินธุ์', 'กำแพงเพชร', 'ขอนแก่น', 'จันทบุรี', 'ฉะเชิงเทรา', 'ชลบุรี',
+    'ชัยนาท', 'ชัยภูมิ', 'ชุมพร', 'เชียงใหม่', 'ตรัง', 'ตราด', 'ตาก', 'นครนายก', 'นครปฐม',
+    'นครพนม', 'นครราชสีมา', 'นครศรีธรรมราช', 'นครสวรรค์', 'นนทบุรี', 'นราธิวาส', 'น่าน', 'บึงกาฬ',
+    'บุรีรัมย์', 'ปทุมธานี', 'ประจวบคีรีขันธ์', 'ปราจีนบุรี', 'ปัตตานี', 'พระนครศรีอยุธยา', 'พะเยา',
+    'พังงา', 'พัทลุง', 'พิจิตร', 'พิษณุโลก', 'เพชรบุรี', 'เพชรบูรณ์', 'แพร่', 'ภูเก็ต', 'มหาสารคาม',
+    'มุกดาหาร', 'แม่ฮ่องสอน', 'ยโสธร', 'ยะลา', 'ร้อยเอ็ด', 'ระนอง', 'ระยอง', 'ราชบุรี', 'ลพบุรี',
+    'ลำปาง', 'ลำพูน', 'เลย', 'ศรีสะเกษ', 'สกลนคร', 'สงขลา', 'สตูล', 'สมุทรปราการ', 'สมุทรสงคราม',
+    'สมุทรสาคร', 'สระแก้ว', 'สระบุรี', 'สิงห์บุรี', 'สุโขทัย', 'สุพรรณบุรี', 'สุราษฎร์ธานี', 'สุรินทร์',
+    'หนองคาย', 'หนองบัวลำภู', 'อ่างทอง', 'อำนาจเจริญ', 'อุดรธานี', 'อุตรดิตถ์', 'อุทัยธานี', 'อุบลราชธานี'
+];
 
-    if (provinceSelect.value === 'เชียงราย') {
-        populateChiangRaiDistricts(selectedDistrict, selectedSubdistrict);
-    }
+// Populate 77 Provinces Dropdown
+function populateProvinceOptions(selectedProv = 'เชียงราย') {
+    const provSelect = document.getElementById('v_province');
+    if (!provSelect) return;
+
+    provSelect.innerHTML = '';
+    thailandProvinces.forEach(prov => {
+        const opt = document.createElement('option');
+        opt.value = prov;
+        opt.textContent = (prov === 'กรุงเทพมหานคร') ? prov : `จังหวัด${prov}`;
+        if (prov === selectedProv) opt.selected = true;
+        provSelect.appendChild(opt);
+    });
+}
+
+// Initialize Address Cascading Dropdowns for Chiang Rai & Other Provinces
+function initAddressDropdowns(selectedProv = 'เชียงราย', selectedDistrict = 'เมืองเชียงราย', selectedSubdistrict = 'เวียง') {
+    populateProvinceOptions(selectedProv);
+    handleProvinceChange(selectedDistrict, selectedSubdistrict);
 }
 
 // Populate Chiang Rai District Options
@@ -108,25 +133,31 @@ function populateChiangRaiSubdistricts(districtName, targetSubdistrict = 'เว
     });
 }
 
-// Handle Province Change Event
-function handleProvinceChange() {
-    const provinceSelect = document.getElementById('v_province');
-    const districtSelect = document.getElementById('v_district');
-    const subdistrictSelect = document.getElementById('v_subdistrict');
+// Handle Province Change Event (Switch between Chiang Rai dropdowns vs Free text input for 76 other provinces)
+function handleProvinceChange(targetDistrict = '', targetSubdistrict = '') {
+    const provSelect = document.getElementById('v_province');
+    const wrapperDist = document.getElementById('wrapper_district');
+    const wrapperSub = document.getElementById('wrapper_subdistrict');
 
-    if (provinceSelect.value === 'เชียงราย') {
-        populateChiangRaiDistricts();
+    if (!provSelect) return;
+
+    const prov = provSelect.value;
+
+    if (prov === 'เชียงราย') {
+        if (wrapperDist) wrapperDist.innerHTML = `<select id="v_district" class="form-control" onchange="handleDistrictChange()"></select>`;
+        if (wrapperSub) wrapperSub.innerHTML = `<select id="v_subdistrict" class="form-control"></select>`;
+        populateChiangRaiDistricts(targetDistrict || 'เมืองเชียงราย', targetSubdistrict || 'เวียง');
     } else {
-        // Fallback for other provinces
-        districtSelect.innerHTML = '<option value="เมือง">อำเภอเมือง</option><option value="อื่นๆ">อำเภออื่นๆ</option>';
-        subdistrictSelect.innerHTML = '<option value="ในเมือง">ตำบลในเมือง</option><option value="อื่นๆ">ตำบลอื่นๆ</option>';
+        // Free text input for other provinces
+        if (wrapperDist) wrapperDist.innerHTML = `<input type="text" id="v_district" class="form-control" placeholder="กรอกชื่อ อำเภอ/เขต" value="${targetDistrict}" required>`;
+        if (wrapperSub) wrapperSub.innerHTML = `<input type="text" id="v_subdistrict" class="form-control" placeholder="กรอกชื่อ ตำบล/แขวง" value="${targetSubdistrict}" required>`;
     }
 }
 
 // Handle District Change Event
 function handleDistrictChange() {
     const districtSelect = document.getElementById('v_district');
-    if (districtSelect) {
+    if (districtSelect && districtSelect.tagName === 'SELECT') {
         populateChiangRaiSubdistricts(districtSelect.value);
     }
 }
@@ -575,12 +606,7 @@ function submitVisitDataToGoogleScript(visitData) {
 function fillFormFromObject(obj) {
     if (!obj) return;
 
-    if (obj.province) {
-        const provEl = document.getElementById('v_province');
-        if (provEl) provEl.value = obj.province;
-    }
-
-    initAddressDropdowns(obj.district || 'เมืองเชียงราย', obj.subdistrict || 'เวียง');
+    initAddressDropdowns(obj.province || 'เชียงราย', obj.district || 'เมืองเชียงราย', obj.subdistrict || 'เวียง');
 
     Object.keys(obj).forEach(key => {
         const el = document.getElementById(`v_${key}`);
@@ -766,19 +792,20 @@ function generateParentWizardHTML(student, existing) {
                             </div>
                             <div class="form-group">
                                 <label>จังหวัด <span style="color:#ef4444;">*</span></label>
-                                <select id="v_province" class="form-control">
-                                    <option value="เชียงราย" selected>เชียงราย</option>
+                                <select id="v_province" class="form-control" onchange="handleProvinceChange()">
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>อำเภอ / เขต <span style="color:#ef4444;">*</span></label>
-                                <select id="v_district" class="form-control" onchange="handleDistrictChange()">
-                                </select>
+                                <div id="wrapper_district">
+                                    <select id="v_district" class="form-control" onchange="handleDistrictChange()"></select>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label>ตำบล / แขวง <span style="color:#ef4444;">*</span></label>
-                                <select id="v_subdistrict" class="form-control">
-                                </select>
+                                <div id="wrapper_subdistrict">
+                                    <select id="v_subdistrict" class="form-control"></select>
+                                </div>
                             </div>
                         </div>
 

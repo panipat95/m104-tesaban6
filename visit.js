@@ -255,18 +255,116 @@ function selectRatingScore(catKey, level) {
     renderRatingItemsGrid();
 }
 
+// Validate current step required fields before advancing
+function validateCurrentStep(stepNum) {
+    const currentStepEl = document.getElementById(`step-${stepNum}`);
+    if (!currentStepEl) return true;
+
+    // Clear old error alerts and red highlights in current step
+    currentStepEl.querySelectorAll('.step-validation-error-alert').forEach(el => el.remove());
+    currentStepEl.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+    let missingFields = [];
+
+    if (stepNum === 1) {
+        const requiredIds = ['v_house_no', 'v_province', 'v_district', 'v_subdistrict'];
+        requiredIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && !el.value.trim()) {
+                missingFields.push(el);
+            }
+        });
+    } else if (stepNum === 2) {
+        const requiredIds = ['v_guardian_job', 'v_yearly_income', 'v_commute_method', 'v_daily_allowance'];
+        requiredIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && !el.value.trim()) {
+                missingFields.push(el);
+            }
+        });
+    } else if (stepNum === 3) {
+        const requiredIds = ['v_student_dream_job'];
+        requiredIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && !el.value.trim()) {
+                missingFields.push(el);
+            }
+        });
+    } else if (stepNum === 4) {
+        const requiredIds = ['v_informant_name', 'v_informant_phone'];
+        requiredIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && !el.value.trim()) {
+                missingFields.push(el);
+            }
+        });
+
+        if (typeof ratingCategories !== 'undefined' && Array.isArray(ratingCategories)) {
+            const missingRatings = ratingCategories.filter(cat => !ratingSelections[cat.key]);
+            if (missingRatings.length > 0) {
+                const ratingContainer = document.getElementById('rating-items-container');
+                if (ratingContainer) missingFields.push(ratingContainer);
+            }
+        }
+    }
+
+    if (missingFields.length > 0) {
+        // Highlight missing fields with Red Error Border
+        missingFields.forEach(el => {
+            el.classList.add('input-error');
+            const clearError = () => el.classList.remove('input-error');
+            el.addEventListener('input', clearError, { once: true });
+            el.addEventListener('change', clearError, { once: true });
+        });
+
+        // Insert Red Alert Notification at top of step card
+        const alertEl = document.createElement('div');
+        alertEl.className = 'step-validation-error-alert';
+        alertEl.style.cssText = 'background:#fff1f2; border:2px solid #f87171; color:#991b1b; padding:12px 16px; border-radius:14px; margin-bottom:14px; font-weight:600; display:flex; align-items:center; gap:8px; animation:shakeError 0.35s ease-in-out;';
+        alertEl.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="font-size:1.2rem; color:#ef4444;"></i> ⚠️ กรุณากรอกข้อมูลในช่องที่มีแถบสีแดงให้ครบถ้วนก่อนไปขั้นตอนถัดไปครับ!';
+
+        const containerCard = currentStepEl.querySelector('.card') || currentStepEl;
+        const headerEl = containerCard.querySelector('.form-section-header');
+        if (headerEl) {
+            containerCard.insertBefore(alertEl, headerEl);
+        } else {
+            containerCard.prepend(alertEl);
+        }
+
+        // Smooth scroll to the first missing element
+        const firstEl = missingFields[0];
+        if (firstEl) {
+            firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (typeof firstEl.focus === 'function') firstEl.focus();
+        }
+
+        return false;
+    }
+
+    return true;
+}
+
 // Step Wizard Navigation (Fix Back button & smooth step switching)
 function goToStep(stepNumber) {
     const targetStep = parseInt(stepNumber, 10);
     if (isNaN(targetStep) || targetStep < 1 || targetStep > 4) return;
     
-    // Only check studentId when moving FORWARD. Moving BACKWARD should always succeed immediately!
+    // Check studentId when moving FORWARD
     const selectEl = document.getElementById('select-visit-student');
     const studentId = selectEl ? selectEl.value : '';
     
-    if (targetStep > currentVisitStep && targetStep > 1 && !studentId) {
+    if (targetStep > currentVisitStep && targetStep > 1 && !studentId && typeof currentStudent === 'undefined') {
         alert('⚠️ กรุณาเลือกรายชื่อนักเรียนในขั้นตอนที่ 1 ก่อนครับ!');
         return;
+    }
+
+    // Validate current and intermediate steps when moving FORWARD!
+    if (targetStep > currentVisitStep) {
+        for (let s = currentVisitStep; s < targetStep; s++) {
+            if (!validateCurrentStep(s)) {
+                return; // Stop step navigation if validation fails!
+            }
+        }
     }
 
     currentVisitStep = targetStep;
@@ -364,6 +462,11 @@ function resetFormState() {
 // Handle Visit Form Submit
 function handleVisitFormSubmit(event) {
     event.preventDefault();
+
+    // Validate step 4 fields first
+    if (!validateCurrentStep(4)) {
+        return;
+    }
 
     const studentId = document.getElementById('select-visit-student').value;
     if (!studentId) {

@@ -203,7 +203,7 @@ function handleStudentSelectChange() {
                     </span>
                 </div>
                 <div style="font-size:0.88rem; color:#64748b;">
-                    <strong>รหัสประจำตัว:</strong> ${student.student_id} | <strong>ชั้น:</strong> ม.1/4 ห้อง 332 | <strong>ผู้ปกครอง:</strong> ${student.guardian_name || '-'}
+                    <strong>รหัสประจำตัว:</strong> ${student.student_id} | <strong>ชั้น:</strong> ม.1/4 ห้อง 332
                 </div>
             </div>
         `;
@@ -212,13 +212,7 @@ function handleStudentSelectChange() {
     if (existing) {
         fillFormFromObject(existing);
     } else {
-        // Auto fill basic fields
-        const elInformant = document.getElementById('v_informant_name');
-        if (elInformant) elInformant.value = student.guardian_name || '';
-
-        const elPhone = document.getElementById('v_informant_phone');
-        if (elPhone) elPhone.value = student.guardian_phone || '';
-
+        // Auto fill basic non-sensitive fields
         const elJob = document.getElementById('v_guardian_job');
         if (elJob && student.guardian_occupation) elJob.value = student.guardian_occupation;
 

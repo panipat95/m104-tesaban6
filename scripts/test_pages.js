@@ -13,18 +13,20 @@ pages.forEach(page => {
     const content = fs.readFileSync(filePath, 'utf8');
     console.log(`Checking ${page} (${content.length} bytes)...`);
 
-    // Extract script tags
-    const scriptMatches = content.match(/<script\b[^>]*>([\s\S]*?)<\/script>/gi) || [];
-    const scriptSrcMatches = content.match(/src=["']([^"']+)["']/gi) || [];
+    // Extract script src tags specifically
+    const scriptSrcMatches = content.match(/<script\b[^>]*src=["']([^"']+)["'][^>]*>/gi) || [];
 
-    scriptSrcMatches.forEach(srcAttr => {
-        const src = srcAttr.replace(/src=["']/, '').replace(/["']/, '');
-        if (!src.startsWith('http') && !src.startsWith('//')) {
-            const jsPath = path.join(rootDir, src);
-            if (!fs.existsSync(jsPath)) {
-                console.error(`  ❌ BROKEN SCRIPT LINK in ${page}: ${src}`);
-            } else {
-                console.log(`  ✅ Verified script link: ${src}`);
+    scriptSrcMatches.forEach(tag => {
+        const match = tag.match(/src=["']([^"']+)["']/i);
+        if (match && match[1]) {
+            const src = match[1];
+            if (!src.startsWith('http') && !src.startsWith('//')) {
+                const jsPath = path.join(rootDir, src);
+                if (!fs.existsSync(jsPath)) {
+                    console.error(`  ❌ BROKEN SCRIPT LINK in ${page}: ${src}`);
+                } else {
+                    console.log(`  ✅ Verified script link: ${src}`);
+                }
             }
         }
     });

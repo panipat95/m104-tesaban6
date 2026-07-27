@@ -10,13 +10,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Tab Switching
     navButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
             const targetTab = btn.getAttribute('data-tab');
+            if (!targetTab) return; // Allow normal link navigation for <a> elements
+
+            const targetEl = document.getElementById(targetTab);
+            if (!targetEl) return;
+
             navButtons.forEach(b => b.classList.remove('active'));
             tabContents.forEach(t => t.classList.remove('active'));
 
             btn.classList.add('active');
-            document.getElementById(targetTab).classList.add('active');
+            targetEl.classList.add('active');
 
             // Update Header Title
             const titles = {
@@ -26,10 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 'tab-pending-tasks': 'ระบบบันทึกเช็คงานค้างรายวิชา (ม.1.4)',
                 'tab-schedule': 'ตารางเรียน ชั้น ม.1.4 (ห้องเรียนประจำ 332)',
                 'tab-duty': 'ตารางเวรประจำวัน & เวรจิตอาสาศูนย์จีน (ม.1.4)',
-                'tab-home-visit': 'ระบบบันทึกข้อมูล & สรุปผลการเยี่ยมบ้านนักเรียน (ม.1.4)',
                 'tab-line': 'ระบบสร้างข้อความประชาสัมพันธ์ LINE'
             };
-            if (titles[targetTab]) pageTitle.textContent = titles[targetTab];
+            if (titles[targetTab] && pageTitle) pageTitle.textContent = titles[targetTab];
             if (targetTab === 'tab-pending-tasks') {
                 renderTaskChecklist();
                 renderActiveTasksBoard();

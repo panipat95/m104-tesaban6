@@ -5,7 +5,9 @@ const GOOGLE_APPS_SCRIPT_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfyc
 
 let currentVisitStep = 1;
 let currentVisitMode = 'form'; // 'form' or 'admin'
+let currentAdminFilter = 'all';
 let homeVisitStore = {}; // Key: student_id, Value: visit object
+let ratingSelections = {}; // Key: catKey, Value: 'ดี' | 'ปานกลาง' | 'ปรับปรุง'
 
 const ratingCategories = [
     { key: 'responsibility', title: '1. ความรับผิดชอบ' },
@@ -24,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadHomeVisitStore();
     populateStudentSelectOptions();
     renderRatingItemsGrid();
+    updateProgressBar();
     renderAdminVisitDashboard();
 });
 
@@ -67,20 +70,44 @@ function populateStudentSelectOptions() {
     }
 }
 
-// Auto-fill student profile when selected
+// Auto-fill student profile banner when selected
 function handleStudentSelectChange() {
     const studentId = document.getElementById('select-visit-student').value;
-    if (!studentId) return;
+    const bannerContainer = document.getElementById('student-profile-banner-container');
+    
+    if (!studentId) {
+        if (bannerContainer) bannerContainer.style.display = 'none';
+        return;
+    }
 
     const student = studentData.find(s => s.student_id.toString() === studentId.toString());
     if (!student) return;
 
-    // Check if previous data exists for this student
     const existing = homeVisitStore[studentId];
+    const photoSrc = student.photo_url || `photos/${student.student_id}.jpg`;
+
+    if (bannerContainer) {
+        bannerContainer.style.display = 'flex';
+        bannerContainer.innerHTML = `
+            <img src="${photoSrc}" onerror="this.src='photos/19186.jpg'" style="width: 58px; height: 58px; border-radius: 50%; object-fit: cover; border: 2px solid #0284c7; flex-shrink:0;">
+            <div style="flex: 1;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom: 2px;">
+                    <h3 style="color:#0f172a; font-weight:700; font-size:1.15rem; margin:0;">${student.fullname}</h3>
+                    ${student.nickname ? `<span class="badge badge-blue">น้อง${student.nickname}</span>` : ''}
+                    <span class="badge badge-purple">เลขที่ ${student.no}</span>
+                    <span class="badge ${existing ? 'badge-success' : 'badge-warning'}">
+                        ${existing ? '🟢 กรอกข้อมูลเยี่ยมบ้านแล้ว' : '🟡 รอกรอกข้อมูล'}
+                    </span>
+                </div>
+                <div style="font-size:0.88rem; color:#64748b;">
+                    <strong>รหัสประจำตัว:</strong> ${student.student_id} | <strong>ชั้น:</strong> ม.1/4 ห้อง 332 | <strong>ผู้ปกครอง:</strong> ${student.guardian_name || '-'}
+                </div>
+            </div>
+        `;
+    }
 
     if (existing) {
         fillFormFromObject(existing);
-        alert(`ℹ️ โหลดข้อมูลการเยี่ยมบ้านของ "${student.fullname}" ที่เคยกรอกไว้แล้วเรียบร้อย!`);
     } else {
         // Auto fill basic fields
         const elInformant = document.getElementById('v_informant_name');
@@ -94,30 +121,44 @@ function handleStudentSelectChange() {
     }
 }
 
-// Render 10 Behavior Rating Items in Step 4
+// Render Interactive 10 Behavior Rating Items in Step 4
 function renderRatingItemsGrid() {
     const container = document.getElementById('rating-items-container');
     if (!container) return;
 
     let html = '';
     ratingCategories.forEach(cat => {
+        const val = ratingSelections[cat.key] || 'ดี';
         html += `
-            <div class="rating-grid">
+            <div class="rating-segmented-row">
                 <div><strong>${cat.title}</strong></div>
-                <div style="text-align:center;"><input type="radio" name="rate_${cat.key}" value="ดี" checked></div>
-                <div style="text-align:center;"><input type="radio" name="rate_${cat.key}" value="ปานกลาง"></div>
-                <div style="text-align:center;"><input type="radio" name="rate_${cat.key}" value="ปรับปรุง"></div>
+                <div class="segmented-btn-group" style="grid-column: span 3;">
+                    <button type="button" class="segmented-btn ${val === 'ดี' ? 'selected-green' : ''}" onclick="selectRatingScore('${cat.key}', 'ดี')">
+                        🟢 ดี
+                    </button>
+                    <button type="button" class="segmented-btn ${val === 'ปานกลาง' ? 'selected-yellow' : ''}" onclick="selectRatingScore('${cat.key}', 'ปานกลาง')">
+                        🟡 ปานกลาง
+                    </button>
+                    <button type="button" class="segmented-btn ${val === 'ปรับปรุง' ? 'selected-red' : ''}" onclick="selectRatingScore('${cat.key}', 'ปรับปรุง')">
+                        🔴 ปรับปรุง
+                    </button>
+                </div>
             </div>
         `;
     });
     container.innerHTML = html;
 }
 
+// Select rating score callback
+function selectRatingScore(catKey, level) {
+    ratingSelections[catKey] = level;
+    renderRatingItemsGrid();
+}
+
 // Step Wizard Navigation
 function goToStep(stepNumber) {
     if (stepNumber < 1 || stepNumber > 4) return;
     
-    // Check if student selected before moving past step 1
     const studentId = document.getElementById('select-visit-student').value;
     if (stepNumber > 1 && !studentId) {
         alert('⚠️ กรุณาเลือกรายชื่อนักเรียนในขั้นตอนที่ 1 ก่อนครับ!');
@@ -128,6 +169,7 @@ function goToStep(stepNumber) {
 
     document.querySelectorAll('.wizard-step').forEach((btn, idx) => {
         btn.classList.remove('active');
+        if (idx + 1 < stepNumber) btn.classList.add('completed');
         if (idx + 1 === stepNumber) btn.classList.add('active');
     });
 
@@ -136,16 +178,25 @@ function goToStep(stepNumber) {
         if (idx + 1 === stepNumber) content.classList.add('active');
     });
 
+    updateProgressBar();
     window.scrollTo({ top: 120, behavior: 'smooth' });
+}
+
+// Update progress bar percentage
+function updateProgressBar() {
+    const fillEl = document.getElementById('form-progress-fill');
+    if (!fillEl) return;
+    const pct = currentVisitStep * 25;
+    fillEl.style.width = `${pct}%`;
 }
 
 // 1-Click GPS Location Pinning
 function getCurrentGPSLocation() {
     const statusEl = document.getElementById('gps-status-result');
-    if (statusEl) statusEl.textContent = '⏳ กำลังดึงพิกัด GPS จากอุปกรณ์...';
+    if (statusEl) statusEl.innerHTML = '⏳ กำลังดึงพิกัด GPS จากสมาร์ตโฟนของคุณ...';
 
     if (!navigator.geolocation) {
-        if (statusEl) statusEl.textContent = '❌ อุปกรณ์ไม่รองรับระบบระบุพิกัด GPS';
+        if (statusEl) statusEl.textContent = '❌ อุปกรณ์ของคุณไม่รองรับระบบระบุพิกัด GPS';
         return;
     }
 
@@ -157,12 +208,21 @@ function getCurrentGPSLocation() {
             document.getElementById('v_lng').value = lng;
 
             if (statusEl) {
-                statusEl.innerHTML = `✅ ดึงพิกัดสำเร็จ! ละติจูด: ${lat.toFixed(5)}, ลองจิจูด: ${lng.toFixed(5)} <a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" style="color:#0284c7; font-weight:700;">[เปิดใน Google Maps]</a>`;
+                statusEl.innerHTML = `
+                    <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:10px; padding:8px 12px; display:inline-block; margin-top:6px;">
+                        🎉 ดึงพิกัดสำเร็จ! 
+                        <span class="gps-chip">Lat: ${lat.toFixed(5)}</span>
+                        <span class="gps-chip">Lng: ${lng.toFixed(5)}</span>
+                        <a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" class="btn btn-outline" style="padding:2px 8px; font-size:0.8rem; background:#fff; border-color:#0284c7; color:#0284c7; margin-left:6px;">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดใน Google Maps
+                        </a>
+                    </div>
+                `;
             }
         },
         (err) => {
             console.error('GPS Error:', err);
-            if (statusEl) statusEl.textContent = '⚠️ ไม่สามารถดึงพิกัดอัตโนมัติได้ กรุณาเปิดการอนุญาตตำแหน่งบนมือถือ';
+            if (statusEl) statusEl.textContent = '⚠️ ไม่สามารถดึงพิกัดได้ กรุณาเปิดการอนุญาตตำแหน่ง (Location Access) บนเบราว์เซอร์มือถือ';
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
@@ -188,6 +248,18 @@ function toggleVisitMode() {
     }
 }
 
+// Reset form state cleanly
+function resetFormState() {
+    const form = document.getElementById('form-home-visit');
+    if (form) form.reset();
+    document.getElementById('select-visit-student').value = '';
+    document.getElementById('student-profile-banner-container').style.display = 'none';
+    document.getElementById('gps-status-result').innerHTML = '';
+    ratingSelections = {};
+    renderRatingItemsGrid();
+    goToStep(1);
+}
+
 // Handle Visit Form Submit
 function handleVisitFormSubmit(event) {
     event.preventDefault();
@@ -199,6 +271,12 @@ function handleVisitFormSubmit(event) {
     }
 
     const student = studentData.find(s => s.student_id.toString() === studentId.toString());
+
+    // Collect selected study problems
+    const selectedProblems = [];
+    document.querySelectorAll('input[name="v_study_problems"]:checked').forEach(cb => {
+        selectedProblems.push(cb.value);
+    });
 
     // Collect Form Values
     const visitData = {
@@ -239,6 +317,8 @@ function handleVisitFormSubmit(event) {
         student_dream_job: document.getElementById('v_student_dream_job').value,
         friendship_ease: document.getElementById('v_friendship_ease').value,
         problem_solving_way: document.getElementById('v_problem_solving_way').value,
+        study_problems: selectedProblems.join(', '),
+        rating_scores: ratingSelections,
         parent_request_school: document.getElementById('v_parent_request_school').value || '',
         parent_comments: document.getElementById('v_parent_comments').value || '',
         informant_name: document.getElementById('v_informant_name').value || '',
@@ -252,7 +332,7 @@ function handleVisitFormSubmit(event) {
     // Submit to Google Apps Script Webhook Database
     submitVisitDataToGoogleScript(visitData);
 
-    alert(`🎉 บันทึกข้อมูลการเยี่ยมบ้านของ "${student.fullname}" เรียบร้อยแล้ว!`);
+    alert(`🎉 บันทึกข้อมูลการเยี่ยมบ้านของ "${student ? student.fullname : ''}" เรียบร้อยแล้ว!`);
     populateStudentSelectOptions();
     toggleVisitMode();
 }
@@ -285,55 +365,95 @@ function fillFormFromObject(obj) {
         const el = document.getElementById(`v_${key}`);
         if (el) el.value = obj[key];
     });
+
+    if (obj.rating_scores) {
+        ratingSelections = obj.rating_scores;
+        renderRatingItemsGrid();
+    }
+
     if (obj.lat && obj.lng) {
         const statusEl = document.getElementById('gps-status-result');
         if (statusEl) {
-            statusEl.innerHTML = `✅ มีพิกัดบันทึกไว้: ${parseFloat(obj.lat).toFixed(5)}, ${parseFloat(obj.lng).toFixed(5)} <a href="https://maps.google.com/?q=${obj.lat},${obj.lng}" target="_blank" style="color:#0284c7; font-weight:700;">[เปิดใน Google Maps]</a>`;
+            statusEl.innerHTML = `
+                <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:10px; padding:8px 12px; display:inline-block; margin-top:6px;">
+                    ✅ มีพิกัดบันทึกไว้: 
+                    <span class="gps-chip">Lat: ${parseFloat(obj.lat).toFixed(5)}</span>
+                    <span class="gps-chip">Lng: ${parseFloat(obj.lng).toFixed(5)}</span>
+                    <a href="https://maps.google.com/?q=${obj.lat},${obj.lng}" target="_blank" class="btn btn-outline" style="padding:2px 8px; font-size:0.8rem; background:#fff; border-color:#0284c7; color:#0284c7; margin-left:6px;">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดใน Google Maps
+                    </a>
+                </div>
+            `;
         }
     }
+}
+
+// Filter Admin Visit Table
+function filterAdminVisitTable(filterType) {
+    currentAdminFilter = filterType;
+    document.querySelectorAll('.filter-pills .pill').forEach(btn => btn.classList.remove('active'));
+    
+    if (filterType === 'all') document.getElementById('btn-filter-visit-all').classList.add('active');
+    if (filterType === 'done') document.getElementById('btn-filter-visit-done').classList.add('active');
+    if (filterType === 'pending') document.getElementById('btn-filter-visit-pending').classList.add('active');
+
+    renderAdminVisitDashboard();
 }
 
 // Render Teacher Admin Visit Dashboard
 function renderAdminVisitDashboard() {
     const tbody = document.querySelector('#table-visit-status tbody');
     const mapListContainer = document.getElementById('admin-gps-list-container');
-    const doneCountBadge = document.getElementById('badge-visit-done-count');
     
     if (!tbody || typeof studentData === 'undefined') return;
 
     let completedCount = 0;
+    let gpsCount = 0;
     let tableHtml = '';
     let mapListHtml = '';
 
+    const filteredStudents = studentData.filter(s => {
+        const isDone = !!homeVisitStore[s.student_id];
+        if (currentAdminFilter === 'done') return isDone;
+        if (currentAdminFilter === 'pending') return !isDone;
+        return true;
+    });
+
     studentData.forEach(s => {
         const visit = homeVisitStore[s.student_id];
-        const isDone = !!visit;
-        if (isDone) completedCount++;
+        if (visit) {
+            completedCount++;
+            if (visit.lat && visit.lng) gpsCount++;
+        }
+    });
 
+    filteredStudents.forEach(s => {
+        const visit = homeVisitStore[s.student_id];
+        const isDone = !!visit;
         const photoSrc = s.photo_url || `photos/${s.student_id}.jpg`;
         const addressText = isDone ? `บ้านเลขที่ ${visit.house_no} ม.${visit.moo || '-'} ต.${visit.subdistrict} อ.${visit.district}` : '-';
         
-        let gpsCell = '<span style="color:#94a3b8;">ไม่มีพิกัด</span>';
+        let gpsCell = '<span style="color:#94a3b8; font-size:0.85rem;">ไม่มีพิกัด</span>';
         if (isDone && visit.lat && visit.lng) {
             const mapUrl = `https://www.google.com/maps/dir/?api=1&destination=${visit.lat},${visit.lng}`;
             gpsCell = `
-                <a href="${mapUrl}" target="_blank" class="btn btn-outline" style="padding:4px 8px; font-size:0.78rem; background:#f0f9ff; color:#0284c7; border-color:#bae6fd;">
-                    <i class="fa-solid fa-diamond-turn-right"></i> เปิดนำทาง GPS
+                <a href="${mapUrl}" target="_blank" class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem; background:#f0f9ff; color:#0284c7; border-color:#bae6fd; font-weight:600;">
+                    <i class="fa-solid fa-location-arrow"></i> เปิดนำทาง GPS
                 </a>
             `;
 
             mapListHtml += `
                 <div class="admin-map-card">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <img src="${photoSrc}" onerror="this.style.display='none'" style="width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid #0284c7;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <img src="${photoSrc}" onerror="this.src='photos/19186.jpg'" style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid #0284c7;">
                         <div>
-                            <strong style="color:#0f172a;">เลขที่ ${s.no} ${s.fullname}</strong> (${s.nickname || ''})
-                            <div style="font-size:0.82rem; color:#64748b;">📍 ${addressText}</div>
+                            <strong style="color:#0f172a; font-size:0.98rem;">เลขที่ ${s.no} ${s.fullname}</strong> ${s.nickname ? `<span style="color:#64748b;">(${s.nickname})</span>` : ''}
+                            <div style="font-size:0.84rem; color:#64748b; margin-top:2px;">📍 ${addressText}</div>
                         </div>
                     </div>
                     <div>
-                        <a href="${mapUrl}" target="_blank" class="btn btn-primary" style="padding:6px 12px; font-size:0.85rem;">
-                            <i class="fa-solid fa-location-arrow"></i> นำทางไปบ้านนักเรียน
+                        <a href="${mapUrl}" target="_blank" class="btn btn-primary" style="padding:6px 14px; font-size:0.88rem;">
+                            <i class="fa-solid fa-diamond-turn-right"></i> เปิดนำทาง Google Maps
                         </a>
                     </div>
                 </div>
@@ -344,9 +464,9 @@ function renderAdminVisitDashboard() {
             <tr>
                 <td style="text-align:center; font-weight:700;">${s.no}</td>
                 <td>
-                    <div style="display:flex; align-items:center; gap:8px; white-space:nowrap;">
-                        <img src="${photoSrc}" onerror="this.style.display='none'" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid #0284c7;">
-                        <strong>${s.fullname}</strong> ${s.nickname ? `<span style="color:#64748b;">(${s.nickname})</span>` : ''}
+                    <div style="display:flex; align-items:center; gap:10px; white-space:nowrap;">
+                        <img src="${photoSrc}" onerror="this.src='photos/19186.jpg'" style="width:30px; height:30px; border-radius:50%; object-fit:cover; border:1px solid #0284c7;">
+                        <strong style="color:#0f172a;">${s.fullname}</strong> ${s.nickname ? `<span style="color:#64748b; font-size:0.85rem;">(${s.nickname})</span>` : ''}
                     </div>
                 </td>
                 <td style="font-size:0.88rem;">${addressText}</td>
@@ -357,7 +477,7 @@ function renderAdminVisitDashboard() {
                     </span>
                 </td>
                 <td style="text-align:center;">
-                    <button onclick="editStudentVisitData('${s.student_id}')" class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem;">
+                    <button onclick="editStudentVisitData('${s.student_id}')" class="btn btn-outline" style="padding:4px 10px; font-size:0.78rem;">
                         <i class="fa-solid fa-pen-to-square"></i> กรอก/แก้ไข
                     </button>
                 </td>
@@ -365,14 +485,34 @@ function renderAdminVisitDashboard() {
         `;
     });
 
-    tbody.innerHTML = tableHtml;
-    if (doneCountBadge) doneCountBadge.textContent = `เยี่ยมบ้านแล้ว ${completedCount} / ${studentData.length} คน`;
+    tbody.innerHTML = tableHtml || '<tr><td colspan="6" style="text-align:center; color:#64748b; padding:2rem;">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</td></tr>';
     
+    // Update Stat Cards
+    const totalCount = studentData.length;
+    const pendingCount = totalCount - completedCount;
+    const completedPct = ((completedCount / totalCount) * 100).toFixed(1);
+
+    const elTotal = document.getElementById('admin-stat-total');
+    if (elTotal) elTotal.textContent = `${totalCount} คน`;
+
+    const elCompleted = document.getElementById('admin-stat-completed');
+    if (elCompleted) elCompleted.textContent = `${completedCount} คน`;
+
+    const elPct = document.getElementById('admin-stat-completed-pct');
+    if (elPct) elPct.textContent = `${completedPct}% ของทั้งหมด`;
+
+    const elPending = document.getElementById('admin-stat-pending');
+    if (elPending) elPending.textContent = `${pendingCount} คน`;
+
+    const elGps = document.getElementById('admin-stat-gps-count');
+    if (elGps) elGps.textContent = `${gpsCount} คน`;
+
     if (mapListContainer) {
         mapListContainer.innerHTML = mapListHtml || `
-            <div style="text-align:center; padding:2rem; color:#64748b; background:#f8fafc; border-radius:12px; border:1px dashed #cbd5e1;">
-                <i class="fa-solid fa-map-location-dot" style="font-size:2rem; color:#94a3b8; margin-bottom:8px;"></i>
-                <p>ยังไม่มีพิกัด GPS บ้านนักเรียนที่บันทึกไว้ในขณะนี้</p>
+            <div style="text-align:center; padding:2rem; color:#64748b; background:#f8fafc; border-radius:14px; border:1px dashed #cbd5e1;">
+                <i class="fa-solid fa-map-location-dot" style="font-size:2.2rem; color:#94a3b8; margin-bottom:8px;"></i>
+                <p style="font-weight:600; color:#334155; margin-bottom:4px;">ยังไม่มีพิกัด GPS บ้านนักเรียนที่บันทึกไว้</p>
+                <small>เมื่อนักเรียนหรือผู้ปกครองกดดึงพิกัด GPS บ้าน รายชื่อและปุ่มเปิดนำทางจะปรากฏที่นี่ทันที</small>
             </div>
         `;
     }

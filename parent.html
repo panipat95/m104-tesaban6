@@ -594,7 +594,7 @@
 
             const sc = currentStudent.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, total_score: 0 };
             const totalScore = sc.total_score || 0;
-            const pct = ((totalScore / 170) * 100).toFixed(1);
+            const pct = ((totalScore / 185) * 100).toFixed(1);
 
             const subjects = [
                 { code: 'อ21201', name: 'ภาษาอังกฤษเพื่อการสื่อสาร', score: sc.eng_comm, max: 20, icon: 'fa-language', color: '#0284c7', bg: '#e0f2fe' },
@@ -657,7 +657,7 @@
                             <span style="font-size:0.85rem; color:#64748b; font-weight:500;">คะแนนสอบกลางภาคเรียนรวมทั้งหมด (10 รายวิชา):</span>
                             <div style="display:flex; align-items:baseline; gap:10px; margin-top:4px;">
                                 <strong style="font-size:2rem; color:#0284c7; font-weight:800;">${totalScore}</strong>
-                                <span style="font-size:1rem; color:#64748b; font-weight:600;">/ 170 คะแนน</span>
+                                <span style="font-size:1rem; color:#64748b; font-weight:600;">/ 185 คะแนน</span>
                             </div>
                         </div>
                         <div style="text-align:right;">

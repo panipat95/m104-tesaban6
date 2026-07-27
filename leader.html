@@ -500,7 +500,7 @@
                                     <th style="text-align:center;">อังพื้นฐาน</th>
                                     <th style="text-align:center;">วิทย์พื้นฐาน</th>
                                     <th style="text-align:center;">อังอ่าน-เขียน</th>
-                                    <th style="text-align:center; background:#e0f2fe; color:#0369a1;">คะแนนรวม (170)</th>
+                                    <th style="text-align:center; background:#e0f2fe; color:#0369a1;">คะแนนรวม (185)</th>
                                     <th style="text-align:center;">ร้อยละ</th>
                                 </tr>
                             </thead>
@@ -817,7 +817,7 @@
             let html = '';
             students.forEach(s => {
                 const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, total_score: 0 };
-                const pct = ((sc.total_score / 170) * 100).toFixed(1);
+                const pct = ((sc.total_score / 185) * 100).toFixed(1);
 
                 html += `
                     <tr>

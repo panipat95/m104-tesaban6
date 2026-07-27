@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initAddressDropdowns();
     renderRatingItemsGrid();
     updateProgressBar();
+    goToStep(1); // Set initial step state cleanly
 });
 
 // Initialize Address Cascading Dropdowns for Chiang Rai
@@ -257,31 +258,51 @@ function selectRatingScore(catKey, level) {
     renderRatingItemsGrid();
 }
 
-// Step Wizard Navigation
+// Step Wizard Navigation (Fix Back button & smooth step switching)
 function goToStep(stepNumber) {
-    if (stepNumber < 1 || stepNumber > 4) return;
+    const targetStep = parseInt(stepNumber, 10);
+    if (isNaN(targetStep) || targetStep < 1 || targetStep > 4) return;
     
-    const studentId = document.getElementById('select-visit-student').value;
-    if (stepNumber > 1 && !studentId) {
+    // Only check studentId when moving FORWARD. Moving BACKWARD should always succeed immediately!
+    const selectEl = document.getElementById('select-visit-student');
+    const studentId = selectEl ? selectEl.value : '';
+    
+    if (targetStep > currentVisitStep && targetStep > 1 && !studentId) {
         alert('⚠️ กรุณาเลือกรายชื่อนักเรียนในขั้นตอนที่ 1 ก่อนครับ!');
         return;
     }
 
-    currentVisitStep = stepNumber;
+    currentVisitStep = targetStep;
 
+    // Update wizard step buttons
     document.querySelectorAll('.wizard-step').forEach((btn, idx) => {
         btn.classList.remove('active');
-        if (idx + 1 < stepNumber) btn.classList.add('completed');
-        if (idx + 1 === stepNumber) btn.classList.add('active');
+        btn.classList.remove('completed');
+        if (idx + 1 < targetStep) {
+            btn.classList.add('completed');
+        } else if (idx + 1 === targetStep) {
+            btn.classList.add('active');
+        }
     });
 
+    // Update step content visibility cleanly
     document.querySelectorAll('.step-content').forEach((content, idx) => {
-        content.classList.remove('active');
-        if (idx + 1 === stepNumber) content.classList.add('active');
+        if (idx + 1 === targetStep) {
+            content.classList.add('active');
+            content.style.display = 'block';
+        } else {
+            content.classList.remove('active');
+            content.style.display = 'none';
+        }
     });
 
     updateProgressBar();
-    window.scrollTo({ top: 120, behavior: 'smooth' });
+
+    // Scroll smoothly to top of wizard nav
+    const wizardNav = document.querySelector('.wizard-nav') || document.getElementById('form-home-visit');
+    if (wizardNav) {
+        wizardNav.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 // Update progress bar percentage

@@ -62,6 +62,26 @@ body {
     line-height: 1.6;
 }
 
+/* Microsoft Fluent 3D Emojis */
+.fluent-emoji {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    vertical-align: middle;
+    display: inline-block;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.12));
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fluent-emoji.sm { width: 18px; height: 18px; }
+.fluent-emoji.md { width: 28px; height: 28px; }
+.fluent-emoji.lg { width: 36px; height: 36px; }
+.fluent-emoji.xl { width: 54px; height: 54px; }
+
+.fluent-emoji:hover {
+    transform: scale(1.2) rotate(6deg);
+}
+
 /* Glassmorphism Utility */
 .glass-panel {
     background: var(--glass-bg) !important;

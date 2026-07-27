@@ -216,6 +216,9 @@ function handleStudentSelectChange() {
         const elInformant = document.getElementById('v_informant_name');
         if (elInformant) elInformant.value = student.guardian_name || '';
 
+        const elPhone = document.getElementById('v_informant_phone');
+        if (elPhone) elPhone.value = student.guardian_phone || '';
+
         const elJob = document.getElementById('v_guardian_job');
         if (elJob && student.guardian_occupation) elJob.value = student.guardian_occupation;
 
@@ -427,7 +430,8 @@ function handleVisitFormSubmit(event) {
         parent_request_school: document.getElementById('v_parent_request_school').value || '',
         parent_comments: document.getElementById('v_parent_comments').value || '',
         informant_name: document.getElementById('v_informant_name').value || '',
-        informant_relation: document.getElementById('v_informant_relation').value || ''
+        informant_relation: document.getElementById('v_informant_relation').value || '',
+        informant_phone: document.getElementById('v_informant_phone') ? document.getElementById('v_informant_phone').value || '' : ''
     };
 
     // Save locally

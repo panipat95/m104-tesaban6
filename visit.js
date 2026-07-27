@@ -4,8 +4,6 @@
 const GOOGLE_APPS_SCRIPT_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyPphz43aLcZAq_r6XYtTEHnmNQAViMg_gwBJ2e_eb2QMOrHPlM4zwPf-BT09ZYASyyNg/exec';
 
 let currentVisitStep = 1;
-let currentVisitMode = 'form'; // 'form' or 'admin'
-let currentAdminFilter = 'all';
 let homeVisitStore = {}; // Key: student_id, Value: visit object
 let ratingSelections = {}; // Key: catKey, Value: 'ดี' | 'ปานกลาง' | 'ปรับปรุง'
 
@@ -22,12 +20,22 @@ const ratingCategories = [
     { key: 'use_free_time', title: '10. การใช้เวลาว่างให้เกิดประโยชน์' }
 ];
 
+// Helper to retrieve active student list from window.REAL_STUDENT_DB or global studentData
+function getVisitStudentList() {
+    if (typeof window.REAL_STUDENT_DB !== 'undefined' && Array.isArray(window.REAL_STUDENT_DB) && window.REAL_STUDENT_DB.length > 0) {
+        return window.REAL_STUDENT_DB;
+    }
+    if (typeof studentData !== 'undefined' && Array.isArray(studentData) && studentData.length > 0) {
+        return studentData;
+    }
+    return [];
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     loadHomeVisitStore();
     populateStudentSelectOptions();
     renderRatingItemsGrid();
     updateProgressBar();
-    renderAdminVisitDashboard();
 });
 
 // Load existing visits from LocalStorage
@@ -58,9 +66,10 @@ function populateStudentSelectOptions() {
     if (!select) return;
 
     select.innerHTML = '<option value="">-- กรุณาเลือกรายชื่อนักเรียน --</option>';
+    const students = getVisitStudentList();
 
-    if (typeof studentData !== 'undefined' && Array.isArray(studentData)) {
-        studentData.forEach(s => {
+    if (students && students.length > 0) {
+        students.forEach(s => {
             const hasData = homeVisitStore[s.student_id] ? ' 🟢 [กรอกแล้ว]' : '';
             const option = document.createElement('option');
             option.value = s.student_id;
@@ -80,7 +89,8 @@ function handleStudentSelectChange() {
         return;
     }
 
-    const student = studentData.find(s => s.student_id.toString() === studentId.toString());
+    const students = getVisitStudentList();
+    const student = students.find(s => s.student_id.toString() === studentId.toString());
     if (!student) return;
 
     const existing = homeVisitStore[studentId];
@@ -96,7 +106,7 @@ function handleStudentSelectChange() {
                     ${student.nickname ? `<span class="badge badge-blue">น้อง${student.nickname}</span>` : ''}
                     <span class="badge badge-purple">เลขที่ ${student.no}</span>
                     <span class="badge ${existing ? 'badge-success' : 'badge-warning'}">
-                        ${existing ? '🟢 กรอกข้อมูลเยี่ยมบ้านแล้ว' : '🟡 รอกรอกข้อมูล'}
+                        ${existing ? '🟢 เคยกรอกข้อมูลเยี่ยมบ้านแล้ว' : '🟡 รอกรอกข้อมูล'}
                     </span>
                 </div>
                 <div style="font-size:0.88rem; color:#64748b;">
@@ -228,26 +238,6 @@ function getCurrentGPSLocation() {
     );
 }
 
-// Toggle Visit Mode (Form vs Admin Dashboard)
-function toggleVisitMode() {
-    currentVisitMode = currentVisitMode === 'form' ? 'admin' : 'form';
-    
-    const formContainer = document.getElementById('mode-form-container');
-    const adminContainer = document.getElementById('mode-admin-container');
-    const btnText = document.getElementById('text-mode-btn');
-
-    if (currentVisitMode === 'admin') {
-        formContainer.style.display = 'none';
-        adminContainer.style.display = 'block';
-        if (btnText) btnText.textContent = 'กลับไปยังแบบฟอร์มกรอกข้อมูล';
-        renderAdminVisitDashboard();
-    } else {
-        formContainer.style.display = 'block';
-        adminContainer.style.display = 'none';
-        if (btnText) btnText.textContent = 'ดูแดชบอร์ดติดตาม (ครู)';
-    }
-}
-
 // Reset form state cleanly
 function resetFormState() {
     const form = document.getElementById('form-home-visit');
@@ -270,7 +260,8 @@ function handleVisitFormSubmit(event) {
         return;
     }
 
-    const student = studentData.find(s => s.student_id.toString() === studentId.toString());
+    const students = getVisitStudentList();
+    const student = students.find(s => s.student_id.toString() === studentId.toString());
 
     // Collect selected study problems
     const selectedProblems = [];
@@ -332,9 +323,9 @@ function handleVisitFormSubmit(event) {
     // Submit to Google Apps Script Webhook Database
     submitVisitDataToGoogleScript(visitData);
 
-    alert(`🎉 บันทึกข้อมูลการเยี่ยมบ้านของ "${student ? student.fullname : ''}" เรียบร้อยแล้ว!`);
+    alert(`🎉 บันทึกข้อมูลการเยี่ยมบ้านของ "${student ? student.fullname : ''}" เรียบร้อยแล้ว! ขอบคุณครับ`);
     populateStudentSelectOptions();
-    toggleVisitMode();
+    resetFormState();
 }
 
 // Submit via Google Apps Script Webhook
@@ -385,145 +376,5 @@ function fillFormFromObject(obj) {
                 </div>
             `;
         }
-    }
-}
-
-// Filter Admin Visit Table
-function filterAdminVisitTable(filterType) {
-    currentAdminFilter = filterType;
-    document.querySelectorAll('.filter-pills .pill').forEach(btn => btn.classList.remove('active'));
-    
-    if (filterType === 'all') document.getElementById('btn-filter-visit-all').classList.add('active');
-    if (filterType === 'done') document.getElementById('btn-filter-visit-done').classList.add('active');
-    if (filterType === 'pending') document.getElementById('btn-filter-visit-pending').classList.add('active');
-
-    renderAdminVisitDashboard();
-}
-
-// Render Teacher Admin Visit Dashboard
-function renderAdminVisitDashboard() {
-    const tbody = document.querySelector('#table-visit-status tbody');
-    const mapListContainer = document.getElementById('admin-gps-list-container');
-    
-    if (!tbody || typeof studentData === 'undefined') return;
-
-    let completedCount = 0;
-    let gpsCount = 0;
-    let tableHtml = '';
-    let mapListHtml = '';
-
-    const filteredStudents = studentData.filter(s => {
-        const isDone = !!homeVisitStore[s.student_id];
-        if (currentAdminFilter === 'done') return isDone;
-        if (currentAdminFilter === 'pending') return !isDone;
-        return true;
-    });
-
-    studentData.forEach(s => {
-        const visit = homeVisitStore[s.student_id];
-        if (visit) {
-            completedCount++;
-            if (visit.lat && visit.lng) gpsCount++;
-        }
-    });
-
-    filteredStudents.forEach(s => {
-        const visit = homeVisitStore[s.student_id];
-        const isDone = !!visit;
-        const photoSrc = s.photo_url || `photos/${s.student_id}.jpg`;
-        const addressText = isDone ? `บ้านเลขที่ ${visit.house_no} ม.${visit.moo || '-'} ต.${visit.subdistrict} อ.${visit.district}` : '-';
-        
-        let gpsCell = '<span style="color:#94a3b8; font-size:0.85rem;">ไม่มีพิกัด</span>';
-        if (isDone && visit.lat && visit.lng) {
-            const mapUrl = `https://www.google.com/maps/dir/?api=1&destination=${visit.lat},${visit.lng}`;
-            gpsCell = `
-                <a href="${mapUrl}" target="_blank" class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem; background:#f0f9ff; color:#0284c7; border-color:#bae6fd; font-weight:600;">
-                    <i class="fa-solid fa-location-arrow"></i> เปิดนำทาง GPS
-                </a>
-            `;
-
-            mapListHtml += `
-                <div class="admin-map-card">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <img src="${photoSrc}" onerror="this.src='photos/19186.jpg'" style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid #0284c7;">
-                        <div>
-                            <strong style="color:#0f172a; font-size:0.98rem;">เลขที่ ${s.no} ${s.fullname}</strong> ${s.nickname ? `<span style="color:#64748b;">(${s.nickname})</span>` : ''}
-                            <div style="font-size:0.84rem; color:#64748b; margin-top:2px;">📍 ${addressText}</div>
-                        </div>
-                    </div>
-                    <div>
-                        <a href="${mapUrl}" target="_blank" class="btn btn-primary" style="padding:6px 14px; font-size:0.88rem;">
-                            <i class="fa-solid fa-diamond-turn-right"></i> เปิดนำทาง Google Maps
-                        </a>
-                    </div>
-                </div>
-            `;
-        }
-
-        tableHtml += `
-            <tr>
-                <td style="text-align:center; font-weight:700;">${s.no}</td>
-                <td>
-                    <div style="display:flex; align-items:center; gap:10px; white-space:nowrap;">
-                        <img src="${photoSrc}" onerror="this.src='photos/19186.jpg'" style="width:30px; height:30px; border-radius:50%; object-fit:cover; border:1px solid #0284c7;">
-                        <strong style="color:#0f172a;">${s.fullname}</strong> ${s.nickname ? `<span style="color:#64748b; font-size:0.85rem;">(${s.nickname})</span>` : ''}
-                    </div>
-                </td>
-                <td style="font-size:0.88rem;">${addressText}</td>
-                <td style="text-align:center;">${gpsCell}</td>
-                <td style="text-align:center;">
-                    <span class="badge ${isDone ? 'badge-success' : 'badge-warning'}">
-                        ${isDone ? '🟢 กรอกแล้ว' : '🟡 รอดำเนินการ'}
-                    </span>
-                </td>
-                <td style="text-align:center;">
-                    <button onclick="editStudentVisitData('${s.student_id}')" class="btn btn-outline" style="padding:4px 10px; font-size:0.78rem;">
-                        <i class="fa-solid fa-pen-to-square"></i> กรอก/แก้ไข
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
-
-    tbody.innerHTML = tableHtml || '<tr><td colspan="6" style="text-align:center; color:#64748b; padding:2rem;">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</td></tr>';
-    
-    // Update Stat Cards
-    const totalCount = studentData.length;
-    const pendingCount = totalCount - completedCount;
-    const completedPct = ((completedCount / totalCount) * 100).toFixed(1);
-
-    const elTotal = document.getElementById('admin-stat-total');
-    if (elTotal) elTotal.textContent = `${totalCount} คน`;
-
-    const elCompleted = document.getElementById('admin-stat-completed');
-    if (elCompleted) elCompleted.textContent = `${completedCount} คน`;
-
-    const elPct = document.getElementById('admin-stat-completed-pct');
-    if (elPct) elPct.textContent = `${completedPct}% ของทั้งหมด`;
-
-    const elPending = document.getElementById('admin-stat-pending');
-    if (elPending) elPending.textContent = `${pendingCount} คน`;
-
-    const elGps = document.getElementById('admin-stat-gps-count');
-    if (elGps) elGps.textContent = `${gpsCount} คน`;
-
-    if (mapListContainer) {
-        mapListContainer.innerHTML = mapListHtml || `
-            <div style="text-align:center; padding:2rem; color:#64748b; background:#f8fafc; border-radius:14px; border:1px dashed #cbd5e1;">
-                <i class="fa-solid fa-map-location-dot" style="font-size:2.2rem; color:#94a3b8; margin-bottom:8px;"></i>
-                <p style="font-weight:600; color:#334155; margin-bottom:4px;">ยังไม่มีพิกัด GPS บ้านนักเรียนที่บันทึกไว้</p>
-                <small>เมื่อนักเรียนหรือผู้ปกครองกดดึงพิกัด GPS บ้าน รายชื่อและปุ่มเปิดนำทางจะปรากฏที่นี่ทันที</small>
-            </div>
-        `;
-    }
-}
-
-// Edit specific student visit data from admin table
-function editStudentVisitData(studentId) {
-    toggleVisitMode();
-    const select = document.getElementById('select-visit-student');
-    if (select) {
-        select.value = studentId;
-        handleStudentSelectChange();
     }
 }

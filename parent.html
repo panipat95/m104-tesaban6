@@ -866,7 +866,7 @@
             subjects.forEach(sub => {
                 const itemPct = Math.min(100, Math.max(0, ((sub.score / sub.max) * 100).toFixed(0)));
                 const isHigh = itemPct >= 70;
-                const isMedium = itemPct >= 50 && itemPct < 70;
+                const isMedium = itemPct >= 60 && itemPct < 70;
                 const statusColor = isHigh ? '#059669' : (isMedium ? '#d97706' : '#dc2626');
 
                 subjectsHtml += `
@@ -887,7 +887,7 @@
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:0.75rem; color:#64748b;">
                             <span>คิดเป็น ${itemPct}%</span>
-                            <span style="font-weight:600; color:${statusColor};">${isHigh ? '🟢 ผ่านเกณฑ์ดี' : (isMedium ? '🟡 ผ่านเกณฑ์' : '🔴 ควรปรับปรุง')}</span>
+                            <span style="font-weight:600; color:${statusColor};">${isHigh ? '🟢 ผ่านเกณฑ์ดี' : (isMedium ? '🟡 ผ่านเกณฑ์ (60%)' : '🔴 ไม่ผ่านเกณฑ์ (<60%)')}</span>
                         </div>
                     </div>
                 `;
@@ -918,8 +918,8 @@
                                 ${pct}%
                             </span>
                             <div style="margin-top:2px;">
-                                <span class="badge ${pct >= 70 ? 'badge-success' : 'badge-warning'}" style="font-size:0.82rem; padding:4px 12px;">
-                                    ${pct >= 70 ? '🟢 ผลการเรียนอยู่ในเกณฑ์ดีมาก' : '🟡 ผ่านเกณฑ์การประเมิน'}
+                                <span class="badge ${pct >= 70 ? 'badge-success' : (pct >= 60 ? 'badge-warning' : 'badge-danger')}" style="font-size:0.82rem; padding:4px 12px;">
+                                    ${pct >= 70 ? '🟢 ผลการเรียนอยู่ในเกณฑ์ดีมาก' : (pct >= 60 ? '🟡 ผ่านเกณฑ์การประเมิน (60%)' : '🔴 ไม่ผ่านเกณฑ์ (ต่ำกว่า 60%)')}
                                 </span>
                             </div>
                         </div>

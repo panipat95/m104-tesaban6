@@ -360,19 +360,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 </td>
-                <td><span class="badge ${sc.eng_comm >= 10 ? 'badge-success' : 'badge-danger'}">${sc.eng_comm}</span></td>
-                <td><span class="badge ${sc.social >= 10 ? 'badge-success' : 'badge-danger'}">${sc.social}</span></td>
-                <td><span class="badge ${sc.math_basic >= 10 ? 'badge-success' : 'badge-danger'}">${sc.math_basic}</span></td>
-                <td><span class="badge ${sc.thai >= 10 ? 'badge-success' : 'badge-danger'}">${sc.thai}</span></td>
-                <td><span class="badge ${sc.math_add1 >= 10 ? 'badge-success' : 'badge-danger'}">${sc.math_add1}</span></td>
-                <td><span class="badge ${sc.math_add2 >= 2.5 ? 'badge-success' : 'badge-danger'}">${sc.math_add2}</span></td>
-                <td><span class="badge ${sc.chinese >= 10 ? 'badge-success' : 'badge-danger'}">${sc.chinese}</span></td>
-                <td><span class="badge ${sc.eng_basic >= 10 ? 'badge-success' : 'badge-danger'}">${sc.eng_basic}</span></td>
-                <td><span class="badge ${(sc.sci_basic || 0) >= 10 ? 'badge-success' : 'badge-danger'}">${sc.sci_basic || 0}</span></td>
-                <td><span class="badge ${(sc.eng_rw || 0) >= 10 ? 'badge-success' : 'badge-danger'}">${sc.eng_rw || 0}</span></td>
-                <td style="background:#fffbeb;"><span class="badge ${(sc.sci_lab || 0) >= 15 ? 'badge-success' : 'badge-danger'}">${sc.sci_lab || 0}</span></td>
+                <td><span class="badge ${sc.eng_comm >= 12 ? 'badge-success' : 'badge-danger'}">${sc.eng_comm}</span></td>
+                <td><span class="badge ${sc.social >= 12 ? 'badge-success' : 'badge-danger'}">${sc.social}</span></td>
+                <td><span class="badge ${sc.math_basic >= 12 ? 'badge-success' : 'badge-danger'}">${sc.math_basic}</span></td>
+                <td><span class="badge ${sc.thai >= 12 ? 'badge-success' : 'badge-danger'}">${sc.thai}</span></td>
+                <td><span class="badge ${sc.math_add1 >= 12 ? 'badge-success' : 'badge-danger'}">${sc.math_add1}</span></td>
+                <td><span class="badge ${sc.math_add2 >= 3 ? 'badge-success' : 'badge-danger'}">${sc.math_add2}</span></td>
+                <td><span class="badge ${sc.chinese >= 12 ? 'badge-success' : 'badge-danger'}">${sc.chinese}</span></td>
+                <td><span class="badge ${sc.eng_basic >= 12 ? 'badge-success' : 'badge-danger'}">${sc.eng_basic}</span></td>
+                <td><span class="badge ${(sc.sci_basic || 0) >= 12 ? 'badge-success' : 'badge-danger'}">${sc.sci_basic || 0}</span></td>
+                <td><span class="badge ${(sc.eng_rw || 0) >= 12 ? 'badge-success' : 'badge-danger'}">${sc.eng_rw || 0}</span></td>
+                <td style="background:#fffbeb;"><span class="badge ${(sc.sci_lab || 0) >= 18 ? 'badge-success' : 'badge-danger'}">${sc.sci_lab || 0}</span></td>
                 <td><strong style="color:var(--primary); font-size:1.05rem;">${sc.total_score}</strong></td>
-                <td><span class="badge ${pct >= 50 ? 'badge-purple' : 'badge-warning'}">${pct}%</span></td>
+                <td><span class="badge ${pct >= 60 ? 'badge-purple' : 'badge-danger'}">${pct}%</span></td>
             `;
             tbody.appendChild(tr);
         });

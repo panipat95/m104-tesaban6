@@ -154,7 +154,7 @@
                         <div class="stat-details">
                             <h3>คะแนนเฉลี่ยสอบกลางภาค 1/2569</h3>
                             <span class="stat-value" id="stat-midterm-avg">123.5 คะแนน</span>
-                            <small id="overview-avg-midterm-subtext">คะแนนเต็ม 185 คะแนน (10 วิชาหลัก)</small>
+                            <small id="overview-avg-midterm-subtext">คะแนนเต็ม 215 คะแนน (11 วิชาหลัก)</small>
                         </div>
                     </div>
                 </div>
@@ -262,7 +262,8 @@
                                     <th>อ.พื้นฐาน (20)</th>
                                     <th>วิทย์พื้นฯ (20)</th>
                                     <th>อ.อ่าน-เขียน (20)</th>
-                                    <th>รวม (185)</th>
+                                    <th style="background:#fef3c7; color:#92400e;">วิทย์ปฏิบัติ (30)</th>
+                                    <th>รวม (215)</th>
                                     <th>เฉลี่ย (%)</th>
                                 </tr>
                             </thead>
@@ -358,6 +359,21 @@
                         <div class="form-group">
                             <label><i class="fa-solid fa-file-signature"></i> ชื่อชิ้นงาน / ภาระงานที่ค้างส่ง:</label>
                             <input type="text" id="task-title-input" class="form-control" placeholder="เช่น ใบงานเรื่องสมการ, แบบฝึกหัดบทที่ 2...">
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-paperclip"></i> แนบไฟล์ประกอบงาน (ไม่บังคับ):</label>
+                            <div id="task-file-dropzone" style="border: 2px dashed #bae6fd; border-radius: 12px; padding: 14px 16px; background: #f0f9ff; cursor: pointer; transition: all 0.2s;" onclick="document.getElementById('task-file-input').click()" ondragover="event.preventDefault(); this.style.borderColor='#0284c7'; this.style.background='#e0f2fe';" ondragleave="this.style.borderColor='#bae6fd'; this.style.background='#f0f9ff';" ondrop="handleTaskFileDrop(event)">
+                                <div style="display:flex; align-items:center; gap:10px; color:#0369a1;">
+                                    <i class="fa-solid fa-cloud-arrow-up" style="font-size:1.4rem; color:#0284c7;"></i>
+                                    <div>
+                                        <div style="font-weight:600; font-size:0.95rem;">คลิกหรือลากไฟล์มาวางที่นี่</div>
+                                        <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">รองรับ: รูปภาพ (JPG, PNG), PDF, Word (.docx), Excel (.xlsx) • ขนาดสูงสุด 10MB</div>
+                                    </div>
+                                </div>
+                                <input type="file" id="task-file-input" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style="display:none;" onchange="handleTaskFileSelect(event)">
+                            </div>
+                            <div id="task-file-preview" style="display:none; margin-top:8px; display:flex; flex-wrap:wrap; gap:8px;"></div>
                         </div>
 
                         <div class="form-group">

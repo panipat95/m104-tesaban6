@@ -345,8 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         studentData.forEach(s => {
             const tr = document.createElement('tr');
-            const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, total_score: 0 };
-            const pct = ((sc.total_score / 185) * 100).toFixed(1);
+            const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, sci_lab: 0, total_score: 0 };
+            const pct = ((sc.total_score / 215) * 100).toFixed(1);
             const photoSrc = s.photo_url || `photos/${s.student_id}.jpg`;
 
             tr.innerHTML = `
@@ -370,6 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><span class="badge ${sc.eng_basic >= 10 ? 'badge-success' : 'badge-danger'}">${sc.eng_basic}</span></td>
                 <td><span class="badge ${(sc.sci_basic || 0) >= 10 ? 'badge-success' : 'badge-danger'}">${sc.sci_basic || 0}</span></td>
                 <td><span class="badge ${(sc.eng_rw || 0) >= 10 ? 'badge-success' : 'badge-danger'}">${sc.eng_rw || 0}</span></td>
+                <td style="background:#fffbeb;"><span class="badge ${(sc.sci_lab || 0) >= 15 ? 'badge-success' : 'badge-danger'}">${sc.sci_lab || 0}</span></td>
                 <td><strong style="color:var(--primary); font-size:1.05rem;">${sc.total_score}</strong></td>
                 <td><span class="badge ${pct >= 50 ? 'badge-purple' : 'badge-warning'}">${pct}%</span></td>
             `;
@@ -1139,6 +1140,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="badge badge-purple" style="font-size:0.85rem; margin-bottom:4px;">วิชา ${task.subject}</span>
                         <h4 style="font-size:1.1rem; color:#0f172a; margin-top:2px;">${task.title}</h4>
                         <small style="color:var(--text-muted);"><i class="fa-solid fa-calendar-day"></i> กำหนดส่ง: ${task.dueDate || 'ไม่ระบุ'}</small>
+                        ${task.attachedFiles && task.attachedFiles.length > 0 ? `
+                        <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
+                            ${task.attachedFiles.map((f, fi) => {
+                                const isImg = f.type && f.type.startsWith('image/');
+                                const isPdf = f.type === 'application/pdf';
+                                const isWord = f.name && (f.name.endsWith('.doc') || f.name.endsWith('.docx'));
+                                const isExcel = f.name && (f.name.endsWith('.xls') || f.name.endsWith('.xlsx'));
+                                const icon = isImg ? '🖼️' : isPdf ? '📄' : isWord ? '📝' : isExcel ? '📊' : '📎';
+                                const bgColor = isImg ? '#f0fdf4' : isPdf ? '#fef3c7' : isWord ? '#eff6ff' : isExcel ? '#f0fdf4' : '#f8fafc';
+                                const borderColor = isImg ? '#86efac' : isPdf ? '#fcd34d' : isWord ? '#93c5fd' : isExcel ? '#6ee7b7' : '#cbd5e1';
+                                if (isImg && f.dataURL) {
+                                    return `<a href="${f.dataURL}" target="_blank" title="${f.name}" style="display:inline-block;">
+                                        <img src="${f.dataURL}" style="width:56px; height:56px; border-radius:8px; object-fit:cover; border:2px solid #86efac; box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+                                    </a>`;
+                                }
+                                return `<span title="${f.name}" style="background:${bgColor}; border:1px solid ${borderColor}; border-radius:8px; padding:4px 10px; font-size:0.78rem; font-weight:600; color:#0f172a; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">${icon} ${f.name.length > 20 ? f.name.substring(0, 18) + '..' : f.name}</span>`;
+                            }).join('')}
+                        </div>` : ''}
                     </div>
                     ${myStatusBadge}
                 </div>
@@ -1230,13 +1249,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!title) { alert('กรุณาระบุชื่อชิ้นงานที่ค้างส่งครับ'); return; }
             if (pendingStudentIds.length === 0) { alert('กรุณาติ๊ก ✔️ เลือกนักเรียนที่ค้างส่งอย่างน้อย 1 คนครับ'); return; }
 
+            // Collect attached file metadata (names, types, dataURLs for images)
+            const attachedFiles = window._taskAttachedFiles || [];
+            const filesMeta = attachedFiles.map(f => ({
+                name: f.name,
+                type: f.type,
+                size: f.size,
+                dataURL: f._dataURL || null
+            }));
+
             const newTask = {
                 id: Date.now(),
                 subject: subject,
                 title: title,
                 dueDate: dueDate,
                 pendingStudentIds: pendingStudentIds,
-                createdAt: new Date().toLocaleDateString('th-TH')
+                createdAt: new Date().toLocaleDateString('th-TH'),
+                attachedFiles: filesMeta
             };
 
             pendingHomeworkTasks.unshift(newTask);
@@ -1247,7 +1276,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderStudentCards();
             renderPersonalHomeworkLookup();
 
-            // Clear inputs
+            // Clear inputs and attached files
             if (subjectSelect) subjectSelect.value = '';
             if (subjectInput) {
                 subjectInput.value = '';
@@ -1256,6 +1285,12 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('task-title-input').value = '';
             document.getElementById('task-duedate-input').value = '';
             document.querySelectorAll('.task-student-cb').forEach(cb => cb.checked = false);
+            // Clear attached files
+            window._taskAttachedFiles = [];
+            const prevEl = document.getElementById('task-file-preview');
+            if (prevEl) { prevEl.innerHTML = ''; prevEl.style.display = 'none'; }
+            const fileInput = document.getElementById('task-file-input');
+            if (fileInput) fileInput.value = '';
 
             alert(`🎉 บันทึกรายการงานค้างวิชา "${subject}" - "${title}" เรียบร้อยแล้ว!\n(ระบุนักเรียนค้างส่งจำนวน ${pendingStudentIds.length} คน)`);
         });
@@ -1873,3 +1908,67 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start App
     loadDatabase();
 });
+
+// ─── Global Task File Attachment Handlers ───────────────────────────────────
+window._taskAttachedFiles = [];
+
+function renderTaskFilePreview() {
+    const previewEl = document.getElementById('task-file-preview');
+    if (!previewEl) return;
+    const files = window._taskAttachedFiles || [];
+    if (files.length === 0) {
+        previewEl.style.display = 'none';
+        previewEl.innerHTML = '';
+        return;
+    }
+    previewEl.style.display = 'flex';
+    previewEl.innerHTML = files.map((f, i) => {
+        const isImg = f.type && f.type.startsWith('image/');
+        const icon = isImg ? '🖼️' : f.type === 'application/pdf' ? '📄' : (f.name.endsWith('.docx') || f.name.endsWith('.doc')) ? '📝' : (f.name.endsWith('.xlsx') || f.name.endsWith('.xls')) ? '📊' : '📎';
+        const thumb = (isImg && f._dataURL) ? `<img src="${f._dataURL}" style="width:44px;height:44px;border-radius:6px;object-fit:cover;border:1.5px solid #86efac;flex-shrink:0;">` : `<span style="font-size:1.6rem;flex-shrink:0;">${icon}</span>`;
+        return `<div style="display:inline-flex;align-items:center;gap:6px;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:10px;padding:5px 10px;font-size:0.8rem;font-weight:600;max-width:200px;">
+            ${thumb}
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#0369a1;" title="${f.name}">${f.name.length > 18 ? f.name.substring(0, 16) + '..' : f.name}</span>
+            <button onclick="removeTaskFile(${i})" type="button" style="border:none;background:none;color:#ef4444;cursor:pointer;font-size:1rem;line-height:1;flex-shrink:0;padding:0 2px;" title="ลบไฟล์">✕</button>
+        </div>`;
+    }).join('');
+}
+
+window.removeTaskFile = function(index) {
+    window._taskAttachedFiles.splice(index, 1);
+    renderTaskFilePreview();
+};
+
+function processTaskFiles(files) {
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+    Array.from(files).forEach(f => {
+        if (f.size > MAX_SIZE) {
+            alert(`ไฟล์ "${f.name}" มีขนาดเกิน 10MB กรุณาเลือกไฟล์ที่เล็กกว่าครับ`);
+            return;
+        }
+        if (f.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                f._dataURL = e.target.result;
+                window._taskAttachedFiles.push(f);
+                renderTaskFilePreview();
+            };
+            reader.readAsDataURL(f);
+        } else {
+            window._taskAttachedFiles.push(f);
+            renderTaskFilePreview();
+        }
+    });
+}
+
+window.handleTaskFileSelect = function(event) {
+    processTaskFiles(event.target.files);
+};
+
+window.handleTaskFileDrop = function(event) {
+    event.preventDefault();
+    const dz = document.getElementById('task-file-dropzone');
+    if (dz) { dz.style.borderColor = '#bae6fd'; dz.style.background = '#f0f9ff'; }
+    processTaskFiles(event.dataTransfer.files);
+};
+

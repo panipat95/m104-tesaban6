@@ -815,6 +815,21 @@
             const students = getActiveStudents();
             if (!students || students.length === 0) return;
 
+            function getScoreBadge(studentId, subjectKey, score, minPassScore) {
+                if (typeof window.getRemedialBadge === 'function') {
+                    return window.getRemedialBadge(studentId, subjectKey, score, minPassScore);
+                }
+                const isPass = (score || 0) >= minPassScore;
+                if (isPass) return `<span class="badge badge-success">${score}</span>`;
+                const saved = localStorage.getItem('tesaban6_remedial_store');
+                let remStore = {};
+                if (saved) { try { remStore = JSON.parse(saved); } catch(e){} }
+                if (remStore[`${studentId}_${subjectKey}`]) {
+                    return `<span class="badge" style="background:#0284c7; color:#ffffff; font-weight:700; padding:4px 9px; border-radius:6px;"><i class="fa-solid fa-circle-check"></i> ${score} (แก้แล้ว)</span>`;
+                }
+                return `<span class="badge badge-danger">${score}</span>`;
+            }
+
             let html = '';
             students.forEach(s => {
                 const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, sci_lab: 0, total_score: 0 };
@@ -830,17 +845,17 @@
                                 <strong>${s.fullname}</strong> ${s.nickname ? `<span style="color:#64748b;">(${s.nickname})</span>` : ''}
                             </div>
                         </td>
-                        <td style="text-align:center;"><span class="badge ${sc.eng_comm >= 12 ? 'badge-success' : 'badge-danger'}">${sc.eng_comm}</span></td>
-                        <td style="text-align:center;"><span class="badge ${sc.social >= 12 ? 'badge-success' : 'badge-danger'}">${sc.social}</span></td>
-                        <td style="text-align:center;"><span class="badge ${sc.math_basic >= 12 ? 'badge-success' : 'badge-danger'}">${sc.math_basic}</span></td>
-                        <td style="text-align:center;"><span class="badge ${sc.thai >= 12 ? 'badge-success' : 'badge-danger'}">${sc.thai}</span></td>
-                        <td style="text-align:center;"><span class="badge ${sc.math_add1 >= 12 ? 'badge-success' : 'badge-danger'}">${sc.math_add1}</span></td>
-                        <td style="text-align:center;"><span class="badge ${sc.math_add2 >= 3 ? 'badge-success' : 'badge-danger'}">${sc.math_add2}</span></td>
-                        <td style="text-align:center;"><span class="badge ${sc.chinese >= 12 ? 'badge-success' : 'badge-danger'}">${sc.chinese}</span></td>
-                        <td style="text-align:center;"><span class="badge ${sc.eng_basic >= 12 ? 'badge-success' : 'badge-danger'}">${sc.eng_basic}</span></td>
-                        <td style="text-align:center;"><span class="badge ${(sc.sci_basic || 0) >= 12 ? 'badge-success' : 'badge-danger'}">${sc.sci_basic || 0}</span></td>
-                        <td style="text-align:center;"><span class="badge ${(sc.eng_rw || 0) >= 12 ? 'badge-success' : 'badge-danger'}">${sc.eng_rw || 0}</span></td>
-                        <td style="text-align:center; background:#fffbeb;"><span class="badge ${(sc.sci_lab || 0) >= 18 ? 'badge-success' : 'badge-danger'}">${sc.sci_lab || 0}</span></td>
+                        <td style="text-align:center;">${getScoreBadge(s.student_id, 'eng_comm', sc.eng_comm, 12)}</td>
+                        <td style="text-align:center;">${getScoreBadge(s.student_id, 'social', sc.social, 12)}</td>
+                        <td style="text-align:center;">${getScoreBadge(s.student_id, 'math_basic', sc.math_basic, 12)}</td>
+                        <td style="text-align:center;">${getScoreBadge(s.student_id, 'thai', sc.thai, 12)}</td>
+                        <td style="text-align:center;">${getScoreBadge(s.student_id, 'math_add1', sc.math_add1, 12)}</td>
+                        <td style="text-align:center;">${getScoreBadge(s.student_id, 'math_add2', sc.math_add2, 3)}</td>
+                        <td style="text-align:center;">${getScoreBadge(s.student_id, 'chinese', sc.chinese, 12)}</td>
+                        <td style="text-align:center;">${getScoreBadge(s.student_id, 'eng_basic', sc.eng_basic, 12)}</td>
+                        <td style="text-align:center;">${getScoreBadge(s.student_id, 'sci_basic', sc.sci_basic || 0, 12)}</td>
+                        <td style="text-align:center;">${getScoreBadge(s.student_id, 'eng_rw', sc.eng_rw || 0, 12)}</td>
+                        <td style="text-align:center; background:#fffbeb;">${getScoreBadge(s.student_id, 'sci_lab', sc.sci_lab || 0, 18)}</td>
                         <td style="text-align:center;"><strong style="color:var(--primary); font-size:0.95rem;">${sc.total_score}</strong></td>
                         <td style="text-align:center;"><span class="badge ${pct >= 60 ? 'badge-purple' : 'badge-danger'}">${pct}%</span></td>
                     </tr>

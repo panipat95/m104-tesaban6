@@ -471,42 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { key: 'sci_lab', min: 18 }
         ];
 
-        let totalPendingRemedial = 0;
-        let totalCompletedRemedial = 0;
 
-        studentData.forEach(s => {
-            const sc = s.scores || {};
-            subjectsMeta.forEach(sm => {
-                const val = sc[sm.key] || 0;
-                if (val < sm.min) {
-                    if (window.remedialStore[`${s.student_id}_${sm.key}`]) {
-                        totalCompletedRemedial++;
-                    } else {
-                        totalPendingRemedial++;
-                    }
-                }
-            });
-        });
-
-        // Render Remedial Summary Bar
-        const summaryBar = document.getElementById('midterm-remedial-summary-bar');
-        if (summaryBar) {
-            summaryBar.innerHTML = `
-                <div style="background:#ffffff; border:1.5px solid #bae6fd; border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; box-shadow:0 2px 8px rgba(2,132,199,0.05);">
-                    <div style="display:flex; align-items:center; gap:12px; font-size:0.88rem; font-weight:600; flex-wrap:wrap;">
-                        <span style="color:#0369a1;"><i class="fa-solid fa-lightbulb" style="color:#0284c7;"></i> <strong>สถานะงานแก้ตก (คลิกป้ายสีแดงเพื่อสลับสถานะ):</strong></span>
-                        <span class="badge badge-success">🟢 ผ่านเกณฑ์ (≥60%)</span>
-                        <span class="badge badge-danger" style="cursor:default;"><i class="fa-solid fa-clock-rotate-left"></i> 🔴 สอบตก (คลิก = ส่งงานแก้แล้ว)</span>
-                        <span class="badge" style="background:#0284c7; color:#fff; cursor:default;"><i class="fa-solid fa-circle-check"></i> 🔵 ส่งงานแก้แล้ว</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                        <span class="badge badge-danger" style="font-size:0.85rem; padding:5px 10px;">🔴 ค้างแก้: ${totalPendingRemedial} วิชา</span>
-                        <span class="badge" style="background:#0284c7; color:#fff; font-size:0.85rem; padding:5px 10px;">🔵 แก้แล้ว: ${totalCompletedRemedial} วิชา</span>
-                        <button type="button" class="btn-line btn-sm" onclick="noticeRemedialSummaryLine()" style="padding:4px 10px; font-size:0.82rem;"><i class="fa-brands fa-line"></i> แจ้ง LINE คนค้างแก้</button>
-                    </div>
-                </div>
-            `;
-        }
 
         studentData.forEach(s => {
             const tr = document.createElement('tr');

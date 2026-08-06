@@ -337,141 +337,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Remedial Store Management
-    window.remedialStore = {};
-
-    function loadRemedialStore() {
-        try {
-            const saved = localStorage.getItem('tesaban6_remedial_store');
-            if (saved) window.remedialStore = JSON.parse(saved);
-        } catch(e) { window.remedialStore = {}; }
-    }
-
-    function saveRemedialStore() {
-        try {
-            localStorage.setItem('tesaban6_remedial_store', JSON.stringify(window.remedialStore));
-        } catch(e) {}
-    }
-
-    window.toggleRemedialStatus = function(studentId, subjectKey) {
-        const key = `${studentId}_${subjectKey}`;
-        if (window.remedialStore[key]) {
-            delete window.remedialStore[key];
-        } else {
-            window.remedialStore[key] = true;
-        }
-        saveRemedialStore();
-        renderMidtermTable();
-        if (typeof renderLeaderMidtermScores === 'function') renderLeaderMidtermScores();
-        if (typeof renderScoresTab === 'function') renderScoresTab();
-    };
-
-    function getRemedialBadge(studentId, subjectKey, score, minPassScore) {
-        const isPass = (score || 0) >= minPassScore;
-        if (isPass) {
-            return `<span class="badge badge-success">${score}</span>`;
-        }
-        const key = `${studentId}_${subjectKey}`;
-        const isDone = !!window.remedialStore[key];
-        if (isDone) {
-            return `<span class="badge" onclick="toggleRemedialStatus('${studentId}', '${subjectKey}')" title="คลิกเพื่อสลับกลับเป็นยังไม่แก้" style="cursor:pointer; background:#0284c7; color:#ffffff; font-weight:700; padding:4px 9px; border-radius:6px; box-shadow:0 2px 4px rgba(2,132,199,0.2);"><i class="fa-solid fa-circle-check"></i> ${score} (แก้แล้ว)</span>`;
-        }
-        return `<span class="badge badge-danger" onclick="toggleRemedialStatus('${studentId}', '${subjectKey}')" title="คลิกเพื่อบันทึกว่า 'ส่งงานแก้แล้ว'" style="cursor:pointer; padding:4px 9px; border-radius:6px; background:#dc2626; box-shadow:0 2px 4px rgba(220,38,38,0.2);"><i class="fa-solid fa-clock-rotate-left"></i> ${score}</span>`;
-    }
-
-    window.noticeRemedialSummaryLine = function() {
-        const subjectNamesMap = {
-            eng_comm: 'ภาษาอังกฤษเพื่อการสื่อสาร',
-            social: 'สังคมศึกษา',
-            math_basic: 'คณิตศาสตร์พื้นฐาน',
-            thai: 'ภาษาไทย',
-            math_add1: 'คณิตศาสตร์เพิ่มเติม 1',
-            math_add2: 'คณิตศาสตร์เพิ่มเติม 2',
-            chinese: 'ภาษาจีน',
-            eng_basic: 'ภาษาอังกฤษพื้นฐาน',
-            sci_basic: 'วิทยาศาสตร์พื้นฐาน',
-            eng_rw: 'ภาษาอังกฤษ อ่าน-เขียน',
-            sci_lab: 'วิทยาศาสตร์ปฏิบัติการ'
-        };
-
-        const subjectsMeta = [
-            { key: 'eng_comm', min: 12 },
-            { key: 'social', min: 12 },
-            { key: 'math_basic', min: 12 },
-            { key: 'thai', min: 12 },
-            { key: 'math_add1', min: 12 },
-            { key: 'math_add2', min: 3 },
-            { key: 'chinese', min: 12 },
-            { key: 'eng_basic', min: 12 },
-            { key: 'sci_basic', min: 12 },
-            { key: 'eng_rw', min: 12 },
-            { key: 'sci_lab', min: 18 }
-        ];
-
-        let pendingList = [];
-
-        studentData.forEach(s => {
-            const sc = s.scores || {};
-            let failedSubjectNames = [];
-            subjectsMeta.forEach(sm => {
-                const val = sc[sm.key] || 0;
-                if (val < sm.min) {
-                    const isDone = !!window.remedialStore[`${s.student_id}_${sm.key}`];
-                    if (!isDone) {
-                        failedSubjectNames.push(subjectNamesMap[sm.key] || sm.key);
-                    }
-                }
-            });
-            if (failedSubjectNames.length > 0) {
-                pendingList.push({ student: s, subjects: failedSubjectNames });
-            }
-        });
-
-        if (pendingList.length === 0) {
-            alert('🎉 นักเรียนทุกคนที่สอบตกส่งงานแก้ครบหมดแล้วครับ!');
-            return;
-        }
-
-        let msg = `📌 [แจ้งเตือนการส่งงานแก้ตก - ห้อง ม.1.4 SMT]\n`;
-        msg += `ขณะนี้มีนักเรียนที่ยังค้างส่งงานแก้ (คะแนนต่ำกว่า 60%) จำนวน ${pendingList.length} คน ดังนี้ครับ:\n\n`;
-
-        pendingList.forEach((item, idx) => {
-            msg += `${idx + 1}. เลขที่ ${item.student.no} ${item.student.fullname} (${item.student.nickname || ''})\n`;
-            msg += `   วิชาค้างแก้ (${item.subjects.length} วิชา): ${item.subjects.join(', ')}\n`;
-        });
-
-        msg += `\nรบกวนนักเรียนรีบดำเนินการทำและนำงานมาส่งคุณครูประจำวิชาโดยด่วนด้วยนะครับ ขอบคุณครับ 🙏`;
-
-        const lineTabBtn = document.querySelector('[data-tab="tab-line"]');
-        if (lineTabBtn) lineTabBtn.click();
-        const lineSelect = document.getElementById('line-student-select');
-        if (lineSelect) lineSelect.value = 'all';
-        const linePreview = document.getElementById('line-preview-text');
-        if (linePreview) linePreview.textContent = msg;
-    };
-
     // Render Midterm Scores Table (215 Max Score)
     function renderMidtermTable() {
-        loadRemedialStore();
         const tbody = document.querySelector('#table-midterm-scores tbody');
         if (!tbody) return;
         tbody.innerHTML = '';
-
-        const subjectsMeta = [
-            { key: 'eng_comm', min: 12 },
-            { key: 'social', min: 12 },
-            { key: 'math_basic', min: 12 },
-            { key: 'thai', min: 12 },
-            { key: 'math_add1', min: 12 },
-            { key: 'math_add2', min: 3 },
-            { key: 'chinese', min: 12 },
-            { key: 'eng_basic', min: 12 },
-            { key: 'sci_basic', min: 12 },
-            { key: 'eng_rw', min: 12 },
-            { key: 'sci_lab', min: 18 }
-        ];
-
-
 
         studentData.forEach(s => {
             const tr = document.createElement('tr');
@@ -490,17 +360,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 </td>
-                <td>${getRemedialBadge(s.student_id, 'eng_comm', sc.eng_comm, 12)}</td>
-                <td>${getRemedialBadge(s.student_id, 'social', sc.social, 12)}</td>
-                <td>${getRemedialBadge(s.student_id, 'math_basic', sc.math_basic, 12)}</td>
-                <td>${getRemedialBadge(s.student_id, 'thai', sc.thai, 12)}</td>
-                <td>${getRemedialBadge(s.student_id, 'math_add1', sc.math_add1, 12)}</td>
-                <td>${getRemedialBadge(s.student_id, 'math_add2', sc.math_add2, 3)}</td>
-                <td>${getRemedialBadge(s.student_id, 'chinese', sc.chinese, 12)}</td>
-                <td>${getRemedialBadge(s.student_id, 'eng_basic', sc.eng_basic, 12)}</td>
-                <td>${getRemedialBadge(s.student_id, 'sci_basic', sc.sci_basic || 0, 12)}</td>
-                <td>${getRemedialBadge(s.student_id, 'eng_rw', sc.eng_rw || 0, 12)}</td>
-                <td style="background:#fffbeb;">${getRemedialBadge(s.student_id, 'sci_lab', sc.sci_lab || 0, 18)}</td>
+                <td><span class="badge ${sc.eng_comm >= 12 ? 'badge-success' : 'badge-danger'}">${sc.eng_comm}</span></td>
+                <td><span class="badge ${sc.social >= 12 ? 'badge-success' : 'badge-danger'}">${sc.social}</span></td>
+                <td><span class="badge ${sc.math_basic >= 12 ? 'badge-success' : 'badge-danger'}">${sc.math_basic}</span></td>
+                <td><span class="badge ${sc.thai >= 12 ? 'badge-success' : 'badge-danger'}">${sc.thai}</span></td>
+                <td><span class="badge ${sc.math_add1 >= 12 ? 'badge-success' : 'badge-danger'}">${sc.math_add1}</span></td>
+                <td><span class="badge ${sc.math_add2 >= 3 ? 'badge-success' : 'badge-danger'}">${sc.math_add2}</span></td>
+                <td><span class="badge ${sc.chinese >= 12 ? 'badge-success' : 'badge-danger'}">${sc.chinese}</span></td>
+                <td><span class="badge ${sc.eng_basic >= 12 ? 'badge-success' : 'badge-danger'}">${sc.eng_basic}</span></td>
+                <td><span class="badge ${(sc.sci_basic || 0) >= 12 ? 'badge-success' : 'badge-danger'}">${sc.sci_basic || 0}</span></td>
+                <td><span class="badge ${(sc.eng_rw || 0) >= 12 ? 'badge-success' : 'badge-danger'}">${sc.eng_rw || 0}</span></td>
+                <td style="background:#fffbeb;"><span class="badge ${(sc.sci_lab || 0) >= 18 ? 'badge-success' : 'badge-danger'}">${sc.sci_lab || 0}</span></td>
                 <td><strong style="color:var(--primary); font-size:1.05rem;">${sc.total_score}</strong></td>
                 <td><span class="badge ${pct >= 60 ? 'badge-purple' : 'badge-danger'}">${pct}%</span></td>
             `;

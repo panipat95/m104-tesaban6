@@ -844,13 +844,14 @@
             const container = document.getElementById('scores-container');
             if (!container || !currentStudent) return;
 
-            const sc = currentStudent.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, sci_lab: 0, total_score: 0 };
+            const sc = currentStudent.scores || { eng_comm: 0, social: 0, history: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, sci_lab: 0, total_score: 0 };
             const totalScore = sc.total_score || 0;
-            const pct = ((totalScore / 215) * 100).toFixed(1);
+            const pct = ((totalScore / 235) * 100).toFixed(1);
 
             const subjects = [
                 { code: 'อ21201', name: 'ภาษาอังกฤษเพื่อการสื่อสาร', score: sc.eng_comm, max: 20, icon: 'fa-language', color: '#0284c7', bg: '#e0f2fe' },
                 { code: 'ส21101', name: 'สังคมศึกษา', score: sc.social, max: 20, icon: 'fa-earth-americas', color: '#d97706', bg: '#fef3c7' },
+                { code: 'ส21102', name: 'ประวัติศาสตร์', score: sc.history || 0, max: 20, icon: 'fa-landmark', color: '#b45309', bg: '#fef3c7' },
                 { code: 'ค21101', name: 'คณิตศาสตร์พื้นฐาน', score: sc.math_basic, max: 20, icon: 'fa-calculator', color: '#2563eb', bg: '#dbeafe' },
                 { code: 'ท21101', name: 'ภาษาไทย', score: sc.thai, max: 20, icon: 'fa-book-open', color: '#059669', bg: '#d1fae5' },
                 { code: 'ค21201', name: 'คณิตศาสตร์เพิ่มเติม ตอนที่ 1', score: sc.math_add1, max: 20, icon: 'fa-square-root-variable', color: '#7c3aed', bg: '#ede9fe' },
@@ -907,10 +908,10 @@
                 <div style="background:linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); border:2px solid #bae6fd; padding:18px; border-radius:16px; margin-bottom:1.4rem; box-shadow:0 6px 20px rgba(2, 132, 199, 0.1);">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                         <div>
-                            <span style="font-size:0.85rem; color:#64748b; font-weight:500;">คะแนนสอบกลางภาคเรียนรวมทั้งหมด (11 รายวิชา):</span>
+                            <span style="font-size:0.85rem; color:#64748b; font-weight:500;">คะแนนสอบกลางภาคเรียนรวมทั้งหมด (12 รายวิชา):</span>
                             <div style="display:flex; align-items:baseline; gap:10px; margin-top:4px;">
                                 <strong style="font-size:2rem; color:#0284c7; font-weight:800;">${totalScore}</strong>
-                                <span style="font-size:1rem; color:#64748b; font-weight:600;">/ 215 คะแนน</span>
+                                <span style="font-size:1rem; color:#64748b; font-weight:600;">/ 235 คะแนน</span>
                             </div>
                         </div>
                         <div style="text-align:right;">
@@ -933,7 +934,7 @@
 
                 <!-- Subject Scores Grid (Clear Official Names) -->
                 <h4 style="font-size:1rem; color:#334155; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
-                    <i class="fa-solid fa-list-check" style="color:#0284c7;"></i> คะแนนจำแนกตามรายวิชา (11 รายวิชาหลัก):
+                    <i class="fa-solid fa-list-check" style="color:#0284c7;"></i> คะแนนจำแนกตามรายวิชา (12 รายวิชาหลัก):
                 </h4>
 
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:12px;">

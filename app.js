@@ -337,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Render Midterm Scores Table (215 Max Score)
+    // Render Midterm Scores Table (235 Max Score)
     function renderMidtermTable() {
         const tbody = document.querySelector('#table-midterm-scores tbody');
         if (!tbody) return;
@@ -345,8 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         studentData.forEach(s => {
             const tr = document.createElement('tr');
-            const sc = s.scores || { eng_comm: 0, social: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, sci_lab: 0, total_score: 0 };
-            const pct = ((sc.total_score / 215) * 100).toFixed(1);
+            const sc = s.scores || { eng_comm: 0, social: 0, history: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, sci_lab: 0, total_score: 0 };
+            const pct = ((sc.total_score / 235) * 100).toFixed(1);
             const photoSrc = s.photo_url || `photos/${s.student_id}.jpg`;
 
             tr.innerHTML = `
@@ -362,6 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td><span class="badge ${sc.eng_comm >= 12 ? 'badge-success' : 'badge-danger'}">${sc.eng_comm}</span></td>
                 <td><span class="badge ${sc.social >= 12 ? 'badge-success' : 'badge-danger'}">${sc.social}</span></td>
+                <td style="background:#fffbeb;"><span class="badge ${(sc.history || 0) >= 12 ? 'badge-success' : 'badge-danger'}">${sc.history || 0}</span></td>
                 <td><span class="badge ${sc.math_basic >= 12 ? 'badge-success' : 'badge-danger'}">${sc.math_basic}</span></td>
                 <td><span class="badge ${sc.thai >= 12 ? 'badge-success' : 'badge-danger'}">${sc.thai}</span></td>
                 <td><span class="badge ${sc.math_add1 >= 12 ? 'badge-success' : 'badge-danger'}">${sc.math_add1}</span></td>

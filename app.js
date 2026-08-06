@@ -337,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Render Midterm Scores Table (235 Max Score)
+    // Render Midterm Scores Table (275 Max Score)
     function renderMidtermTable() {
         const tbody = document.querySelector('#table-midterm-scores tbody');
         if (!tbody) return;
@@ -345,8 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         studentData.forEach(s => {
             const tr = document.createElement('tr');
-            const sc = s.scores || { eng_comm: 0, social: 0, history: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, eng_rw: 0, sci_lab: 0, total_score: 0 };
-            const pct = ((sc.total_score / 235) * 100).toFixed(1);
+            const sc = s.scores || { eng_comm: 0, social: 0, history: 0, math_basic: 0, thai: 0, math_add1: 0, math_add2: 0, chinese: 0, eng_basic: 0, sci_basic: 0, earth_sci: 0, eng_rw: 0, sci_lab: 0, total_score: 0 };
+            const pct = ((sc.total_score / 275) * 100).toFixed(1);
             const photoSrc = s.photo_url || `photos/${s.student_id}.jpg`;
 
             tr.innerHTML = `
@@ -370,6 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><span class="badge ${sc.chinese >= 12 ? 'badge-success' : 'badge-danger'}">${sc.chinese}</span></td>
                 <td><span class="badge ${sc.eng_basic >= 12 ? 'badge-success' : 'badge-danger'}">${sc.eng_basic}</span></td>
                 <td><span class="badge ${(sc.sci_basic || 0) >= 12 ? 'badge-success' : 'badge-danger'}">${sc.sci_basic || 0}</span></td>
+                <td style="background:#f0fdf4;"><span class="badge ${(sc.earth_sci || 0) >= 24 ? 'badge-success' : 'badge-danger'}">${sc.earth_sci || 0}</span></td>
                 <td><span class="badge ${(sc.eng_rw || 0) >= 12 ? 'badge-success' : 'badge-danger'}">${sc.eng_rw || 0}</span></td>
                 <td style="background:#fffbeb;"><span class="badge ${(sc.sci_lab || 0) >= 18 ? 'badge-success' : 'badge-danger'}">${sc.sci_lab || 0}</span></td>
                 <td><strong style="color:var(--primary); font-size:1.05rem;">${sc.total_score}</strong></td>

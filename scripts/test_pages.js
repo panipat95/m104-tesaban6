@@ -21,7 +21,8 @@ pages.forEach(page => {
         if (match && match[1]) {
             const src = match[1];
             if (!src.startsWith('http') && !src.startsWith('//')) {
-                const jsPath = path.join(rootDir, src);
+                const cleanSrc = src.split('?')[0];
+                const jsPath = path.join(rootDir, cleanSrc);
                 if (!fs.existsSync(jsPath)) {
                     console.error(`  ❌ BROKEN SCRIPT LINK in ${page}: ${src}`);
                 } else {

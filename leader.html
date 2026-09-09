@@ -483,6 +483,21 @@
                         </form>
                     </div>
 
+                    <!-- Active Tasks Header & Sync Bar -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                        <h4 style="font-size:1rem; color:#0f172a; margin:0; display:flex; align-items:center; gap:6px;">
+                            <i class="fa-solid fa-list-check" style="color:#0284c7;"></i> รายการการบ้านที่กำลังดำเนินการ:
+                        </h4>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button type="button" class="btn btn-primary" onclick="copyParentShareLink()" style="background:#0284c7; padding:6px 12px; font-size:0.82rem;">
+                                <i class="fa-solid fa-share-nodes"></i> 📲 คัดลอกลิงก์ส่งให้ผู้ปกครอง
+                            </button>
+                            <button type="button" class="btn" onclick="copyTasksSummaryText()" style="background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1; padding:6px 12px; font-size:0.82rem;">
+                                <i class="fa-solid fa-copy"></i> 📋 คัดลอกสรุปข้อความลง LINE
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Active Tasks Display -->
                     <div id="leader-active-tasks-list">
                         <!-- Dynamic Active Homework Tasks -->
@@ -638,10 +653,20 @@
 
     </div>
 
-    <script src="real_db.js?v=20260909_textdue"></script>
+    <script src="real_db.js?v=20260909_sync"></script>
     <script>
         const LEADER_PIN = "104104";
-        let pendingTasks = JSON.parse(localStorage.getItem('pending_homework_tasks')) || [];
+        let pendingTasks = [];
+
+        function loadLeaderTasks() {
+            if (typeof window.getMergedPendingTasks === 'function') {
+                pendingTasks = window.getMergedPendingTasks();
+            } else {
+                try {
+                    pendingTasks = JSON.parse(localStorage.getItem('pending_homework_tasks')) || [];
+                } catch(e) { pendingTasks = []; }
+            }
+        }
 
         function getActiveStudents() {
             if (typeof window.REAL_STUDENT_DB !== 'undefined' && Array.isArray(window.REAL_STUDENT_DB) && window.REAL_STUDENT_DB.length > 0) {
@@ -718,13 +743,17 @@
                 title: title,
                 dueDate: dueDate,
                 createdAt: new Date().toLocaleDateString('th-TH'),
-                pendingStudentIds: students.map(s => s.student_id)
+                pendingStudentIds: students.map(s => s.student_id.toString())
             };
 
+            loadLeaderTasks();
             pendingTasks.push(newTask);
             localStorage.setItem('pending_homework_tasks', JSON.stringify(pendingTasks));
+            if (typeof window.DEFAULT_PENDING_TASKS !== 'undefined') {
+                window.DEFAULT_PENDING_TASKS = pendingTasks;
+            }
             
-            alert(`🎉 เพิ่มรายการงานค้างวิชา "${subject}" - "${title}" เรียบร้อยแล้ว!`);
+            alert(`🎉 เพิ่มรายการงานค้างวิชา "${subject}" - "${title}" เรียบร้อยแล้ว!\nสามารถกดปุ่ม "📲 คัดลอกลิงก์ส่งให้ผู้ปกครอง" เพื่อส่งอัปเดตให้ผู้ปกครองดูได้ทันทีครับ 👍✨`);
             document.getElementById('form-add-leader-task').reset();
             renderLeaderTasks();
         }
@@ -733,7 +762,7 @@
         function markStudentCompleted(taskId, studentId) {
             const task = pendingTasks.find(t => t.id === taskId);
             if (task) {
-                task.pendingStudentIds = task.pendingStudentIds.filter(id => id !== studentId);
+                task.pendingStudentIds = task.pendingStudentIds.filter(id => id.toString() !== studentId.toString());
                 localStorage.setItem('pending_homework_tasks', JSON.stringify(pendingTasks));
                 renderLeaderTasks();
             }
@@ -748,8 +777,51 @@
             }
         }
 
+        function copyParentShareLink() {
+            loadLeaderTasks();
+            if (pendingTasks.length === 0) {
+                alert('ยังไม่มีรายการงานค้างที่จะส่งออกครับ!');
+                return;
+            }
+            try {
+                const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(pendingTasks))));
+                const baseUrl = window.location.href.split('?')[0].replace('leader.html', 'parent.html');
+                const shareUrl = `${baseUrl}?tasks=${encoded}`;
+                
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert('📋 คัดลอกลิงก์ข้อมูลการบ้านสำหรับผู้ปกครองเรียบร้อยแล้ว!\nนำไปวางส่งต่อในกลุ่ม LINE เพื่อให้ผู้ปกครองเข้าดูและซิงค์ข้อมูลได้ทันทีครับ ✨');
+                }).catch(() => {
+                    prompt('คัดลอกลิงก์ด้านล่างนี้เพื่อส่งให้ผู้ปกครอง:', shareUrl);
+                });
+            } catch(e) {
+                alert('เกิดข้อผิดพลาดในการสร้างลิงก์: ' + e.message);
+            }
+        }
+
+        function copyTasksSummaryText() {
+            loadLeaderTasks();
+            if (pendingTasks.length === 0) {
+                alert('ยังไม่มีรายการงานค้างในขณะนี้ครับ!');
+                return;
+            }
+            const students = getActiveStudents();
+            let msg = `📢 สรุปรายการงานค้าง ม.1/4 SMT (รร.เทศบาล 6)\n-----------------------------------\n`;
+            pendingTasks.forEach((t, i) => {
+                const count = t.pendingStudentIds ? t.pendingStudentIds.length : 0;
+                msg += `${i+1}. วิชา: ${t.subject}\n   📌 งาน: ${t.title}\n   📅 กำหนดส่ง: ${t.dueDate || 'ไม่ระบุ'}\n   ⚠️ ค้างส่ง: ${count} คน\n\n`;
+            });
+            msg += `🌸 ตรวจสอบรายชื่อค้างส่งรายบุคคลสำหรับผู้ปกครอง:\nhttps://panipat95.github.io/m104-tesaban6/parent.html`;
+
+            navigator.clipboard.writeText(msg).then(() => {
+                alert('📋 คัดลอกข้อความสรุปงานค้างลง Clipboard เรียบร้อยแล้ว!\nสามารถนำไปวางแจ้งในกลุ่ม LINE ได้เลยครับ ✨');
+            }).catch(() => {
+                prompt('คัดลอกข้อความสรุปด้านล่างนี้เพื่อส่งใน LINE:', msg);
+            });
+        }
+
         // Render Active Tasks
         function renderLeaderTasks() {
+            loadLeaderTasks();
             const container = document.getElementById('leader-active-tasks-list');
             if (!container) return;
 
@@ -768,10 +840,13 @@
 
             let html = '';
             pendingTasks.forEach(task => {
-                const pendingCount = task.pendingStudentIds.length;
+                const pendingStudents = students.filter(s => 
+                    task.pendingStudentIds && Array.isArray(task.pendingStudentIds) &&
+                    task.pendingStudentIds.map(String).includes(s.student_id.toString())
+                );
+                const pendingCount = pendingStudents.length;
                 const totalCount = students.length || 39;
                 const completedCount = totalCount - pendingCount;
-                const pendingStudents = students.filter(s => task.pendingStudentIds.includes(s.student_id));
 
                 html += `
                     <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:1.2rem; margin-bottom:1.2rem; box-shadow:0 2px 8px rgba(0,0,0,0.03);">

@@ -1050,9 +1050,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingHomeworkTasks = [];
 
     function loadSavedHomeworkTasks() {
-        const saved = localStorage.getItem('pending_homework_tasks');
-        if (saved) {
-            try { pendingHomeworkTasks = JSON.parse(saved); } catch(e){}
+        if (typeof window.getMergedPendingTasks === 'function') {
+            pendingHomeworkTasks = window.getMergedPendingTasks();
+        } else {
+            const saved = localStorage.getItem('pending_homework_tasks');
+            if (saved) {
+                try { pendingHomeworkTasks = JSON.parse(saved); } catch(e){}
+            }
         }
     }
 

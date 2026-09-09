@@ -695,16 +695,20 @@
     </div>
 
     <!-- Real Database Scripts -->
-    <script src="real_db.js?v=20260807_v3"></script>
+    <script src="real_db.js?v=20260909_sync"></script>
     <script src="visit.js?v=20260807_v3"></script>
     <script>
         let currentStudent = null;
         let pendingTasks = [];
 
         function loadPendingTasks() {
-            const saved = localStorage.getItem('pending_homework_tasks');
-            if (saved) {
-                try { pendingTasks = JSON.parse(saved); } catch(e){}
+            if (typeof window.getMergedPendingTasks === 'function') {
+                pendingTasks = window.getMergedPendingTasks();
+            } else {
+                const saved = localStorage.getItem('pending_homework_tasks');
+                if (saved) {
+                    try { pendingTasks = JSON.parse(saved); } catch(e){}
+                }
             }
         }
 
@@ -804,7 +808,10 @@
 
             loadPendingTasks();
 
-            const myTasks = pendingTasks.filter(t => t.pendingStudentIds.includes(currentStudent.student_id.toString()));
+            const myTasks = pendingTasks.filter(t => 
+                t.pendingStudentIds && Array.isArray(t.pendingStudentIds) &&
+                t.pendingStudentIds.map(String).includes(currentStudent.student_id.toString())
+            );
 
             if (myTasks.length === 0) {
                 container.innerHTML = `

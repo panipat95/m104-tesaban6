@@ -1058,10 +1058,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 try { pendingHomeworkTasks = JSON.parse(saved); } catch(e){}
             }
         }
+        if (typeof window.syncTasksWithCloud === 'function') {
+            window.syncTasksWithCloud(function(tasks) {
+                if (tasks) {
+                    pendingHomeworkTasks = tasks;
+                    if (typeof renderSavedHomeworkTasks === 'function') {
+                        renderSavedHomeworkTasks();
+                    }
+                }
+            });
+        }
     }
 
     function saveHomeworkTasks() {
         localStorage.setItem('pending_homework_tasks', JSON.stringify(pendingHomeworkTasks));
+        if (typeof window.saveTasksToCloud === 'function') {
+            window.saveTasksToCloud(pendingHomeworkTasks);
+        }
     }
 
     function renderTaskChecklist() {

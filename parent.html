@@ -695,7 +695,7 @@
     </div>
 
     <!-- Real Database Scripts -->
-    <script src="real_db.js?v=20260909_sync"></script>
+    <script src="real_db.js?v=20260909_cloudsync"></script>
     <script src="visit.js?v=20260807_v3"></script>
     <script>
         let currentStudent = null;
@@ -712,8 +712,40 @@
             }
         }
 
+        async function refreshParentTasksFromCloud() {
+            const btn = document.getElementById('btn-refresh-parent-tasks');
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังดึงข้อมูล...';
+                btn.disabled = true;
+            }
+            if (typeof window.syncTasksWithCloud === 'function') {
+                await window.syncTasksWithCloud(function(tasks) {
+                    if (tasks) {
+                        pendingTasks = tasks;
+                        renderPendingTasksTab();
+                    }
+                });
+                loadPendingTasks();
+                renderPendingTasksTab();
+            }
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> กดรีเฟรชงานล่าสุด';
+                btn.disabled = false;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             loadPendingTasks();
+            if (typeof window.syncTasksWithCloud === 'function') {
+                window.syncTasksWithCloud(function(tasks) {
+                    if (tasks) {
+                        pendingTasks = tasks;
+                        if (currentStudent) {
+                            renderPendingTasksTab();
+                        }
+                    }
+                });
+            }
 
             const params = new URLSearchParams(window.location.search);
             const urlId = params.get('id');
@@ -783,6 +815,16 @@
             if (typeof renderParentHomeVisitTab === 'function') {
                 renderParentHomeVisitTab();
             }
+
+            // Sync from cloud in background
+            if (typeof window.syncTasksWithCloud === 'function') {
+                window.syncTasksWithCloud(function(tasks) {
+                    if (tasks) {
+                        pendingTasks = tasks;
+                        renderPendingTasksTab();
+                    }
+                });
+            }
         }
 
         function handleLogout() {
@@ -813,18 +855,85 @@
                 t.pendingStudentIds.map(String).includes(currentStudent.student_id.toString())
             );
 
+            let syncHeader = `
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:14px; background:#f8fafc; padding:8px 14px; border-radius:12px; border:1px solid #e2e8f0;">
+                    <span style="font-size:0.82rem; color:#0369a1; font-weight:600;">
+                        <i class="fa-solid fa-satellite-dish" style="color:#0284c7;"></i> ซิงค์ข้อมูลกับคณะกรรมการห้อง ม.1/4: <strong style="color:#16a34a;">🟢 ออนไลน์เรียลไทม์</strong>
+                    </span>
+                    <button type="button" id="btn-refresh-parent-tasks" onclick="refreshParentTasksFromCloud()" class="btn" style="background:#fff; border:1px solid #cbd5e1; color:#0f172a; padding:5px 12px; font-size:0.78rem; font-weight:600; cursor:pointer;">
+                        <i class="fa-solid fa-arrows-rotate"></i> กดรีเฟรชงานล่าสุด
+                    </button>
+                </div>
+            `;
+
             if (myTasks.length === 0) {
+                let completedListHtml = '';
+                if (pendingTasks.length > 0) {
+                    completedListHtml = `
+                        <div style="margin-top:14px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:12px;">
+                            <div style="font-size:0.85rem; font-weight:700; color:#166534; margin-bottom:8px;">
+                                <i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> รายการการบ้านห้อง ม.1/4 ที่ ${currentStudent.firstname} ส่งเรียบร้อยแล้ว (${pendingTasks.length} ชิ้นงาน):
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:6px;">
+                    `;
+                    pendingTasks.forEach(t => {
+                        completedListHtml += `
+                            <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border-radius:8px; border:1px solid #dcfce7; font-size:0.8rem;">
+                                <div>
+                                    <strong style="color:#14532d;">${t.subject}</strong>: ${t.title}
+                                </div>
+                                <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:6px; font-weight:700; font-size:0.75rem; white-space:nowrap;">
+                                    🟢 ส่งแล้ว
+                                </span>
+                            </div>
+                        `;
+                    });
+                    completedListHtml += `</div></div>`;
+                }
+
                 container.innerHTML = `
+                    ${syncHeader}
                     <div class="banner-complete">
                         <div style="font-size:2.5rem; color:#16a34a;"><i class="fa-solid fa-award"></i></div>
                         <div>
                             <strong style="font-size:1.15rem;">🎉 ส่งงานครบถ้วนทุกวิชาแล้วครับ!</strong>
-                            <p style="font-size:0.88rem; margin-top:2px;">ขณะนี้ไม่มีรายการงานค้างในระบบ นักเรียนมีความรับผิดชอบตั้งใจเรียนดีมากครับ 👍✨</p>
+                            <p style="font-size:0.88rem; margin-top:2px;">ขณะนี้ไม่มีรายการงานค้างในระบบสำหรับ <strong>${currentStudent.fullname}</strong> มีความรับผิดชอบดีมากครับ 👍✨</p>
                         </div>
                     </div>
+                    ${completedListHtml}
                 `;
             } else {
+                let completedTasks = pendingTasks.filter(t => 
+                    !t.pendingStudentIds || !Array.isArray(t.pendingStudentIds) ||
+                    !t.pendingStudentIds.map(String).includes(currentStudent.student_id.toString())
+                );
+
+                let completedListHtml = '';
+                if (completedTasks.length > 0) {
+                    completedListHtml = `
+                        <div style="margin-top:16px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:12px;">
+                            <div style="font-size:0.85rem; font-weight:700; color:#166534; margin-bottom:8px;">
+                                <i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> รายการการบ้านที่ ${currentStudent.firstname} ส่งเรียบร้อยแล้ว (${completedTasks.length} ชิ้นงาน):
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:6px;">
+                    `;
+                    completedTasks.forEach(t => {
+                        completedListHtml += `
+                            <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 10px; border-radius:8px; border:1px solid #dcfce7; font-size:0.8rem;">
+                                <div>
+                                    <strong style="color:#14532d;">${t.subject}</strong>: ${t.title}
+                                </div>
+                                <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:6px; font-weight:700; font-size:0.75rem; white-space:nowrap;">
+                                    🟢 ส่งแล้ว
+                                </span>
+                            </div>
+                        `;
+                    });
+                    completedListHtml += `</div></div>`;
+                }
+
                 let html = `
+                    ${syncHeader}
                     <div class="banner-pending">
                         <strong style="font-size:1.1rem;"><i class="fa-solid fa-bell-concierge"></i> มีรายการงานค้างทั้งหมด ${myTasks.length} ชิ้นงาน</strong>
                     </div>
@@ -843,6 +952,7 @@
                     `;
                 });
 
+                html += completedListHtml;
                 container.innerHTML = html;
             }
         }

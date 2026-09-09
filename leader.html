@@ -485,10 +485,18 @@
 
                     <!-- Active Tasks Header & Sync Bar -->
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
-                        <h4 style="font-size:1rem; color:#0f172a; margin:0; display:flex; align-items:center; gap:6px;">
-                            <i class="fa-solid fa-list-check" style="color:#0284c7;"></i> รายการการบ้านที่กำลังดำเนินการ:
-                        </h4>
+                        <div>
+                            <h4 style="font-size:1rem; color:#0f172a; margin:0; display:flex; align-items:center; gap:6px;">
+                                <i class="fa-solid fa-list-check" style="color:#0284c7;"></i> รายการการบ้านที่กำลังดำเนินการ:
+                            </h4>
+                            <div id="leader-cloud-status" style="font-size:0.8rem; color:#16a34a; margin-top:3px; display:flex; align-items:center; gap:5px;">
+                                <i class="fa-solid fa-cloud" style="color:#0284c7;"></i> <span id="leader-cloud-text">เชื่อมต่อระบบคลาวด์ออนไลน์ (ซิงค์เรียลไทม์กับหน้าผู้ปกครอง)</span>
+                            </div>
+                        </div>
                         <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button type="button" id="btn-refresh-leader-tasks" class="btn" onclick="refreshLeaderTasksFromCloud()" style="background:#f0fdf4; color:#166534; border:1px solid #86efac; padding:6px 12px; font-size:0.82rem; font-weight:600; cursor:pointer;">
+                                <i class="fa-solid fa-arrows-rotate"></i> 🔄 ดึงข้อมูลล่าสุดจากคลาวด์
+                            </button>
                             <button type="button" class="btn btn-primary" onclick="copyParentShareLink()" style="background:#0284c7; padding:6px 12px; font-size:0.82rem;">
                                 <i class="fa-solid fa-share-nodes"></i> 📲 คัดลอกลิงก์ส่งให้ผู้ปกครอง
                             </button>
@@ -653,7 +661,7 @@
 
     </div>
 
-    <script src="real_db.js?v=20260909_sync"></script>
+    <script src="real_db.js?v=20260909_cloudsync"></script>
     <script>
         const LEADER_PIN = "104104";
         let pendingTasks = [];
@@ -665,6 +673,37 @@
                 try {
                     pendingTasks = JSON.parse(localStorage.getItem('pending_homework_tasks')) || [];
                 } catch(e) { pendingTasks = []; }
+            }
+        }
+
+        async function refreshLeaderTasksFromCloud() {
+            const btn = document.getElementById('btn-refresh-leader-tasks');
+            const statusText = document.getElementById('leader-cloud-text');
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังดึงข้อมูล...';
+                btn.disabled = true;
+            }
+            if (statusText) {
+                statusText.textContent = 'กำลังตรวจสอบข้อมูลจากคลาวด์...';
+            }
+
+            if (typeof window.syncTasksWithCloud === 'function') {
+                await window.syncTasksWithCloud(function(tasks) {
+                    if (tasks) {
+                        pendingTasks = tasks;
+                        renderLeaderTasks();
+                    }
+                });
+                loadLeaderTasks();
+                renderLeaderTasks();
+            }
+
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> 🔄 ดึงข้อมูลล่าสุดจากคลาวด์';
+                btn.disabled = false;
+            }
+            if (statusText) {
+                statusText.textContent = 'เชื่อมต่อระบบคลาวด์ออนไลน์ (อัปเดตล่าสุด: เมื่อสักครู่)';
             }
         }
 
@@ -707,6 +746,16 @@
             renderLeaderTasks();
             renderLeaderMidtermScores();
             renderLeaderDutyCards();
+
+            // Background sync from cloud to pull tasks created by other committee members
+            if (typeof window.syncTasksWithCloud === 'function') {
+                window.syncTasksWithCloud(function(tasks) {
+                    if (tasks) {
+                        pendingTasks = tasks;
+                        renderLeaderTasks();
+                    }
+                });
+            }
         }
 
         function switchLeaderTab(tabId) {
@@ -725,7 +774,7 @@
         }
 
         // Save New Homework Task
-        function saveLeaderNewTask() {
+        async function saveLeaderNewTask() {
             const subject = document.getElementById('leader-task-subject').value;
             const title = document.getElementById('leader-task-title').value.trim();
             const dueDate = document.getElementById('leader-task-due').value;
@@ -752,8 +801,13 @@
             if (typeof window.DEFAULT_PENDING_TASKS !== 'undefined') {
                 window.DEFAULT_PENDING_TASKS = pendingTasks;
             }
+
+            // Sync to cloud immediately
+            if (typeof window.saveTasksToCloud === 'function') {
+                window.saveTasksToCloud(pendingTasks);
+            }
             
-            alert(`🎉 เพิ่มรายการงานค้างวิชา "${subject}" - "${title}" เรียบร้อยแล้ว!\nสามารถกดปุ่ม "📲 คัดลอกลิงก์ส่งให้ผู้ปกครอง" เพื่อส่งอัปเดตให้ผู้ปกครองดูได้ทันทีครับ 👍✨`);
+            alert(`🎉 เพิ่มรายการงานค้างวิชา "${subject}" - "${title}" เรียบร้อยแล้ว!\nระบบได้ซิงค์ขึ้น Cloud เพื่อให้ผู้ปกครองและเพื่อนๆ เห็นทันทีครับ 👍✨`);
             document.getElementById('form-add-leader-task').reset();
             renderLeaderTasks();
         }
@@ -764,6 +818,9 @@
             if (task) {
                 task.pendingStudentIds = task.pendingStudentIds.filter(id => id.toString() !== studentId.toString());
                 localStorage.setItem('pending_homework_tasks', JSON.stringify(pendingTasks));
+                if (typeof window.saveTasksToCloud === 'function') {
+                    window.saveTasksToCloud(pendingTasks);
+                }
                 renderLeaderTasks();
             }
         }
@@ -773,6 +830,9 @@
             if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการงานค้างนี้?')) {
                 pendingTasks = pendingTasks.filter(t => t.id !== taskId);
                 localStorage.setItem('pending_homework_tasks', JSON.stringify(pendingTasks));
+                if (typeof window.saveTasksToCloud === 'function') {
+                    window.saveTasksToCloud(pendingTasks);
+                }
                 renderLeaderTasks();
             }
         }

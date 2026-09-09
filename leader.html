@@ -468,8 +468,8 @@
                                     <input type="text" id="leader-task-title" class="form-control" placeholder="เช่น แบบฝึกหัดบทที่ 2 หน้า 45" required>
                                 </div>
                                 <div>
-                                    <label style="font-size:0.8rem; font-weight:600; color:#334155; display:block; margin-bottom:4px;">กำหนดส่ง:</label>
-                                    <input type="date" id="leader-task-due" class="form-control" required>
+                                    <label style="font-size:0.8rem; font-weight:600; color:#334155; display:block; margin-bottom:4px;">กำหนดส่ง (พิมพ์ข้อความเสรี):</label>
+                                    <input type="text" id="leader-task-due" class="form-control" placeholder="เช่น วันศุกร์ที่ 12 ก.ย. 69, พรุ่งนี้ก่อนเที่ยง" required>
                                 </div>
                             </div>
                             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -638,7 +638,7 @@
 
     </div>
 
-    <script src="real_db.js?v=20260909_leader"></script>
+    <script src="real_db.js?v=20260909_textdue"></script>
     <script>
         const LEADER_PIN = "104104";
         let pendingTasks = JSON.parse(localStorage.getItem('pending_homework_tasks')) || [];

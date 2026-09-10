@@ -1,0 +1,56 @@
+{
+  "name": "ม.1/4 SMT - โรงเรียนเทศบาล 6 นครเชียงราย",
+  "short_name": "SMT ม.1/4",
+  "description": "ระบบสารสนเทศ ตรวจสอบงานค้าง คะแนนสอบ ตารางเวร และข้อมูลนักเรียน ห้อง ม.1/4",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f8fafc",
+  "theme_color": "#0284c7",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "👑 พอร์ทัลหัวหน้าห้อง",
+      "short_name": "หัวหน้าห้อง",
+      "description": "สั่งงานและเช็คงานค้างของห้อง ม.1/4",
+      "url": "./leader.html",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "🌸 พอร์ทัลผู้ปกครอง",
+      "short_name": "พอร์ทัลผู้ปกครอง",
+      "description": "ตรวจเช็คงานค้าง คะแนนสอบรายบุคคล",
+      "url": "./parent.html",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

@@ -222,3 +222,168 @@ window.getMergedPendingTasks = function() {
 
     return Array.isArray(window.DEFAULT_PENDING_TASKS) ? window.DEFAULT_PENDING_TASKS : [];
 };
+
+// Smart Image Compression Helper for Homework/Worksheet Uploads
+window.compressImageFile = function(file, maxDimension, quality) {
+    maxDimension = maxDimension || 1280;
+    quality = quality || 0.78;
+    return new Promise(function(resolve, reject) {
+        if (!file.type || !file.type.startsWith('image/')) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                resolve({
+                    name: file.name,
+                    type: file.type || 'application/octet-stream',
+                    size: file.size,
+                    dataURL: e.target.result
+                });
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+            return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var img = new Image();
+            img.onload = function() {
+                var width = img.width;
+                var height = img.height;
+                if (width > maxDimension || height > maxDimension) {
+                    if (width > height) {
+                        height = Math.round((height * maxDimension) / width);
+                        width = maxDimension;
+                    } else {
+                        width = Math.round((width * maxDimension) / height);
+                        height = maxDimension;
+                    }
+                }
+                var canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                var compressedDataURL = canvas.toDataURL('image/jpeg', quality);
+                resolve({
+                    name: file.name,
+                    type: 'image/jpeg',
+                    size: Math.round(compressedDataURL.length * 0.75),
+                    dataURL: compressedDataURL
+                });
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
+
+// Global Image Lightbox Viewer
+window.openImageLightbox = function(imageUrl, title) {
+    var existing = document.getElementById('global-image-lightbox');
+    if (existing) existing.remove();
+
+    var lightbox = document.createElement('div');
+    lightbox.id = 'global-image-lightbox';
+    lightbox.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.88); z-index:999999; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:16px; backdrop-filter:blur(6px); animation:fadeInLightbox 0.2s ease;';
+
+    var safeTitle = (title || 'รูปภาพประกอบภาระงาน').replace(/"/g, '&quot;');
+
+    lightbox.innerHTML = `
+        <div style="position:absolute; top:16px; right:16px; display:flex; gap:10px; z-index:10;">
+            <a href="${imageUrl}" download="${safeTitle}.jpg" target="_blank" style="background:#0284c7; color:#fff; border-radius:50px; padding:8px 16px; font-weight:700; text-decoration:none; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px; box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+                <i class="fa-solid fa-download"></i> ดาวน์โหลดรูป
+            </a>
+            <button onclick="document.getElementById('global-image-lightbox').remove()" style="background:#334155; color:#fff; border:none; border-radius:50%; width:40px; height:40px; font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+        </div>
+        ${title ? `<div style="color:#fff; font-weight:700; margin-bottom:12px; font-size:1rem; text-align:center; max-width:90%; text-shadow:0 2px 4px rgba(0,0,0,0.8);">${safeTitle}</div>` : ''}
+        <div style="max-width:95vw; max-height:85vh; display:flex; justify-content:center; align-items:center;">
+            <img src="${imageUrl}" style="max-width:100%; max-height:85vh; object-fit:contain; border-radius:8px; box-shadow:0 8px 30px rgba(0,0,0,0.6);">
+        </div>
+    `;
+
+    lightbox.addEventListener('click', function(e) {
+        if (e.target === lightbox) lightbox.remove();
+    });
+
+    document.body.appendChild(lightbox);
+};
+
+// Global PWA Install Helper
+window.deferredPwaPrompt = null;
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.deferredPwaPrompt = e;
+        var installBtns = document.querySelectorAll('.btn-pwa-install');
+        installBtns.forEach(function(b) { b.style.display = 'inline-flex'; });
+    });
+}
+
+window.showPwaInstallModal = function() {
+    var existing = document.getElementById('pwa-install-modal');
+    if (existing) existing.remove();
+
+    var modal = document.createElement('div');
+    modal.id = 'pwa-install-modal';
+    modal.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.75); z-index:999999; display:flex; justify-content:center; align-items:center; padding:16px; backdrop-filter:blur(4px);';
+
+    modal.innerHTML = `
+        <div style="background:#ffffff; border-radius:20px; max-width:480px; width:100%; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,0.25); position:relative; text-align:center;">
+            <button onclick="document.getElementById('pwa-install-modal').remove()" style="position:absolute; top:16px; right:16px; background:#f1f5f9; border:none; border-radius:50%; width:36px; height:36px; font-size:1.1rem; cursor:pointer; color:#64748b;">✕</button>
+            <div style="width:72px; height:72px; border-radius:18px; margin:0 auto 12px; background:linear-gradient(135deg, #0284c7, #0369a1); display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(2,132,199,0.3); overflow:hidden;">
+                <img src="icon-192.png" onerror="this.outerHTML='<i class=\\'fa-solid fa-graduation-cap\\' style=\\'font-size:2rem; color:#fff;\\'></i>'" style="width:100%; height:100%; object-fit:cover;">
+            </div>
+            <h3 style="font-size:1.25rem; color:#0f172a; margin-bottom:4px; font-weight:800;">ติดตั้งแอป SMT ม.1/4</h3>
+            <p style="color:#64748b; font-size:0.88rem; margin-bottom:20px;">เพิ่มระบบลงบนหน้าจอมือถือ เปิดใช้งานสะดวกรวดเร็วเสมือนแอปจริง</p>
+
+            ${window.deferredPwaPrompt ? `
+                <button type="button" onclick="triggerPwaPrompt()" style="width:100%; background:#0284c7; color:#fff; font-weight:700; border:none; padding:12px; border-radius:12px; font-size:1rem; cursor:pointer; margin-bottom:16px; box-shadow:0 4px 15px rgba(2,132,199,0.35);">
+                    <i class="fa-solid fa-download"></i> กดติดตั้งลงมือถือทันที (1-Click)
+                </button>
+            ` : ''}
+
+            <div style="text-align:left; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:14px; padding:14px; margin-bottom:12px;">
+                <div style="font-weight:700; color:#0369a1; font-size:0.92rem; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                    <i class="fa-brands fa-apple" style="font-size:1.1rem;"></i> สำหรับ iPhone / iPad (Safari):
+                </div>
+                <div style="font-size:0.85rem; color:#334155; line-height:1.6; display:flex; flex-direction:column; gap:6px;">
+                    <div><strong>1.</strong> กดปุ่ม <strong>แชร์ (Share)</strong> <i class="fa-solid fa-arrow-up-from-bracket" style="color:#0284c7;"></i> ตรงแถบล่างของ Safari</div>
+                    <div><strong>2.</strong> เลื่อนลงมาแล้วกดเลือก <strong>"เพิ่มไปยังหน้าจอโฮม" (Add to Home Screen)</strong> ➕</div>
+                    <div><strong>3.</strong> กด <strong>"เพิ่ม" (Add)</strong> มุมขวาบน เป็นอันเสร็จสิ้น! ✨</div>
+                </div>
+            </div>
+
+            <div style="text-align:left; background:#f0fdf4; border:1.5px solid #bbf7d0; border-radius:14px; padding:14px;">
+                <div style="font-weight:700; color:#166534; font-size:0.92rem; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                    <i class="fa-brands fa-android" style="font-size:1.1rem;"></i> สำหรับ Android (Chrome):
+                </div>
+                <div style="font-size:0.85rem; color:#14532d; line-height:1.6; display:flex; flex-direction:column; gap:6px;">
+                    <div><strong>1.</strong> กดปุ่ม <strong>จุด 3 จุด (⋮)</strong> มุมขวาบนของ Google Chrome</div>
+                    <div><strong>2.</strong> กดเลือก <strong>"ติดตั้งแอป" (Install app)</strong> หรือ <strong>"เพิ่มลงในหน้าจอหลัก"</strong></div>
+                    <div><strong>3.</strong> ไอคอนแอปจะไปอยู่ที่หน้าจอมือถือทันที 🎉</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) modal.remove();
+    });
+
+    document.body.appendChild(modal);
+};
+
+window.triggerPwaPrompt = function() {
+    if (window.deferredPwaPrompt) {
+        window.deferredPwaPrompt.prompt();
+        window.deferredPwaPrompt.userChoice.then(function(choiceResult) {
+            if (choiceResult.outcome === 'accepted') {
+                var m = document.getElementById('pwa-install-modal');
+                if (m) m.remove();
+            }
+            window.deferredPwaPrompt = null;
+        });
+    }
+};

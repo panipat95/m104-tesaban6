@@ -936,9 +936,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                 const bgColor = isImg ? '#f0fdf4' : isPdf ? '#fef3c7' : isWord ? '#eff6ff' : isExcel ? '#f0fdf4' : '#f8fafc';
                                 const borderColor = isImg ? '#86efac' : isPdf ? '#fcd34d' : isWord ? '#93c5fd' : isExcel ? '#6ee7b7' : '#cbd5e1';
                                 if (isImg && f.dataURL) {
-                                    return `<a href="${f.dataURL}" target="_blank" title="${f.name}" style="display:inline-block;">
+                                    return `<div onclick="openImageLightbox('${f.dataURL}', '${task.subject} - ${task.title}')" title="${f.name} (คลิกดูภาพขยาย)" style="display:inline-block; cursor:pointer;">
                                         <img src="${f.dataURL}" style="width:56px; height:56px; border-radius:8px; object-fit:cover; border:2px solid #86efac; box-shadow:0 2px 6px rgba(0,0,0,0.08);">
-                                    </a>`;
+                                    </div>`;
                                 }
                                 return `<span title="${f.name}" style="background:${bgColor}; border:1px solid ${borderColor}; border-radius:8px; padding:4px 10px; font-size:0.78rem; font-weight:600; color:#0f172a; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">${icon} ${f.name.length > 20 ? f.name.substring(0, 18) + '..' : f.name}</span>`;
                             }).join('')}
@@ -1727,26 +1727,23 @@ window.removeTaskFile = function(index) {
     renderTaskFilePreview();
 };
 
-function processTaskFiles(files) {
-    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
-    Array.from(files).forEach(f => {
-        if (f.size > MAX_SIZE) {
-            alert(`ไฟล์ "${f.name}" มีขนาดเกิน 10MB กรุณาเลือกไฟล์ที่เล็กกว่าครับ`);
-            return;
-        }
-        if (f.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                f._dataURL = e.target.result;
+async function processTaskFiles(files) {
+    if (!files || files.length === 0) return;
+    for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        try {
+            if (typeof window.compressImageFile === 'function') {
+                const processed = await window.compressImageFile(f, 1280, 0.78);
+                window._taskAttachedFiles.push(processed);
+            } else {
                 window._taskAttachedFiles.push(f);
-                renderTaskFilePreview();
-            };
-            reader.readAsDataURL(f);
-        } else {
+            }
+        } catch (err) {
+            console.error('File compression error:', err);
             window._taskAttachedFiles.push(f);
-            renderTaskFilePreview();
         }
-    });
+    }
+    renderTaskFilePreview();
 }
 
 window.handleTaskFileSelect = function(event) {

@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบติดตามข้อมูลนักเรียนสำหรับผู้ปกครอง - ม.1/4 (รร.เทศบาล 6 นครเชียงราย)</title>
+    <meta name="theme-color" content="#0284c7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="พอร์ทัลผู้ปกครอง ม.1/4">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -553,9 +560,14 @@
                     <h2 id="student-name">เด็กชายสมชาย เรียนดี</h2>
                     <p id="student-meta">เลขที่ 1 | รหัสประจำตัว: 19168 | ห้อง ม.1/4</p>
                 </div>
-                <button id="btn-logout" class="btn btn-slate" style="width:auto; padding:6px 12px; font-size:0.8rem;">
-                    <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
-                </button>
+                <div style="display:flex; gap:6px; flex-direction:column; align-items:flex-end;">
+                    <button type="button" class="btn btn-pwa-install" onclick="showPwaInstallModal()" style="width:auto; background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-weight:700; padding:5px 10px; border-radius:8px; font-size:0.78rem; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+                        <i class="fa-solid fa-mobile-screen"></i> 📲 ติดตั้งแอป
+                    </button>
+                    <button id="btn-logout" class="btn btn-slate" style="width:auto; padding:5px 10px; font-size:0.78rem;">
+                        <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
+                    </button>
+                </div>
             </div>
 
             <!-- Navigation Tabs -->
@@ -952,6 +964,26 @@
                             </div>
                             <strong style="display:block; font-size:1rem; color:#0f172a; margin-top:6px;">${t.title}</strong>
                             <small style="color:#64748b; margin-top:3px; display:block;"><i class="fa-solid fa-clock"></i> กำหนดส่ง: ${t.dueDate || 'เร็วๆ นี้'}</small>
+                            ${t.attachedFiles && t.attachedFiles.length > 0 ? `
+                                <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
+                                    ${t.attachedFiles.map(f => {
+                                        const isImg = f.type && f.type.startsWith('image/');
+                                        const isPdf = f.type === 'application/pdf';
+                                        const isWord = f.name && (f.name.endsWith('.doc') || f.name.endsWith('.docx'));
+                                        const isExcel = f.name && (f.name.endsWith('.xls') || f.name.endsWith('.xlsx'));
+                                        const icon = isImg ? '🖼️' : isPdf ? '📄' : isWord ? '📝' : isExcel ? '📊' : '📎';
+                                        if (isImg && f.dataURL) {
+                                            return `<div onclick="openImageLightbox('${f.dataURL}', '${t.subject} - ${t.title}')" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px; background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:4px 8px; font-size:0.78rem; font-weight:700; color:#166534;" title="กดดูรูปใบงานขยาย">
+                                                <img src="${f.dataURL}" style="width:24px; height:24px; border-radius:4px; object-fit:cover;">
+                                                <span>${icon} ดูรูปใบงาน / การบ้าน</span>
+                                            </div>`;
+                                        }
+                                        return `<span style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:4px 8px; font-size:0.78rem; font-weight:600; color:#334155;">
+                                            ${icon} ${f.name}
+                                        </span>`;
+                                    }).join('')}
+                                </div>
+                            ` : ''}
                         </div>
                     `;
                 });

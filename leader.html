@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบคณะกรรมการ & หัวหน้าห้อง - ม.1/4 SMT (รร.เทศบาล 6 นครเชียงราย)</title>
+    <meta name="theme-color" content="#0284c7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="หัวหน้าห้อง ม.1/4">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Mitr:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -367,9 +374,14 @@
                         <p>🏫 โรงเรียนเทศบาล 6 นครเชียงราย • ห้องเรียนประจำ 332</p>
                     </div>
                 </div>
-                <button onclick="handleLeaderLogout()" class="btn" style="background:rgba(255,255,255,0.2); color:#fff; border:1px solid rgba(255,255,255,0.4); font-size:0.85rem;">
-                    <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
-                </button>
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-pwa-install" onclick="showPwaInstallModal()" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:0.85rem; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-mobile-screen"></i> 📲 ติดตั้งลงมือถือ
+                    </button>
+                    <button onclick="handleLeaderLogout()" class="btn" style="background:rgba(255,255,255,0.2); color:#fff; border:1px solid rgba(255,255,255,0.4); font-size:0.85rem;">
+                        <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
+                    </button>
+                </div>
             </header>
 
             <!-- Student Officers Showcase Box -->
@@ -431,72 +443,71 @@
                     <i class="fa-solid fa-calendar-days"></i> 3. ตารางเรียน ม.1/4
                 </button>
                 <button class="tab-btn" onclick="switchLeaderTab('tab-duty')">
-                    <i class="fa-solid fa-broom"></i> 4. ตารางเวรทำความสะอาด
+                    <i class="fa-solid fa-broom"></i> 4. ตารางเวร ม.1/4
                 </button>
             </div>
 
             <!-- Tab 1: Homework Tasks Management -->
             <div id="tab-tasks" class="tab-content active">
                 <div class="card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:1rem;">
-                        <h3 style="font-size:1.1rem; color:#0369a1; margin:0; display:flex; align-items:center; gap:8px;">
-                            <i class="fa-solid fa-clipboard-list" style="color:#0284c7;"></i> เพิ่มและเช็ครายการงานค้างเพื่อน (ช่วยคุณครู)
-                        </h3>
-                        <span class="badge badge-blue">ซิงค์ข้อมูลตรงกับครูและผู้ปกครอง</span>
-                    </div>
+                    
+                    <!-- Add Task Form Box -->
+                    <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:14px; padding:1.2rem; margin-bottom:1.5rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <h3 style="font-size:1.05rem; color:#0369a1; margin:0; display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-file-circle-plus" style="color:#0284c7;"></i> สั่งการบ้าน / เพิ่มรายการภาระงานค้างใหม่:
+                            </h3>
+                            <span style="font-size:0.75rem; background:#dcfce7; color:#166534; padding:2px 8px; border-radius:6px; font-weight:700;">
+                                🟢 ออนไลน์เรียลไทม์
+                            </span>
+                        </div>
 
-                    <!-- Form Add New Task -->
-                    <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:1.2rem; margin-bottom:1.5rem;">
-                        <h4 style="font-size:0.95rem; color:#0369a1; margin-bottom:10px;"><i class="fa-solid fa-plus-circle"></i> สั่งเพิ่มรายการงานค้างวิชาใหม่:</h4>
                         <form id="form-add-leader-task" onsubmit="event.preventDefault(); saveLeaderNewTask();">
-                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-bottom:10px;">
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:12px;">
                                 <div>
-                                    <label style="font-size:0.8rem; font-weight:600; color:#334155; display:block; margin-bottom:4px;">รายวิชา:</label>
-                                    <select id="leader-task-subject" class="form-control" style="font-weight:600;" required>
-                                        <option value="">-- เลือกรายวิชาตามตารางเรียน (19 วิชา) --</option>
-                                        <option value="ภาษาไทย (ท21101) - ครูพรรณนิภา">ภาษาไทย (ท21101) - ครูพรรณนิภา</option>
-                                        <option value="คณิตศาสตร์พื้นฐาน (ค21101) - ครูศิริลักษณ์">คณิตศาสตร์พื้นฐาน (ค21101) - ครูศิริลักษณ์</option>
-                                        <option value="คณิตศาสตร์เพิ่มเติม 1 (ค21201) - ครูเปรมฤดี">คณิตศาสตร์เพิ่มเติม 1 (ค21201) - ครูเปรมฤดี</option>
-                                        <option value="คณิตศาสตร์เพิ่มเติม 2 (ค21203) - ครูกมลลักษณ์">คณิตศาสตร์เพิ่มเติม 2 (ค21203) - ครูกมลลักษณ์</option>
-                                        <option value="วิทยาศาสตร์พื้นฐาน (ว21101) - ครูอังคณา">วิทยาศาสตร์พื้นฐาน (ว21101) - ครูอังคณา</option>
-                                        <option value="เคมี SMT (ว21103) - ครูวริศลา">เคมี SMT (ว21103) - ครูวริศลา</option>
-                                        <option value="ชีววิทยา SMT (ว20201) - ครูชงโค">ชีววิทยา SMT (ว20201) - ครูชงโค</option>
-                                        <option value="ฟิสิกส์ SMT (ว20202) - ครูเขตตะวัน">ฟิสิกส์ SMT (ว20202) - ครูเขตตะวัน</option>
-                                        <option value="ดาราศาสตร์ SMT (ว21201) - ครูวราวุฒิ">ดาราศาสตร์ SMT (ว21201) - ครูวราวุฒิ</option>
-                                        <option value="ภาษาอังกฤษพื้นฐาน (อ21101) - ครูดิ่งธิวา">ภาษาอังกฤษพื้นฐาน (อ21101) - ครูดิ่งธิวา</option>
-                                        <option value="ภาษาอังกฤษฟัง-พูด (อ21201) - ครูพัชรินทร์">ภาษาอังกฤษฟัง-พูด (อ21201) - ครูพัชรินทร์</option>
-                                        <option value="ภาษาอังกฤษ SMT (อ21203) - ครู Chang">ภาษาอังกฤษ SMT (อ21203) - ครู Chang</option>
-                                        <option value="สังคมศึกษา (ส21101) - ครูธนาวัฒน์">สังคมศึกษา (ส21101) - ครูธนาวัฒน์</option>
-                                        <option value="ประวัติศาสตร์ (ส21102) - ครูธีร์สุดา">ประวัติศาสตร์ (ส21102) - ครูธีร์สุดา</option>
-                                        <option value="สุขศึกษาและพลศึกษา (พ21101) - ครูศักรินทร์">สุขศึกษาและพลศึกษา (พ21101) - ครูศักรินทร์</option>
-                                        <option value="ว่ายน้ำ (พ21102) - ครูภิษกินติ์">ว่ายน้ำ (พ21102) - ครูภิษกินติ์</option>
-                                        <option value="ศิลปะ (ศ21101) - ครูอุกฤษฎ์">ศิลปะ (ศ21101) - ครูอุกฤษฎ์</option>
-                                        <option value="การงานอาชีพ (ง21101) - ครูสิริพรรณ">การงานอาชีพ (ง21101) - ครูสิริพรรณ</option>
-                                        <option value="ภาษาจีน (จ21201) - ครูนภัสสนันท์">ภาษาจีน (จ21201) - ครูนภัสสนันท์</option>
-                                        <option value="แนะแนว - ครูฐิติพร">แนะแนว - ครูฐิติพร</option>
+                                    <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:4px;">📚 1. เลือกรายวิชา:</label>
+                                    <select id="leader-task-subject" class="form-control" required style="font-weight:600; color:#0f172a;">
+                                        <option value="">-- กรุณาเลือกรายวิชา --</option>
+                                        <option value="คณิตศาสตร์พื้นฐาน">📐 คณิตศาสตร์พื้นฐาน</option>
+                                        <option value="คณิตศาสตร์เพิ่มเติม 1">📊 คณิตศาสตร์เพิ่มเติม 1</option>
+                                        <option value="คณิตศาสตร์เพิ่มเติม 2">📈 คณิตศาสตร์เพิ่มเติม 2</option>
+                                        <option value="ภาษาไทย">📖 ภาษาไทย</option>
+                                        <option value="ภาษาอังกฤษพื้นฐาน">🇬🇧 ภาษาอังกฤษพื้นฐาน</option>
+                                        <option value="ภาษาอังกฤษเพื่อการสื่อสาร">🗣️ ภาษาอังกฤษเพื่อการสื่อสาร</option>
+                                        <option value="ภาษาอังกฤษ อ่าน-เขียน">✍️ ภาษาอังกฤษ อ่าน-เขียน</option>
+                                        <option value="วิทยาศาสตร์พื้นฐาน">🔬 วิทยาศาสตร์พื้นฐาน</option>
+                                        <option value="วิทยาศาสตร์โลกทั้งระบบ (SMT)">🌍 วิทยาศาสตร์โลกทั้งระบบ (SMT)</option>
+                                        <option value="วิทยาศาสตร์ปฏิบัติการ (SMT)">🧪 วิทยาศาสตร์ปฏิบัติการ (SMT)</option>
+                                        <option value="สังคมศึกษา">🌏 สังคมศึกษา</option>
+                                        <option value="ประวัติศาสตร์">🏛️ ประวัติศาสตร์</option>
+                                        <option value="ภาษาจีน">🇨🇳 ภาษาจีน</option>
+                                        <option value="สุขศึกษาและพลศึกษา">⚽ สุขศึกษาและพลศึกษา</option>
+                                        <option value="ศิลปะ/ดนตรี/นาฏศิลป์">🎨 ศิลปะ/ดนตรี/นาฏศิลป์</option>
+                                        <option value="การงานอาชีพ/คอมพิวเตอร์">💻 การงานอาชีพ/คอมพิวเตอร์</option>
+                                        <option value="กิจกรรมแนะแนว/โฮมรูม">🏫 กิจกรรมแนะแนว/โฮมรูม</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label style="font-size:0.8rem; font-weight:600; color:#334155; display:block; margin-bottom:4px;">ชื่อชิ้นงาน / การบ้าน:</label>
-                                    <input type="text" id="leader-task-title" class="form-control" placeholder="เช่น แบบฝึกหัดบทที่ 2 หน้า 45" required>
+                                    <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:4px;">📝 2. ชื่องาน / ภาระงานที่สั่ง:</label>
+                                    <input type="text" id="leader-task-title" class="form-control" placeholder="เช่น แบบฝึกหัดหน้า 45 ข้อ 1-5" required>
                                 </div>
                                 <div>
-                                    <label style="font-size:0.8rem; font-weight:600; color:#334155; display:block; margin-bottom:4px;">กำหนดส่ง (พิมพ์ข้อความเสรี):</label>
-                                    <input type="text" id="leader-task-due" class="form-control" placeholder="เช่น วันศุกร์ที่ 12 ก.ย. 69, พรุ่งนี้ก่อนเที่ยง" required>
+                                    <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:4px;">📅 3. กำหนดส่ง:</label>
+                                    <input type="text" id="leader-task-due" class="form-control" placeholder="เช่น วันศุกร์นี้, 15 ส.ค., ในคาบถัดไป" required>
                                 </div>
                             </div>
 
-                            <!-- Student Target Selection Mode -->
-                            <div style="margin-bottom:12px; background:#ffffff; border:1px solid #bae6fd; border-radius:10px; padding:10px 12px;">
-                                <label style="font-size:0.82rem; font-weight:700; color:#0369a1; display:block; margin-bottom:6px;">
-                                    👥 กำหนดกลุ่มนักเรียนที่ต้องส่งงานนี้:
+                            <!-- Target Students Option Selector -->
+                            <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:10px; padding:12px; margin-bottom:12px;">
+                                <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:8px;">
+                                    🎯 4. กำหนดนักเรียนที่ต้องส่งงานนี้:
                                 </label>
                                 <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:8px;">
-                                    <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:700; color:#0369a1; cursor:pointer;">
+                                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.85rem; font-weight:600; color:#0369a1;">
                                         <input type="radio" name="leader_target_mode" value="all" checked onchange="toggleLeaderTargetMode(this.value)">
-                                        <span>📌 สั่งงานทั้งห้อง (39 คน)</span>
+                                        <span>👥 สั่งงานทั้งห้อง (39 คน) [ค่าเริ่มต้น]</span>
                                     </label>
-                                    <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:700; color:#b91c1c; cursor:pointer;">
+                                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.85rem; font-weight:600; color:#dc2626;">
                                         <input type="radio" name="leader_target_mode" value="custom" onchange="toggleLeaderTargetMode(this.value)">
                                         <span>⚠️ ระบุเฉพาะเพื่อนที่ค้างส่ง (เลือกรายบุคคล)</span>
                                     </label>
@@ -520,6 +531,32 @@
                                     <div id="leader-student-checklist-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:6px; max-height:260px; overflow-y:auto; padding:4px;">
                                         <!-- Rendered by JS -->
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- 5. Smart Photo / File Attachment Section -->
+                            <div style="background:#f0f9ff; border:1.5px dashed #7dd3fc; border-radius:10px; padding:12px 14px; margin-bottom:14px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                                    <span style="font-size:0.85rem; font-weight:700; color:#0369a1;">
+                                        <i class="fa-solid fa-paperclip"></i> 📷 5. แนบรูปถ่ายใบงาน / กระดานสั่งงาน (ถ้ามี):
+                                    </span>
+                                    <div style="display:flex; gap:8px;">
+                                        <label for="leader-camera-input" style="background:#0284c7; color:#fff; font-size:0.78rem; font-weight:700; padding:5px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 6px rgba(2,132,199,0.25);">
+                                            <i class="fa-solid fa-camera"></i> ถ่ายรูปทันที
+                                        </label>
+                                        <input type="file" id="leader-camera-input" accept="image/*" capture="environment" style="display:none;" onchange="handleLeaderFileSelect(event)">
+                                        
+                                        <label for="leader-file-input" style="background:#ffffff; color:#0369a1; border:1px solid #7dd3fc; font-size:0.78rem; font-weight:700; padding:5px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+                                            <i class="fa-solid fa-images"></i> เลือกรูป/ไฟล์
+                                        </label>
+                                        <input type="file" id="leader-file-input" accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx" multiple style="display:none;" onchange="handleLeaderFileSelect(event)">
+                                    </div>
+                                </div>
+                                <div id="leader-file-preview-grid" style="display:none; flex-wrap:wrap; gap:8px; margin-top:8px;">
+                                    <!-- Dynamic File Badges -->
+                                </div>
+                                <div style="font-size:0.74rem; color:#64748b; margin-top:4px;">
+                                    * มีระบบบีบอัดภาพอัตโนมัติ (Smart Compression) ภาพคมชัด โหลดไว ไม่เปลืองเน็ต
                                 </div>
                             </div>
 
@@ -872,6 +909,75 @@
             if (tabId === 'tab-duty') renderLeaderDutyCards();
         }
 
+        let leaderAttachedFiles = [];
+
+        window.handleLeaderFileSelect = async function(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            for (let i = 0; i < files.length; i++) {
+                const f = files[i];
+                try {
+                    const processed = await window.compressImageFile(f, 1280, 0.78);
+                    leaderAttachedFiles.push(processed);
+                } catch (e) {
+                    console.error('File process error:', e);
+                }
+            }
+            renderLeaderFilePreview();
+            event.target.value = '';
+        };
+
+        window.renderLeaderFilePreview = function() {
+            const container = document.getElementById('leader-file-preview-grid');
+            if (!container) return;
+
+            if (leaderAttachedFiles.length === 0) {
+                container.style.display = 'none';
+                container.innerHTML = '';
+                return;
+            }
+
+            container.style.display = 'flex';
+            container.innerHTML = leaderAttachedFiles.map((f, i) => {
+                const isImg = f.type && f.type.startsWith('image/');
+                const isPdf = f.type === 'application/pdf';
+                const isWord = f.name && (f.name.endsWith('.doc') || f.name.endsWith('.docx'));
+                const isExcel = f.name && (f.name.endsWith('.xls') || f.name.endsWith('.xlsx'));
+                const icon = isImg ? '🖼️' : isPdf ? '📄' : isWord ? '📝' : isExcel ? '📊' : '📎';
+                const sizeKb = Math.round(f.size / 1024);
+
+                if (isImg && f.dataURL) {
+                    return `
+                        <div style="position:relative; display:inline-flex; align-items:center; gap:6px; background:#f0fdf4; border:1.5px solid #86efac; border-radius:10px; padding:4px 8px; font-size:0.78rem;">
+                            <img src="${f.dataURL}" onclick="openImageLightbox('${f.dataURL}', '${f.name}')" style="width:36px; height:36px; border-radius:6px; object-fit:cover; cursor:pointer;" title="กดดูรูปขยาย">
+                            <div style="max-width:140px; overflow:hidden;">
+                                <div style="font-weight:700; color:#166534; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${f.name}</div>
+                                <small style="color:#15803d;">(${sizeKb} KB 🟢)</small>
+                            </div>
+                            <button type="button" onclick="removeLeaderAttachedFile(${i})" style="background:#fee2e2; color:#dc2626; border:none; border-radius:50%; width:20px; height:20px; font-weight:700; cursor:pointer; font-size:0.75rem; margin-left:4px;">✕</button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div style="display:inline-flex; align-items:center; gap:6px; background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:10px; padding:4px 8px; font-size:0.78rem;">
+                        <span style="font-size:1.2rem;">${icon}</span>
+                        <div style="max-width:140px; overflow:hidden;">
+                            <div style="font-weight:700; color:#0f172a; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${f.name}</div>
+                            <small style="color:#64748b;">(${sizeKb} KB)</small>
+                        </div>
+                        <button type="button" onclick="removeLeaderAttachedFile(${i})" style="background:#fee2e2; color:#dc2626; border:none; border-radius:50%; width:20px; height:20px; font-weight:700; cursor:pointer; font-size:0.75rem; margin-left:4px;">✕</button>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.removeLeaderAttachedFile = function(index) {
+            leaderAttachedFiles.splice(index, 1);
+            renderLeaderFilePreview();
+        };
+
         // Save New Homework Task
         async function saveLeaderNewTask() {
             const subject = document.getElementById('leader-task-subject').value;
@@ -904,7 +1010,8 @@
                 title: title,
                 dueDate: dueDate,
                 createdAt: new Date().toLocaleDateString('th-TH'),
-                pendingStudentIds: selectedIds
+                pendingStudentIds: selectedIds,
+                attachedFiles: [...leaderAttachedFiles]
             };
 
             loadLeaderTasks();
@@ -921,6 +1028,8 @@
             
             alert(`🎉 เพิ่มรายการงานค้างวิชา "${subject}" - "${title}" เรียบร้อยแล้ว!\n(ระบุเพื่อนค้างส่ง: ${selectedIds.length} คน)\nระบบได้ซิงค์ขึ้น Cloud เพื่อให้ผู้ปกครองและคุณครูเห็นทันทีครับ 👍✨`);
             document.getElementById('form-add-leader-task').reset();
+            leaderAttachedFiles = [];
+            renderLeaderFilePreview();
             toggleLeaderTargetMode('all');
             renderLeaderTasks();
         }
@@ -1038,6 +1147,26 @@
                                 <span class="badge badge-blue" style="font-size:0.82rem; margin-bottom:4px;">📖 ${task.subject}</span>
                                 <h4 style="font-size:1.1rem; font-weight:700; color:#0f172a; margin:2px 0;">${task.title}</h4>
                                 <small style="color:#64748b;">📅 กำหนดส่ง: <strong>${task.dueDate}</strong></small>
+                                ${task.attachedFiles && task.attachedFiles.length > 0 ? `
+                                    <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
+                                        ${task.attachedFiles.map(f => {
+                                            const isImg = f.type && f.type.startsWith('image/');
+                                            const isPdf = f.type === 'application/pdf';
+                                            const isWord = f.name && (f.name.endsWith('.doc') || f.name.endsWith('.docx'));
+                                            const isExcel = f.name && (f.name.endsWith('.xls') || f.name.endsWith('.xlsx'));
+                                            const icon = isImg ? '🖼️' : isPdf ? '📄' : isWord ? '📝' : isExcel ? '📊' : '📎';
+                                            if (isImg && f.dataURL) {
+                                                return `<div onclick="openImageLightbox('${f.dataURL}', '${task.subject} - ${task.title}')" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px; background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:3px 8px; font-size:0.78rem; font-weight:700; color:#166534;" title="กดดูรูปขยาย">
+                                                    <img src="${f.dataURL}" style="width:24px; height:24px; border-radius:4px; object-fit:cover;">
+                                                    <span>${icon} ดูรูปใบงาน</span>
+                                                </div>`;
+                                            }
+                                            return `<span style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:3px 8px; font-size:0.78rem; font-weight:600; color:#334155;">
+                                                ${icon} ${f.name}
+                                            </span>`;
+                                        }).join('')}
+                                    </div>
+                                ` : ''}
                             </div>
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <span class="badge ${pendingCount > 0 ? 'badge-danger' : 'badge-success'}" style="font-size:0.85rem; padding:6px 12px;">

@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบ Dashboard ข้อมูลนักเรียน ม.1/4 (ปีการศึกษา 2569)</title>
+    <!-- PWA & Mobile Web App Meta -->
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ม.1/4 ท.6">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <!-- Google Fonts: Prompt & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,6 +63,9 @@
                 <a href="parent.html" target="_blank" class="nav-btn" style="text-decoration:none; color:#9d174d; background:#fdf2f8; border:1px solid #fbcfe8; font-weight:700; margin-top:4px;">
                     <i class="fa-solid fa-heart" style="color:#ec4899;"></i> 🌸 ระบบติดตามข้อมูลสำหรับผู้ปกครอง
                 </a>
+                <button type="button" class="nav-btn" onclick="showPwaInstallModal()" style="color:#4338ca; background:#eef2ff; border:1px solid #c7d2fe; font-weight:700; margin-top:6px; cursor:pointer;">
+                    <i class="fa-solid fa-mobile-screen-button" style="color:#6366f1;"></i> 📲 ติดตั้งลงมือถือ / หน้าจอโฮม
+                </button>
             </nav>
 
             <div class="sidebar-footer">

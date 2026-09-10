@@ -30,7 +30,8 @@ window.serializeTasks = function(tasks) {
             t: t.title,
             d: t.dueDate,
             c: t.createdAt,
-            m: hex
+            m: hex,
+            f: t.attachedFiles || []
         };
     });
 };
@@ -82,10 +83,15 @@ window.deserializeTasks = function(compactList) {
             title: c.t || c.title || '',
             dueDate: c.d || c.dueDate || '',
             createdAt: c.c || c.createdAt || '',
-            pendingStudentIds: pendingIds
+            pendingStudentIds: pendingIds,
+            attachedFiles: c.f || c.attachedFiles || []
         };
     });
 };
+
+// Global Cloud Sync Endpoint Configuration (Unlimited, Real-Time Pub/Sub + SSE)
+window.CLOUD_TASKS_TOPIC = 'm104_tesaban6_homework_sync_v2';
+window.CLOUD_TASKS_ENDPOINT = 'https://ntfy.sh/' + window.CLOUD_TASKS_TOPIC;
 
 // Initial default active tasks for M.1/4 so no device ever sees a blank list on initial load
 window.DEFAULT_PENDING_TASKS = [
@@ -121,18 +127,15 @@ window.saveTasksToCloud = async function(tasks) {
     try {
         localStorage.setItem('pending_homework_tasks', JSON.stringify(tasks));
         window.DEFAULT_PENDING_TASKS = tasks;
-        var compact = window.serializeTasks(tasks);
-        var payload = {
-            name: 'm104_homework_db',
-            data: {
-                content: JSON.stringify(compact),
-                updated_at: Date.now()
-            }
-        };
+        
+        var payload = JSON.stringify(tasks);
         var res = await fetch(window.CLOUD_TASKS_ENDPOINT, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            method: 'POST',
+            headers: {
+                'Title': 'm104_homework_sync',
+                'Tags': 'school,m104'
+            },
+            body: payload
         });
         return res.ok;
     } catch(e) {
@@ -144,20 +147,30 @@ window.saveTasksToCloud = async function(tasks) {
 // Sync latest tasks from Cloud and merge into LocalStorage
 window.syncTasksWithCloud = async function(callback) {
     try {
-        var res = await fetch(window.CLOUD_TASKS_ENDPOINT + '?t=' + Date.now());
+        var res = await fetch(window.CLOUD_TASKS_ENDPOINT + '/json?poll=1&t=' + Date.now());
         if (res.ok) {
-            var json = await res.json();
-            if (json && json.data && json.data.content) {
-                var compact = JSON.parse(json.data.content);
-                var remoteTasks = window.deserializeTasks(compact);
-                if (Array.isArray(remoteTasks)) {
-                    localStorage.setItem('pending_homework_tasks', JSON.stringify(remoteTasks));
-                    window.DEFAULT_PENDING_TASKS = remoteTasks;
-                    if (typeof callback === 'function') {
-                        callback(remoteTasks);
+            var text = await res.text();
+            var lines = text.trim().split('\n').filter(Boolean);
+            var latestTasks = null;
+            for (var i = lines.length - 1; i >= 0; i--) {
+                try {
+                    var obj = JSON.parse(lines[i]);
+                    if (obj.event === 'message' && obj.message) {
+                        var parsed = JSON.parse(obj.message);
+                        if (Array.isArray(parsed)) {
+                            latestTasks = parsed;
+                            break;
+                        }
                     }
-                    return remoteTasks;
+                } catch(e) {}
+            }
+            if (Array.isArray(latestTasks) && latestTasks.length > 0) {
+                localStorage.setItem('pending_homework_tasks', JSON.stringify(latestTasks));
+                window.DEFAULT_PENDING_TASKS = latestTasks;
+                if (typeof callback === 'function') {
+                    callback(latestTasks);
                 }
+                return latestTasks;
             }
         }
     } catch(e) {
@@ -166,12 +179,61 @@ window.syncTasksWithCloud = async function(callback) {
     return null;
 };
 
+// Real-time SSE Push Connection (Instant Sub-second Broadcast)
+window.activeEventSource = null;
+window.connectCloudRealtimeEvents = function(callback) {
+    if (typeof EventSource === 'undefined') return;
+    try {
+        if (window.activeEventSource) {
+            window.activeEventSource.close();
+        }
+        var sseUrl = window.CLOUD_TASKS_ENDPOINT + '/sse';
+        var es = new EventSource(sseUrl);
+        window.activeEventSource = es;
+
+        es.onmessage = function(event) {
+            try {
+                if (!event.data) return;
+                var obj = JSON.parse(event.data);
+                if (obj.event === 'message' && obj.message) {
+                    var tasks = JSON.parse(obj.message);
+                    if (Array.isArray(tasks) && tasks.length > 0) {
+                        localStorage.setItem('pending_homework_tasks', JSON.stringify(tasks));
+                        window.DEFAULT_PENDING_TASKS = tasks;
+                        if (typeof callback === 'function') {
+                            callback(tasks);
+                        }
+                    }
+                }
+            } catch(err) {
+                console.warn('SSE parse error:', err);
+            }
+        };
+
+        es.onerror = function() {
+            es.close();
+            setTimeout(function() {
+                window.connectCloudRealtimeEvents(callback);
+            }, 8000);
+        };
+    } catch(e) {
+        console.warn('SSE warning:', e);
+    }
+};
+
 // Auto-sync runner for real-time polling across all devices
 window.startCloudAutoSync = function(callback, intervalMs) {
-    var interval = intervalMs || 6000;
+    var interval = intervalMs || 20000;
+    
+    // 1. Establish instant SSE stream
+    window.connectCloudRealtimeEvents(callback);
+
+    // 2. Initial fetch
     if (typeof window.syncTasksWithCloud === 'function') {
         window.syncTasksWithCloud(callback);
     }
+
+    // 3. Fallback periodic poll
     var timer = setInterval(function() {
         if (typeof window.syncTasksWithCloud === 'function') {
             window.syncTasksWithCloud(callback);

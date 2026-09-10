@@ -695,11 +695,12 @@
     </div>
 
     <!-- Real Database Scripts -->
-    <script src="real_db.js?v=20260909_cloudsync"></script>
+    <script src="real_db.js?v=20260910_cloudsync"></script>
     <script src="visit.js?v=20260807_v3"></script>
     <script>
         let currentStudent = null;
         let pendingTasks = [];
+        let parentAutoSyncTimer = null;
 
         function loadPendingTasks() {
             if (typeof window.getMergedPendingTasks === 'function') {
@@ -722,11 +723,11 @@
                 await window.syncTasksWithCloud(function(tasks) {
                     if (tasks) {
                         pendingTasks = tasks;
-                        renderPendingTasksTab();
+                        if (currentStudent) renderPendingTasksTab();
                     }
                 });
                 loadPendingTasks();
-                renderPendingTasksTab();
+                if (currentStudent) renderPendingTasksTab();
             }
             if (btn) {
                 btn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> กดรีเฟรชงานล่าสุด';
@@ -736,15 +737,18 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadPendingTasks();
-            if (typeof window.syncTasksWithCloud === 'function') {
-                window.syncTasksWithCloud(function(tasks) {
+
+            // Real-time Cloud Auto-Sync (every 6 seconds & on focus/visibilitychange)
+            if (typeof window.startCloudAutoSync === 'function') {
+                if (parentAutoSyncTimer) clearInterval(parentAutoSyncTimer);
+                parentAutoSyncTimer = window.startCloudAutoSync(function(tasks) {
                     if (tasks) {
                         pendingTasks = tasks;
                         if (currentStudent) {
                             renderPendingTasksTab();
                         }
                     }
-                });
+                }, 6000);
             }
 
             const params = new URLSearchParams(window.location.search);

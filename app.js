@@ -30,8 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'tab-midterm': 'ตารางตรวจสอบคะแนนสอบกลางภาคเรียนที่ 1 / 2569 (ม.1.4)',
                 'tab-pending-tasks': 'ระบบบันทึกเช็คงานค้างรายวิชา (ม.1.4)',
                 'tab-schedule': 'ตารางเรียน ชั้น ม.1.4 (ห้องเรียนประจำ 332)',
-                'tab-duty': 'ตารางเวรประจำวัน & เวรจิตอาสาศูนย์จีน (ม.1.4)',
-                'tab-line': 'ระบบสร้างข้อความประชาสัมพันธ์ LINE'
+                'tab-duty': 'ตารางเวรประจำวัน & เวรจิตอาสาศูนย์จีน (ม.1.4)'
             };
             if (titles[targetTab] && pageTitle) pageTitle.textContent = titles[targetTab];
             if (targetTab === 'tab-pending-tasks') {
@@ -222,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (s.ls_level === 'risk') lsBadge = '<span class="badge badge-warning" style="font-size:0.75rem;">🟡 สุ่มเสี่ยง</span>';
             else if (s.ls_level === 'problem') lsBadge = '<span class="badge badge-danger" style="font-size:0.75rem;">🔴 มีปัญหา</span>';
 
-            const pendingTasksForStudent = pendingHomeworkTasks.filter(t => t.pendingStudentIds.includes(s.student_id));
+            const pendingTasksForStudent = pendingHomeworkTasks.filter(t => (t.pendingStudentIds || []).map(String).includes(String(s.student_id)));
             const pendingCount = pendingTasksForStudent.length;
 
             tr.innerHTML = `
@@ -246,8 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </span>
                 </td>
                 <td style="vertical-align:middle;">
-                    <button class="btn-line btn-sm-action admin-only" onclick="openQuickLine('${s.student_id}')">
-                        <i class="fa-brands fa-line"></i> แจ้ง LINE
+                    <button class="btn-primary btn-sm-action admin-only" onclick="renderPersonalHomeworkLookup('${s.student_id}'); document.querySelector('[data-tab=\\'tab-pending-tasks\\']').click();" style="background:#0284c7; border:none; padding:4px 10px; border-radius:6px; color:#fff; cursor:pointer; font-size:0.8rem; font-weight:600;">
+                        <i class="fa-solid fa-list-check"></i> เช็คงาน
                     </button>
                 </td>
             `;
@@ -610,218 +609,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderStudentCards();
     });
 
-    // LINE Daily Duty Generator Logic
-    const btnGenerateLine = document.getElementById('btn-generate-line');
-    const linePreviewText = document.getElementById('line-preview-text');
-    const btnCopyLine = document.getElementById('btn-copy-line');
-
-    if (btnGenerateLine) {
-        btnGenerateLine.addEventListener('click', generateDailyDutyLineMessage);
-    }
-
-    function getThaiDayName(dateObj) {
-        const days = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
-        return days[dateObj.getDay()];
-    }
-
-    function getNextDutyDayName(currentDayName) {
-        const map = {
-            'จันทร์': 'อังคาร',
-            'อังคาร': 'พุธ',
-            'พุธ': 'พฤหัสบดี',
-            'พฤหัสบดี': 'ศุกร์',
-            'ศุกร์': 'จันทร์'
-        };
-        return map[currentDayName] || 'จันทร์';
-    }
-
-    function generateDailyDutyLineMessage() {
-        const daySelect = document.getElementById('line-duty-day-select');
-        const selectedDayValue = daySelect ? daySelect.value : 'auto';
-        const customNoteElem = document.getElementById('line-custom-note');
-        const customNote = customNoteElem ? customNoteElem.value.trim() : '';
-
-        const now = new Date();
-        let targetDayName = getThaiDayName(now);
-
-        if (selectedDayValue !== 'auto') {
-            targetDayName = selectedDayValue;
-        }
-
-        if (selectedDayValue === 'auto' && (targetDayName === 'อาทิตย์' || targetDayName === 'เสาร์')) {
-            targetDayName = 'จันทร์';
-        }
-
-        const nextDayName = getNextDutyDayName(targetDayName);
-
-        const todayStudents = studentData.filter(s => s.duty_day === targetDayName);
-        const nextDayStudents = studentData.filter(s => s.duty_day === nextDayName);
-
-        const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
-        const dateStr = `${now.getDate()} ${thaiMonths[now.getMonth()]} ${now.getFullYear() + 543}`;
-
-        let msg = `🧹 [แจ้งเตือนเวรทำความสะอาดประจำวัน ม.1/4 SMT]\n`;
-        msg += `📅 ประจำวัน${targetDayName} (${dateStr})\n\n`;
-        msg += `⏰ เวลาปฏิบัติหน้าที่: 07.30 - 07.40 น.\n`;
-        msg += `📍 ภารกิจ: ทำเขตจิตอาสาถูพื้นศูนย์จีน & ทำความสะอาดห้องเรียน 332\n\n`;
-
-        msg += `👥 รายชื่อนักเรียนเวรประจำวันถูพื้น ${targetDayName} (${todayStudents.length} คน):\n`;
-        if (todayStudents.length > 0) {
-            todayStudents.forEach((s, idx) => {
-                msg += `${idx + 1}. เลขที่ ${s.no} ${s.fullname} ${s.nickname ? `(${s.nickname})` : ''}\n`;
-            });
-        } else {
-            msg += `(ไม่มีรายชื่อเวรถูพื้น)\n`;
-        }
-
-        msg += `\n--------- \n\n`;
-
-        msg += `👥 รายชื่อนักเรียนเวรวันถัดไปกวาดพื้น ${nextDayName} (${nextDayStudents.length} คน):\n`;
-        if (nextDayStudents.length > 0) {
-            nextDayStudents.forEach((s, idx) => {
-                msg += `${idx + 1}. เลขที่ ${s.no} ${s.fullname} ${s.nickname ? `(${s.nickname})` : ''}\n`;
-            });
-        } else {
-            msg += `(ไม่มีรายชื่อเวรกวาดพื้น)\n`;
-        }
-
-        msg += `\n✨ ขอให้นักเรียนที่มีรายชื่อมาร่วมทำความสะอาดและถูพื้นตรงตามเวลาด้วยนะครับ`;
-
-        if (customNote) {
-            msg += `\n\n📌 ประกาศเพิ่มเติมจากครูประจำชั้น:\n${customNote}`;
-        }
-
-        if (linePreviewText) {
-            linePreviewText.textContent = msg;
-        }
-    }
-
-    // Auto-generate today's duty reminder on load
-    setTimeout(() => {
-        if (linePreviewText) {
-            generateDailyDutyLineMessage();
-        }
-    }, 300);
-
-    function showToast(message, icon = '✨') {
-        const existingToast = document.querySelector('.toast-notification');
-        if (existingToast) existingToast.remove();
-
-        const toast = document.createElement('div');
-        toast.className = 'toast-notification';
-        toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
-
-    btnCopyLine.addEventListener('click', () => {
-        const text = linePreviewText.textContent;
-        if (!text || text.includes('กดปุ่ม "สร้างข้อความ LINE"')) {
-            showToast('กรุณากดปุ่ม "สร้างข้อความ LINE" ก่อนครับ', '⚠️');
-            return;
-        }
-        navigator.clipboard.writeText(text).then(() => {
-            showToast('คัดลอกข้อความ LINE เรียบร้อยแล้ว!', '📋');
-        });
-    });
-
-    const btnSendLineDirect = document.getElementById('btn-send-line-direct');
-    if (btnSendLineDirect) {
-        btnSendLineDirect.addEventListener('click', () => {
-            const text = linePreviewText.textContent;
-            if (!text || text.includes('กดปุ่ม "สร้างข้อความ LINE"')) {
-                showToast('กรุณากดปุ่ม "สร้างข้อความ LINE" ก่อนครับ', '⚠️');
-                return;
-            }
-
-            navigator.clipboard.writeText(text);
-            showToast('กำลังสลับไปเปิดแอป LINE...', '📱');
-            const shareUrl = `https://line.me/R/share?text=${encodeURIComponent(text)}`;
-            window.open(shareUrl, '_blank');
-        });
-    }
-
-    // LINE Messaging API (Nong Maew Som 🐱 @706jgkro) Handler
-    const POR_NONG_MAEWSOM_TOKEN = "IreTHxq60X+lc2mZR1TdpTnEvYDhvqBAwc/YPWI8llBUETzGurjjqt5Am4zUC4wzKJdinCdl/Kfv8sxchKSDmrHrgirxWtKnKvCEzN01r0+qDfTGrVAoQnNyATuFxZGsLBwQ2C2KNN+2Nd19lwXOpwdB04t89/1O/w1cDnyilFU=";
-    const msgTokenInput = document.getElementById('line-messaging-token-input');
-    const btnSaveMsgApi = document.getElementById('btn-save-messaging-api');
-    const btnTestMsgApi = document.getElementById('btn-test-messaging-api');
-    const btnBroadcastApi = document.getElementById('btn-broadcast-messaging-api');
-
-    if (msgTokenInput) {
-        const savedMsgToken = localStorage.getItem('line_messaging_token') || POR_NONG_MAEWSOM_TOKEN;
-        msgTokenInput.value = savedMsgToken;
-
-        if (btnSaveMsgApi) {
-            btnSaveMsgApi.addEventListener('click', () => {
-                const tok = msgTokenInput.value.trim();
-                if (!tok) { alert('กรุณากรอก Channel Access Token ครับ'); return; }
-                localStorage.setItem('line_messaging_token', tok);
-                alert('บันทึกตั้งค่า LINE Messaging API (บอทน้องแมวส้ม 🐱) เรียบร้อยแล้ว!');
-            });
-        }
-
-        if (btnTestMsgApi) {
-            btnTestMsgApi.addEventListener('click', () => {
-                const tok = msgTokenInput.value.trim() || POR_NONG_MAEWSOM_TOKEN;
-                sendLineBroadcastMessage(tok, '🐱 [ทดสอบบอทน้องแมวส้ม @706jgkro]\nทดสอบการส่งข้อความจากระบบ Dashboard ห้อง ม.1.4 เรียบร้อยแล้วครับ! ✨');
-            });
-        }
-
-        if (btnBroadcastApi) {
-            btnBroadcastApi.addEventListener('click', () => {
-                const tok = msgTokenInput.value.trim() || POR_NONG_MAEWSOM_TOKEN;
-                const msg = linePreviewText.textContent;
-                if (!msg || msg.includes('กดปุ่ม "สร้างข้อความ LINE"')) {
-                    alert('กรุณากดปุ่ม "สร้างข้อความ LINE" ก่อนครับ');
-                    return;
-                }
-                sendLineBroadcastMessage(tok, msg);
-            });
-        }
-    }
-
-    function sendLineBroadcastMessage(token, messageText) {
-        const btn = document.getElementById('btn-broadcast-messaging-api') || document.getElementById('btn-test-messaging-api');
-        if (btn) {
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่งผ่านบอทน้องแมวส้ม 🐱...';
-        }
-
-        const webhookUrlInput = document.getElementById('line-webhook-url-input');
-        const webhookUrl = (webhookUrlInput && webhookUrlInput.value.trim()) || 'https://script.google.com/macros/s/AKfycbyPphz43aLcZAq_r6XYtTEHnmNQAViMg_gwBJ2e_eb2QMOrHPlM4zwPf-BT09ZYASyyNg/exec';
-
-        const groupIdInput = document.getElementById('line-group-id-input');
-        const groupId = (groupIdInput && groupIdInput.value.trim()) || 'Ca98a77879c82670dd198ea9f2c549f9d';
-
-        fetch(webhookUrl, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: messageText, text: messageText, token: token, groupId: groupId })
-        })
-        .then(() => {
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-cat"></i> 🐱 บรอดแคสต์ด้วยน้องแมวส้ม (@706jgkro)';
-            }
-            alert('🚀 คำสั่งส่งข้อความผ่านบอทน้องแมวส้ม 🐱 (@706jgkro) ทำงานเรียบร้อยแล้ว!\n\nข้อความถูกส่งเข้าไปในกลุ่ม LINE เรียบร้อยครับ ✨');
-        })
-        .catch(err => {
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-cat"></i> 🐱 บรอดแคสต์ด้วยน้องแมวส้ม (@706jgkro)';
-            }
-            navigator.clipboard.writeText(messageText);
-            alert('🚀 คัดลอกข้อความลง Clipboard เรียบร้อยแล้ว!');
-        });
-    }
-
     // Global Modal Control
     const modal = document.getElementById('student-modal');
     document.querySelectorAll('.modal-close, .modal-close-btn').forEach(b => {
@@ -889,21 +676,6 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
 
-        const btnModalLine = document.getElementById('modal-btn-line');
-        if (btnModalLine) {
-            btnModalLine.className = 'btn-line';
-            btnModalLine.onclick = () => {
-                modal.classList.remove('open');
-                const lineTabBtn = document.querySelector('[data-tab="tab-line"]');
-                if (lineTabBtn) lineTabBtn.click();
-                const selectEl = document.getElementById('line-student-select');
-                if (selectEl) selectEl.value = s.student_id;
-                const tmplEl = document.getElementById('line-template-type');
-                if (tmplEl) tmplEl.value = 'midterm_scores';
-                generateLineMessage();
-            };
-        }
-
         const btnCopyParentLink = document.getElementById('modal-btn-copy-parent-link');
         if (btnCopyParentLink) {
             btnCopyParentLink.onclick = () => {
@@ -923,15 +695,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const parentUrl = `${baseUrl}/parent.html?id=${s.student_id}`;
 
         navigator.clipboard.writeText(parentUrl).then(() => {
-            alert(`📱 คัดลอกลิงก์สำหรับผู้ปกครองเรียบร้อยแล้ว!\n\nนักเรียน: ${s.fullname} (รหัส: ${s.student_id})\nลิงก์: ${parentUrl}\n\nคุณครูสามารถนำลิงก์นี้ไปวางส่งใน LINE ให้ผู้ปกครองได้เลยครับ`);
+            alert(`📱 คัดลอกลิงก์สำหรับผู้ปกครองเรียบร้อยแล้ว!\n\nนักเรียน: ${s.fullname} (รหัส: ${s.student_id})\nลิงก์: ${parentUrl}\n\nคุณครูสามารถนำลิงก์นี้ไปส่งให้ผู้ปกครองได้เลยครับ`);
         });
-    };
-
-    window.openQuickLine = function(studentId) {
-        document.querySelector('[data-tab="tab-line"]').click();
-        document.getElementById('line-student-select').value = studentId;
-        document.getElementById('line-template-type').value = 'midterm_scores';
-        generateLineMessage();
     };
 
     // Reload Database Button Handler
@@ -1058,15 +823,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 try { pendingHomeworkTasks = JSON.parse(saved); } catch(e){}
             }
         }
-        if (typeof window.syncTasksWithCloud === 'function') {
-            window.syncTasksWithCloud(function(tasks) {
+        if (typeof window.startCloudAutoSync === 'function') {
+            window.startCloudAutoSync(function(tasks) {
                 if (tasks) {
                     pendingHomeworkTasks = tasks;
-                    if (typeof renderSavedHomeworkTasks === 'function') {
-                        renderSavedHomeworkTasks();
-                    }
+                    renderActiveTasksBoard();
+                    renderOverviewTable();
+                    renderStudentCards();
+                    renderPersonalHomeworkLookup();
                 }
-            });
+            }, 6000);
         }
     }
 
@@ -1146,7 +912,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.style.cssText = "background:#ffffff; border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.2rem; margin-bottom:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.03);";
             
-            const pendingStudents = studentData.filter(s => task.pendingStudentIds.includes(s.student_id.toString()));
+            const pendingStudents = studentData.filter(s => (task.pendingStudentIds || []).map(String).includes(s.student_id.toString()));
             const isAllDone = pendingStudents.length === 0;
 
             const myStatusBadge = isAllDone ? 
@@ -1191,7 +957,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <span style="color:#7f1d1d; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                                     <strong>${s.no}.</strong> ${s.fullname}
                                 </span>
-                                <button type="button" onclick="markStudentTaskCompleted(${task.id}, '${s.student_id}')" style="border:none; background:#22c55e; color:#ffffff; font-weight:700; padding:3px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer; flex-shrink:0;">
+                                <button type="button" onclick="markStudentTaskCompleted('${task.id}', '${s.student_id}')" style="border:none; background:#22c55e; color:#ffffff; font-weight:700; padding:3px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer; flex-shrink:0;">
                                     <i class="fa-solid fa-circle-check"></i> 🟢 ส่งแล้ว
                                 </button>
                             </div>
@@ -1201,9 +967,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
                     ${!isAllDone ? `
-                        <button class="btn-line btn-sm" onclick="noticeTaskLine(${index})"><i class="fa-brands fa-line"></i> แจ้ง LINE ติดตามงานวิชานี้</button>
+                        <button class="btn-primary btn-sm" onclick="copySingleTaskMsg('${task.id}')" style="background:#0284c7; border-color:#0284c7;"><i class="fa-solid fa-copy"></i> คัดลอกรายชื่อค้างส่ง</button>
                     ` : ''}
-                    <button class="btn-secondary btn-sm" onclick="deleteHomeworkTask(${index})" style="color:var(--accent-red); margin-left:auto;"><i class="fa-solid fa-trash"></i> ลบรายการภาระงาน</button>
+                    <button class="btn-secondary btn-sm" onclick="deleteHomeworkTask('${task.id}')" style="color:var(--accent-red); margin-left:auto;"><i class="fa-solid fa-trash"></i> ลบรายการภาระงาน</button>
                 </div>
             `;
             container.appendChild(card);
@@ -1211,12 +977,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.markStudentTaskCompleted = function(taskId, studentId) {
-        const task = pendingHomeworkTasks.find(t => t.id === taskId);
+        const task = pendingHomeworkTasks.find(t => String(t.id) === String(taskId));
         if (!task) return;
 
-        const s = studentData.find(st => st.student_id.toString() === studentId.toString());
+        const s = studentData.find(st => String(st.student_id) === String(studentId));
 
-        task.pendingStudentIds = task.pendingStudentIds.filter(id => id.toString() !== studentId.toString());
+        task.pendingStudentIds = (task.pendingStudentIds || []).filter(id => String(id) !== String(studentId));
 
         saveHomeworkTasks();
         renderActiveTasksBoard();
@@ -1278,7 +1044,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }));
 
             const newTask = {
-                id: Date.now(),
+                id: 'task_' + Date.now(),
                 subject: subject,
                 title: title,
                 dueDate: dueDate,
@@ -1315,18 +1081,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    window.deleteHomeworkTask = function(index) {
+    window.deleteHomeworkTask = function(taskId) {
         if (confirm('คุณต้องการลบรายการงานค้างนี้ใช่หรือไม่?')) {
-            pendingHomeworkTasks.splice(index, 1);
+            pendingHomeworkTasks = pendingHomeworkTasks.filter(t => String(t.id) !== String(taskId));
             saveHomeworkTasks();
             renderActiveTasksBoard();
+            renderOverviewTable();
+            renderStudentCards();
+            renderPersonalHomeworkLookup();
         }
     };
 
-    window.noticeTaskLine = function(index) {
-        const task = pendingHomeworkTasks[index];
+    window.copySingleTaskMsg = function(taskId) {
+        const task = pendingHomeworkTasks.find(t => String(t.id) === String(taskId));
         if (!task) return;
-        const pendingStudents = studentData.filter(s => task.pendingStudentIds.includes(s.student_id));
+        const pendingStudents = studentData.filter(s => (task.pendingStudentIds || []).map(String).includes(s.student_id.toString()));
 
         let msg = `📌 [แจ้งเตือนการส่งงาน - ห้อง ม.1.4 SMT]\n`;
         msg += `📖 วิชา: ${task.subject}\n`;
@@ -1338,9 +1107,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         msg += `\nรบกวนผู้ปกครองช่วยติดตามให้นักเรียนนำงานมาส่งคุณครูด้วยนะครับ ขอบคุณครับ 🙏`;
 
-        document.querySelector('[data-tab="tab-line"]').click();
-        document.getElementById('line-student-select').value = 'all';
-        document.getElementById('line-preview-text').textContent = msg;
+        navigator.clipboard.writeText(msg).then(() => {
+            alert(`📋 คัดลอกรายชื่อนักเรียนค้างส่งวิชา "${task.subject}" เรียบร้อยแล้ว!`);
+        });
     };
 
     // Student Personal Homework Lookup Logic
@@ -1405,7 +1174,7 @@ document.addEventListener('DOMContentLoaded', () => {
             select.value = s.student_id;
         }
 
-        const myPendingTasks = pendingHomeworkTasks.filter(t => t.pendingStudentIds.includes(s.student_id.toString()));
+        const myPendingTasks = pendingHomeworkTasks.filter(t => (t.pendingStudentIds || []).map(String).includes(s.student_id.toString()));
         const isComplete = myPendingTasks.length === 0;
 
         const photoSrc = s.photo_url || `photos/${s.student_id}.jpg`;
@@ -1443,7 +1212,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 ⚠️ มีงานค้างทั้งหมด ${myPendingTasks.length} ชิ้นงาน
                             </span>
                             <button type="button" class="btn-primary btn-sm" onclick="copyStudentPersonalHomeworkMsg('${s.student_id}')" style="background:#dc2626; border-color:#dc2626;">
-                                <i class="fa-solid fa-copy"></i> 📱 คัดลอกรายการงานค้างแจ้ง LINE
+                                <i class="fa-solid fa-copy"></i> 📋 คัดลอกรายการงานค้าง
                             </button>
                         </div>
                     </div>
@@ -1465,7 +1234,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.copyStudentPersonalHomeworkMsg = function(studentId) {
         const s = studentData.find(st => st.student_id.toString() === studentId.toString());
         if (!s) return;
-        const myPendingTasks = pendingHomeworkTasks.filter(t => t.pendingStudentIds.includes(s.student_id.toString()));
+        const myPendingTasks = pendingHomeworkTasks.filter(t => (t.pendingStudentIds || []).map(String).includes(s.student_id.toString()));
 
         let msg = `📌 [แจ้งเตือนงานค้างรายบุคคล - ห้อง ม.1.4 SMT]\n`;
         msg += `🎓 เลขที่ ${s.no} ${s.fullname} ${s.nickname ? `(${s.nickname})` : ''}\n\n`;
@@ -1476,7 +1245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         msg += `\nรบกวนผู้ปกครองช่วยติดตามให้นักเรียนนำงานมาส่งคุณครูด้วยนะครับ ขอบคุณครับ 🙏`;
 
         navigator.clipboard.writeText(msg).then(() => {
-            alert(`📱 คัดลอกรายการงานค้างของ ${s.fullname} เรียบร้อยแล้ว!\nสามารถนำข้อความไปส่งแจ้งผู้ปกครองใน LINE ได้เลยครับ`);
+            alert(`📋 คัดลอกรายการงานค้างของ ${s.fullname} เรียบร้อยแล้ว!\nสามารถนำข้อความไปส่งแจ้งผู้ปกครองได้เลยครับ`);
         });
     };
 

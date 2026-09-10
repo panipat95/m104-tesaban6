@@ -485,9 +485,47 @@
                                     <input type="text" id="leader-task-due" class="form-control" placeholder="เช่น วันศุกร์ที่ 12 ก.ย. 69, พรุ่งนี้ก่อนเที่ยง" required>
                                 </div>
                             </div>
+
+                            <!-- Student Target Selection Mode -->
+                            <div style="margin-bottom:12px; background:#ffffff; border:1px solid #bae6fd; border-radius:10px; padding:10px 12px;">
+                                <label style="font-size:0.82rem; font-weight:700; color:#0369a1; display:block; margin-bottom:6px;">
+                                    👥 กำหนดกลุ่มนักเรียนที่ต้องส่งงานนี้:
+                                </label>
+                                <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:8px;">
+                                    <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:700; color:#0369a1; cursor:pointer;">
+                                        <input type="radio" name="leader_target_mode" value="all" checked onchange="toggleLeaderTargetMode(this.value)">
+                                        <span>📌 สั่งงานทั้งห้อง (39 คน)</span>
+                                    </label>
+                                    <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:700; color:#b91c1c; cursor:pointer;">
+                                        <input type="radio" name="leader_target_mode" value="custom" onchange="toggleLeaderTargetMode(this.value)">
+                                        <span>⚠️ ระบุเฉพาะเพื่อนที่ค้างส่ง (เลือกรายบุคคล)</span>
+                                    </label>
+                                </div>
+
+                                <!-- Custom Student Picker Grid -->
+                                <div id="leader-student-picker-box" style="display:none; border-top:1px dashed #bae6fd; padding-top:10px; margin-top:6px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+                                        <span style="font-size:0.8rem; font-weight:700; color:#dc2626;">
+                                            <i class="fa-solid fa-list-check"></i> ติ๊ก ✔️ หน้าชื่อเพื่อนที่ค้างส่ง:
+                                        </span>
+                                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                            <button type="button" onclick="setLeaderGroupCbs(1, 10)" style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; font-size:0.75rem; padding:2px 8px; border-radius:4px; cursor:pointer; font-weight:600;">เลขที่ 1-10</button>
+                                            <button type="button" onclick="setLeaderGroupCbs(11, 20)" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:0.75rem; padding:2px 8px; border-radius:4px; cursor:pointer; font-weight:600;">เลขที่ 11-20</button>
+                                            <button type="button" onclick="setLeaderGroupCbs(21, 30)" style="background:#dcfce7; color:#166534; border:1px solid #bbf7d0; font-size:0.75rem; padding:2px 8px; border-radius:4px; cursor:pointer; font-weight:600;">เลขที่ 21-30</button>
+                                            <button type="button" onclick="setLeaderGroupCbs(31, 39)" style="background:#fae8ff; color:#86198f; border:1px solid #f5d0fe; font-size:0.75rem; padding:2px 8px; border-radius:4px; cursor:pointer; font-weight:600;">เลขที่ 31-39</button>
+                                            <button type="button" onclick="setLeaderAllCbs(true)" style="background:#0284c7; color:#fff; border:none; font-size:0.75rem; padding:2px 8px; border-radius:4px; cursor:pointer; font-weight:600;">เลือกทั้งหมด</button>
+                                            <button type="button" onclick="setLeaderAllCbs(false)" style="background:#f1f5f9; color:#64748b; border:1px solid #cbd5e1; font-size:0.75rem; padding:2px 8px; border-radius:4px; cursor:pointer; font-weight:600;">ล้างออก</button>
+                                        </div>
+                                    </div>
+                                    <div id="leader-student-checklist-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:6px; max-height:260px; overflow-y:auto; padding:4px;">
+                                        <!-- Rendered by JS -->
+                                    </div>
+                                </div>
+                            </div>
+
                             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                                 <div style="font-size:0.8rem; color:#64748b;">
-                                    * เมื่อสร้างงานใหม่แล้ว หัวหน้าห้องสามารถคลิกปุ่ม <strong>🟢 ส่งแล้ว</strong> เพื่อตัดชื่อเพื่อนที่ส่งแล้วได้ทันที
+                                    * เมื่อสร้างงานแล้ว ระบบจะซิงค์ขึ้น Cloud ออนไลน์ทันที สามารถกดปุ่ม <strong>🟢 ส่งแล้ว</strong> เพื่อตัดชื่อเพื่อนได้แบบเรียลไทม์
                                 </div>
                                 <button type="submit" class="btn btn-primary" style="padding:8px 18px;">
                                     <i class="fa-solid fa-plus"></i> บันทึกเพิ่มงานค้าง
@@ -514,7 +552,7 @@
                                 <i class="fa-solid fa-share-nodes"></i> 📲 คัดลอกลิงก์ส่งให้ผู้ปกครอง
                             </button>
                             <button type="button" class="btn" onclick="copyTasksSummaryText()" style="background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1; padding:6px 12px; font-size:0.82rem;">
-                                <i class="fa-solid fa-copy"></i> 📋 คัดลอกสรุปข้อความลง LINE
+                                <i class="fa-solid fa-copy"></i> 📋 คัดลอกสรุปข้อความงานค้าง
                             </button>
                         </div>
                     </div>
@@ -674,10 +712,11 @@
 
     </div>
 
-    <script src="real_db.js?v=20260909_cloudsync"></script>
+    <script src="real_db.js?v=20260910_cloudsync"></script>
     <script>
         const LEADER_PIN = "104104";
         let pendingTasks = [];
+        let autoSyncTimer = null;
 
         function loadLeaderTasks() {
             if (typeof window.getMergedPendingTasks === 'function') {
@@ -730,6 +769,47 @@
             return [];
         }
 
+        // Student Selection Checklist for Task Creation
+        function renderLeaderStudentChecklist() {
+            const container = document.getElementById('leader-student-checklist-grid');
+            if (!container) return;
+            const students = getActiveStudents();
+            container.innerHTML = students.map(s => `
+                <label style="display:flex; align-items:center; gap:6px; padding:4px 6px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; font-size:0.8rem; cursor:pointer;">
+                    <input type="checkbox" class="leader-student-cb" data-no="${s.no}" value="${s.student_id}" style="accent-color:#ef4444; width:15px; height:15px;">
+                    <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                        <strong>${s.no}.</strong> ${s.fullname} ${s.nickname ? `(${s.nickname})` : ''}
+                    </span>
+                </label>
+            `).join('');
+        }
+
+        function toggleLeaderTargetMode(mode) {
+            const picker = document.getElementById('leader-student-picker-box');
+            if (!picker) return;
+            if (mode === 'custom') {
+                picker.style.display = 'block';
+                renderLeaderStudentChecklist();
+            } else {
+                picker.style.display = 'none';
+            }
+        }
+
+        function setLeaderGroupCbs(minNo, maxNo) {
+            const cbs = document.querySelectorAll('.leader-student-cb');
+            cbs.forEach(cb => {
+                const no = parseInt(cb.getAttribute('data-no'), 10);
+                if (no >= minNo && no <= maxNo) {
+                    cb.checked = true;
+                }
+            });
+        }
+
+        function setLeaderAllCbs(checked) {
+            const cbs = document.querySelectorAll('.leader-student-cb');
+            cbs.forEach(cb => cb.checked = checked);
+        }
+
         // Check Login Session
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem('leader_logged_in') === 'true') {
@@ -749,6 +829,7 @@
 
         function handleLeaderLogout() {
             sessionStorage.removeItem('leader_logged_in');
+            if (autoSyncTimer) clearInterval(autoSyncTimer);
             document.getElementById('auth-screen').style.display = 'block';
             document.getElementById('leader-portal-screen').style.display = 'none';
         }
@@ -756,18 +837,23 @@
         function showLeaderPortal() {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('leader-portal-screen').style.display = 'block';
+            loadLeaderTasks();
             renderLeaderTasks();
             renderLeaderMidtermScores();
             renderLeaderDutyCards();
+            renderLeaderStudentChecklist();
 
-            // Background sync from cloud to pull tasks created by other committee members
-            if (typeof window.syncTasksWithCloud === 'function') {
-                window.syncTasksWithCloud(function(tasks) {
+            // Real-time Cloud Auto-Sync (every 6 seconds & on focus)
+            if (typeof window.startCloudAutoSync === 'function') {
+                if (autoSyncTimer) clearInterval(autoSyncTimer);
+                autoSyncTimer = window.startCloudAutoSync(function(tasks) {
                     if (tasks) {
                         pendingTasks = tasks;
                         renderLeaderTasks();
+                        const statusText = document.getElementById('leader-cloud-text');
+                        if (statusText) statusText.textContent = 'เชื่อมต่อระบบคลาวด์ออนไลน์ (ซิงค์อัตโนมัติเรียลไทม์ 🟢)';
                     }
-                });
+                }, 6000);
             }
         }
 
@@ -798,6 +884,19 @@
             }
 
             const students = getActiveStudents();
+            const targetMode = document.querySelector('input[name="leader_target_mode"]:checked')?.value || 'all';
+
+            let selectedIds = [];
+            if (targetMode === 'custom') {
+                const checked = document.querySelectorAll('.leader-student-cb:checked');
+                selectedIds = Array.from(checked).map(cb => cb.value.toString());
+                if (selectedIds.length === 0) {
+                    alert('⚠️ กรุณาติ๊กเลือกเพื่อนที่ค้างส่งอย่างน้อย 1 คนครับ!');
+                    return;
+                }
+            } else {
+                selectedIds = students.map(s => s.student_id.toString());
+            }
 
             const newTask = {
                 id: 'task_' + Date.now(),
@@ -805,11 +904,11 @@
                 title: title,
                 dueDate: dueDate,
                 createdAt: new Date().toLocaleDateString('th-TH'),
-                pendingStudentIds: students.map(s => s.student_id.toString())
+                pendingStudentIds: selectedIds
             };
 
             loadLeaderTasks();
-            pendingTasks.push(newTask);
+            pendingTasks.unshift(newTask);
             localStorage.setItem('pending_homework_tasks', JSON.stringify(pendingTasks));
             if (typeof window.DEFAULT_PENDING_TASKS !== 'undefined') {
                 window.DEFAULT_PENDING_TASKS = pendingTasks;
@@ -817,36 +916,47 @@
 
             // Sync to cloud immediately
             if (typeof window.saveTasksToCloud === 'function') {
-                window.saveTasksToCloud(pendingTasks);
+                await window.saveTasksToCloud(pendingTasks);
             }
             
-            alert(`🎉 เพิ่มรายการงานค้างวิชา "${subject}" - "${title}" เรียบร้อยแล้ว!\nระบบได้ซิงค์ขึ้น Cloud เพื่อให้ผู้ปกครองและเพื่อนๆ เห็นทันทีครับ 👍✨`);
+            alert(`🎉 เพิ่มรายการงานค้างวิชา "${subject}" - "${title}" เรียบร้อยแล้ว!\n(ระบุเพื่อนค้างส่ง: ${selectedIds.length} คน)\nระบบได้ซิงค์ขึ้น Cloud เพื่อให้ผู้ปกครองและคุณครูเห็นทันทีครับ 👍✨`);
             document.getElementById('form-add-leader-task').reset();
+            toggleLeaderTargetMode('all');
             renderLeaderTasks();
         }
 
         // Mark student task completed
-        function markStudentCompleted(taskId, studentId) {
-            const task = pendingTasks.find(t => t.id === taskId);
+        async function markStudentCompleted(taskId, studentId) {
+            loadLeaderTasks();
+            const task = pendingTasks.find(t => String(t.id) === String(taskId));
             if (task) {
-                task.pendingStudentIds = task.pendingStudentIds.filter(id => id.toString() !== studentId.toString());
+                task.pendingStudentIds = (task.pendingStudentIds || []).filter(id => String(id) !== String(studentId));
                 localStorage.setItem('pending_homework_tasks', JSON.stringify(pendingTasks));
-                if (typeof window.saveTasksToCloud === 'function') {
-                    window.saveTasksToCloud(pendingTasks);
+                if (typeof window.DEFAULT_PENDING_TASKS !== 'undefined') {
+                    window.DEFAULT_PENDING_TASKS = pendingTasks;
                 }
                 renderLeaderTasks();
+
+                if (typeof window.saveTasksToCloud === 'function') {
+                    await window.saveTasksToCloud(pendingTasks);
+                }
             }
         }
 
         // Delete entire homework task
-        function deleteHomeworkTask(taskId) {
+        async function deleteHomeworkTask(taskId) {
             if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการงานค้างนี้?')) {
-                pendingTasks = pendingTasks.filter(t => t.id !== taskId);
+                loadLeaderTasks();
+                pendingTasks = pendingTasks.filter(t => String(t.id) !== String(taskId));
                 localStorage.setItem('pending_homework_tasks', JSON.stringify(pendingTasks));
-                if (typeof window.saveTasksToCloud === 'function') {
-                    window.saveTasksToCloud(pendingTasks);
+                if (typeof window.DEFAULT_PENDING_TASKS !== 'undefined') {
+                    window.DEFAULT_PENDING_TASKS = pendingTasks;
                 }
                 renderLeaderTasks();
+
+                if (typeof window.saveTasksToCloud === 'function') {
+                    await window.saveTasksToCloud(pendingTasks);
+                }
             }
         }
 
@@ -862,7 +972,7 @@
                 const shareUrl = `${baseUrl}?tasks=${encoded}`;
                 
                 navigator.clipboard.writeText(shareUrl).then(() => {
-                    alert('📋 คัดลอกลิงก์ข้อมูลการบ้านสำหรับผู้ปกครองเรียบร้อยแล้ว!\nนำไปวางส่งต่อในกลุ่ม LINE เพื่อให้ผู้ปกครองเข้าดูและซิงค์ข้อมูลได้ทันทีครับ ✨');
+                    alert('📋 คัดลอกลิงก์ข้อมูลการบ้านสำหรับผู้ปกครองเรียบร้อยแล้ว!\nนำไปวางส่งต่อเพื่อให้ผู้ปกครองเข้าดูและซิงค์ข้อมูลได้ทันทีครับ ✨');
                 }).catch(() => {
                     prompt('คัดลอกลิงก์ด้านล่างนี้เพื่อส่งให้ผู้ปกครอง:', shareUrl);
                 });
@@ -886,9 +996,9 @@
             msg += `🌸 ตรวจสอบรายชื่อค้างส่งรายบุคคลสำหรับผู้ปกครอง:\nhttps://panipat95.github.io/m104-tesaban6/parent.html`;
 
             navigator.clipboard.writeText(msg).then(() => {
-                alert('📋 คัดลอกข้อความสรุปงานค้างลง Clipboard เรียบร้อยแล้ว!\nสามารถนำไปวางแจ้งในกลุ่ม LINE ได้เลยครับ ✨');
+                alert('📋 คัดลอกข้อความสรุปงานค้างเรียบร้อยแล้ว!\nสามารถนำไปวางแจ้งประชาสัมพันธ์ได้เลยครับ ✨');
             }).catch(() => {
-                prompt('คัดลอกข้อความสรุปด้านล่างนี้เพื่อส่งใน LINE:', msg);
+                prompt('คัดลอกข้อความสรุปด้านล่างนี้:', msg);
             });
         }
 

@@ -49,9 +49,6 @@
                 <a href="visit.html" target="_blank" class="nav-btn" style="text-decoration:none; color:#0369a1; background:#f0f9ff; border:1px solid #bae6fd; font-weight:700; margin-top:4px;">
                     <i class="fa-solid fa-house-user" style="color:#0284c7;"></i> 🏠 ระบบเยี่ยมบ้านนักเรียน ม.1/4
                 </a>
-                <button class="nav-btn highlight" data-tab="tab-line">
-                    <i class="fa-brands fa-line"></i> แจ้งประชาสัมพันธ์ LINE
-                </button>
                 <a href="leader.html" target="_blank" class="nav-btn" style="text-decoration:none; color:#0369a1; background:#f0f9ff; border:1px solid #bae6fd; font-weight:700; margin-top:4px;">
                     <i class="fa-solid fa-crown" style="color:#d97706;"></i> หน้าต่างผู้ช่วย & หัวหน้าห้อง
                 </a>
@@ -588,109 +585,6 @@
                     <!-- Dynamic Home Visit Cards -->
                 </div>
             </section>
-
-            <!-- Tab 5: LINE Daily Duty Reminder Generator -->
-            <section id="tab-line" class="tab-content">
-                <div class="panel">
-                    <div class="panel-header">
-                        <h3><i class="fa-brands fa-line" style="color:#06c755;"></i> ระบบแจ้งเตือนเวรประจำวัน & จิตอาสาศูนย์จีน (กลุ่ม LINE นักเรียน)</h3>
-                        <span class="sub-text">สร้างข้อความแจ้งเตือนเวรตอนเช้าก่อน 5 นาที (เวลา 07.25 น.) ส่งเข้ากลุ่ม LINE นักเรียน ม.1/4 ทุกๆ เช้าได้ง่ายๆ ใน 1 คลิก!</span>
-                    </div>
-
-                    <div class="line-generator-grid">
-                        <!-- Left Controls -->
-                        <div class="generator-controls">
-                            <div class="form-group">
-                                <label><i class="fa-solid fa-calendar-day" style="color:#0284c7;"></i> เลือกวันเวรประจำสัปดาห์ (จันทร์ - ศุกร์):</label>
-                                <select id="line-duty-day-select" class="form-control" style="font-weight:700; font-size:0.95rem; color:#0369a1;">
-                                    <option value="auto">⚡ วันปัจจุบัน (ตรวจจับอัตโนมัติ)</option>
-                                    <option value="จันทร์">🧹 วันจันทร์ (เวรจิตอาสาศูนย์จีน 07.30 - 07.40 น.)</option>
-                                    <option value="อังคาร">🧹 วันอังคาร (เวรจิตอาสาศูนย์จีน 07.30 - 07.40 น.)</option>
-                                    <option value="พุธ">🧹 วันพุธ (เวรจิตอาสาศูนย์จีน 07.30 - 07.40 น.)</option>
-                                    <option value="พฤหัสบดี">🧹 วันพฤหัสบดี (เวรจิตอาสาศูนย์จีน 07.30 - 07.40 น.)</option>
-                                    <option value="ศุกร์">🧹 วันศุกร์ (เวรจิตอาสาศูนย์จีน 07.30 - 07.40 น.)</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label><i class="fa-solid fa-pen-to-square" style="color:#0284c7;"></i> ข้อความประกาศเพิ่มเติมสำหรับเช้านี้ (ถ้ามี):</label>
-                                <textarea id="line-custom-note" class="form-control" rows="3" placeholder="ระบุประกาศเพิ่มเติม เช่น นำอุปกรณ์มาเพิ่ม หรือนัดหมายพิเศษ..."></textarea>
-                            </div>
-
-                            <button id="btn-generate-line" class="btn-primary full-width" style="padding:12px; font-size:1rem; background:linear-gradient(135deg, #06c755, #059669);">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i> สร้างข้อความแจ้งเตือนเวรเช้า LINE
-                            </button>
-                        </div>
-
-                        <!-- Right Preview -->
-                        <div class="generator-preview">
-                            <div class="line-chat-box">
-                                <div class="line-chat-header" style="background:#06c755; color:#ffffff;">
-                                    <i class="fa-brands fa-line"></i> ตัวอย่างข้อความที่จะส่งเข้ากลุ่ม LINE นักเรียน
-                                </div>
-                                <div class="line-chat-body" id="line-preview-text" style="white-space:pre-line; font-family:sans-serif; font-size:0.9rem; line-height:1.5;">
-                                    กดปุ่ม "สร้างข้อความแจ้งเตือนเวรเช้า LINE" เพื่อดูตัวอย่างข้อความประจำวัน...
-                                </div>
-                            </div>
-                            <div class="preview-actions" style="display:flex; gap:8px; margin-top:10px;">
-                                <button id="btn-copy-line" class="btn-secondary flex-1" style="font-weight:700; background:#f0f9ff; color:#0369a1; border-color:#bae6fd;">
-                                    <i class="fa-solid fa-copy"></i> คัดลอกข้อความ LINE
-                                </button>
-                                <button id="btn-send-line-direct" class="btn-secondary flex-1" style="font-weight:700; background:#dcfce7; color:#15803d; border-color:#86efac;">
-                                    <i class="fa-brands fa-line"></i> 📱 เปิด LINE ส่งเข้ากลุ่ม
-                                </button>
-                                <button id="btn-broadcast-messaging-api" class="btn-success flex-2" style="background:linear-gradient(135deg, #d97706, #f59e0b); color:#ffffff; font-weight:700;">
-                                    <i class="fa-solid fa-cat"></i> 🐱 บรอดแคสต์ด้วยน้องแมวส้ม (@706jgkro)
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- LINE Messaging API Configuration Box -->
-                <div class="panel" style="margin-top: 1.5rem; background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1px solid #fde047;">
-                    <div class="panel-header">
-                        <div>
-                            <h3><i class="fa-solid fa-cat" style="color:#d97706;"></i> สถานะการเชื่อมต่อบอท "น้องแมวส้ม 🐱" (ID: @706jgkro)</h3>
-                            <span class="sub-text">ผูกกับระบบ LINE Official Account & Messaging API เรียบร้อยแล้ว</span>
-                        </div>
-                        <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> เชื่อมต่อสำเร็จ (Active)</span>
-                    </div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.2rem;">
-                        <div>
-                            <div class="form-group">
-                                <label><i class="fa-solid fa-key"></i> Channel Access Token (น้องแมวส้ม 🐱):</label>
-                                <input type="password" id="line-messaging-token-input" class="form-control" placeholder="รหัส Channel Access Token..." style="background:#ffffff;" value="IreTHxq60X+lc2mZR1TdpTnEvYDhvqBAwc/YPWI8llBUETzGurjjqt5Am4zUC4wzKJdinCdl/Kfv8sxchKSDmrHrgirxWtKnKvCEzN01r0+qDfTGrVAoQnNyATuFxZGsLBwQ2C2KNN+2Nd19lwXOpwdB04t89/1O/w1cDnyilFU=">
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fa-solid fa-people-group"></i> Group ID กลุ่มรับแจ้งเตือน (กลุ่มส่วนตัว/กลุ่มนักเรียน):</label>
-                                <input type="text" id="line-group-id-input" class="form-control" style="background:#ffffff; font-weight:700;" value="Ca98a77879c82670dd198ea9f2c549f9d">
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fa-solid fa-link"></i> Webhook Proxy URL (Google Apps Script):</label>
-                                <input type="text" id="line-webhook-url-input" class="form-control" style="background:#ffffff; font-size:0.8rem;" placeholder="วางลิงก์ Google Apps Script Webhook URL..." value="https://script.google.com/macros/s/AKfycbyPphz43aLcZAq_r6XYtTEHnmNQAViMg_gwBJ2e_eb2QMOrHPlM4zwPf-BT09ZYASyyNg/exec">
-                            </div>
-                            <div style="display:flex; gap:8px;">
-                                <button id="btn-save-messaging-api" class="btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> บันทึกตั้งค่า</button>
-                                <button id="btn-test-messaging-api" class="btn-success btn-sm" style="background:#d97706;"><i class="fa-solid fa-paper-plane"></i> 🧪 ทดสอบยิงข้อความด้วยน้องแมวส้ม 🐱</button>
-                            </div>
-                        </div>
-
-                        <div style="background:#ffffff; padding:14px; border-radius:10px; border:1px solid #e2e8f0; font-size:0.85rem; line-height:1.6;">
-                            <strong style="color:#b45309;"><i class="fa-solid fa-cat"></i> ข้อมูลบอท & การยิงข้อความประจำห้อง ม.1.4:</strong>
-                            <div style="margin-top:6px; color:#334155;">
-                                <div>• <strong>ชื่อบอท:</strong> น้องแมวส้ม 🐱</div>
-                                <div>• <strong>Bot Basic ID:</strong> <code>@706jgkro</code></div>
-                                <div>• <strong>Group ID ปัจจุบัน:</strong> <code>Ca98a77879c82670dd198ea9f2c549f9d</code></div>
-                                <hr style="margin:8px 0; border:0; border-top:1px dashed #cbd5e1;">
-                                <small style="color:#0284c7; display:block;">
-                                    💡 <strong>หมายเหตุ:</strong> ระบบอัตโนมัติทุกเช้า 07.25 น. (วันจันทร์-ศุกร์) ทำงานผ่าน GitHub Cloud ยิงตรงเข้ากลุ่มอัตโนมัติ 100% โดยไม่ต้องกดปุ่มครับ
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
         </main>
     </div>
 
@@ -858,7 +752,7 @@
         </div>
     </div>
 
-    <script src="real_db.js?v=20260909_cloudsync"></script>
-    <script src="app.js?v=20260807_v3"></script>
+    <script src="real_db.js?v=20260910_cloudsync"></script>
+    <script src="app.js?v=20260910_cloudsync"></script>
 </body>
 </html>

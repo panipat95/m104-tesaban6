@@ -150,7 +150,7 @@ window.syncTasksWithCloud = async function(callback) {
             if (json && json.data && json.data.content) {
                 var compact = JSON.parse(json.data.content);
                 var remoteTasks = window.deserializeTasks(compact);
-                if (Array.isArray(remoteTasks) && remoteTasks.length > 0) {
+                if (Array.isArray(remoteTasks)) {
                     localStorage.setItem('pending_homework_tasks', JSON.stringify(remoteTasks));
                     window.DEFAULT_PENDING_TASKS = remoteTasks;
                     if (typeof callback === 'function') {
@@ -166,47 +166,59 @@ window.syncTasksWithCloud = async function(callback) {
     return null;
 };
 
-window.getMergedPendingTasks = function() {
-    var tasksMap = new Map();
+// Auto-sync runner for real-time polling across all devices
+window.startCloudAutoSync = function(callback, intervalMs) {
+    var interval = intervalMs || 6000;
+    if (typeof window.syncTasksWithCloud === 'function') {
+        window.syncTasksWithCloud(callback);
+    }
+    var timer = setInterval(function() {
+        if (typeof window.syncTasksWithCloud === 'function') {
+            window.syncTasksWithCloud(callback);
+        }
+    }, interval);
 
-    if (Array.isArray(window.DEFAULT_PENDING_TASKS)) {
-        window.DEFAULT_PENDING_TASKS.forEach(function(t) {
-            if (t && t.id) tasksMap.set(t.id, t);
+    if (typeof document !== 'undefined') {
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && typeof window.syncTasksWithCloud === 'function') {
+                window.syncTasksWithCloud(callback);
+            }
         });
     }
-
-    try {
-        var local = localStorage.getItem('pending_homework_tasks');
-        if (local) {
-            var parsed = JSON.parse(local);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                tasksMap.clear();
-                parsed.forEach(function(t) {
-                    if (t && t.id) tasksMap.set(t.id, t);
-                });
+    if (typeof window !== 'undefined') {
+        window.addEventListener('focus', function() {
+            if (typeof window.syncTasksWithCloud === 'function') {
+                window.syncTasksWithCloud(callback);
             }
-        }
-    } catch(e) {}
+        });
+    }
+    return timer;
+};
 
+window.getMergedPendingTasks = function() {
     try {
         var params = new URLSearchParams(window.location.search);
         var urlTasks = params.get('tasks');
         if (urlTasks) {
             var decodedStr = decodeURIComponent(escape(atob(urlTasks)));
             var decoded = JSON.parse(decodedStr);
-            if (Array.isArray(decoded) && decoded.length > 0) {
-                tasksMap.clear();
-                decoded.forEach(function(t) {
-                    if (t && t.id) tasksMap.set(t.id, t);
-                });
+            if (Array.isArray(decoded)) {
+                localStorage.setItem('pending_homework_tasks', JSON.stringify(decoded));
+                window.DEFAULT_PENDING_TASKS = decoded;
+                return decoded;
             }
         }
     } catch(e) {}
 
-    var result = Array.from(tasksMap.values());
     try {
-        localStorage.setItem('pending_homework_tasks', JSON.stringify(result));
+        var local = localStorage.getItem('pending_homework_tasks');
+        if (local !== null) {
+            var parsed = JSON.parse(local);
+            if (Array.isArray(parsed)) {
+                return parsed;
+            }
+        }
     } catch(e) {}
 
-    return result;
+    return Array.isArray(window.DEFAULT_PENDING_TASKS) ? window.DEFAULT_PENDING_TASKS : [];
 };

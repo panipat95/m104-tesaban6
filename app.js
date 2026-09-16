@@ -988,13 +988,58 @@ document.addEventListener('DOMContentLoaded', () => {
         renderActiveTasksBoard();
         renderOverviewTable();
         renderStudentCards();
-        renderPersonalHomeworkLookup();
+        renderPersonalHomeworkLookup(studentId);
 
         const studentName = s ? s.fullname : studentId;
         if (task.pendingStudentIds.length === 0) {
             alert(`🎉 เช็คส่งงานของ ${studentName} เรียบร้อยแล้ว!\nขณะนี้นักเรียนทุกคนส่งวิชา "${task.subject} - ${task.title}" ครบทุกคน 100% แล้วครับ 👍✨`);
         } else {
             alert(`✔️ เช็คส่งงานวิชา "${task.subject}" ของ ${studentName} เรียบร้อยแล้ว!\n(คงเหลือค้างส่ง ${task.pendingStudentIds.length} คน)`);
+        }
+    };
+
+    // Clear All Pending Tasks for a Student (Mark all tasks completed)
+    window.clearAllStudentTasks = function(studentId) {
+        const s = studentData.find(st => String(st.student_id) === String(studentId));
+        if (!s) return;
+        const studentName = `เลขที่ ${s.no} ${s.fullname}`;
+        const tasksToClear = pendingHomeworkTasks.filter(t => (t.pendingStudentIds || []).map(String).includes(String(studentId)));
+        if (tasksToClear.length === 0) {
+            alert(`นักเรียน ${studentName} ไม่มีงานค้างในระบบแล้วครับ`);
+            return;
+        }
+
+        if (confirm(`คุณต้องการเช็คส่งงานทั้งหมด และลบงานค้างของ ${studentName} ทั้งหมด ${tasksToClear.length} ชิ้นงาน ใช่หรือไม่?`)) {
+            tasksToClear.forEach(t => {
+                t.pendingStudentIds = (t.pendingStudentIds || []).filter(id => String(id) !== String(studentId));
+            });
+            saveHomeworkTasks();
+            renderActiveTasksBoard();
+            renderOverviewTable();
+            renderStudentCards();
+            renderPersonalHomeworkLookup(studentId);
+            alert(`🎉 บันทึกว่า ${studentName} ส่งงานครบถ้วนทั้งหมด (${tasksToClear.length} ชิ้นงาน) เรียบร้อยแล้ว!\nระบบได้อัปเดตข้อมูลขึ้น Cloud ไปยังหน้าผู้ปกครองและหัวหน้าห้องแล้วครับ 👍✨`);
+        }
+    };
+
+    // Revert task back to pending for a student (Undo / Mark as pending again)
+    window.revertStudentTaskPending = function(taskId, studentId) {
+        const task = pendingHomeworkTasks.find(t => String(t.id) === String(taskId));
+        if (!task) return;
+        const s = studentData.find(st => String(st.student_id) === String(studentId));
+        const studentName = s ? s.fullname : studentId;
+
+        if (confirm(`คุณต้องการคืนสถานะงานค้างวิชา "${task.subject} - ${task.title}" ให้กับ ${studentName} ใช่หรือไม่?`)) {
+            if (!task.pendingStudentIds) task.pendingStudentIds = [];
+            if (!task.pendingStudentIds.map(String).includes(String(studentId))) {
+                task.pendingStudentIds.push(String(studentId));
+            }
+            saveHomeworkTasks();
+            renderActiveTasksBoard();
+            renderOverviewTable();
+            renderStudentCards();
+            renderPersonalHomeworkLookup(studentId);
+            alert(`↩️ คืนสถานะงานค้างวิชา "${task.subject}" ของ ${studentName} เรียบร้อยแล้ว`);
         }
     };
 
@@ -1175,25 +1220,58 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const myPendingTasks = pendingHomeworkTasks.filter(t => (t.pendingStudentIds || []).map(String).includes(s.student_id.toString()));
+        const myCompletedTasks = pendingHomeworkTasks.filter(t => !(t.pendingStudentIds || []).map(String).includes(s.student_id.toString()));
         const isComplete = myPendingTasks.length === 0;
 
         const photoSrc = s.photo_url || `photos/${s.student_id}.jpg`;
 
         resultCard.style.display = 'block';
 
+        let completedListHtml = '';
+        if (myCompletedTasks.length > 0) {
+            completedListHtml = `
+                <div style="margin-top:14px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+                        <strong style="color:#166534; font-size:0.88rem; display:flex; align-items:center; gap:6px;">
+                            <i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> งานที่ ${s.firstname} ส่งเรียบร้อยแล้ว (${myCompletedTasks.length} ชิ้นงาน):
+                        </strong>
+                        <small style="color:#64748b; font-size:0.75rem;">(หากเช็คผิด สามารถกดปุ่มคืนสถานะได้)</small>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        ${myCompletedTasks.map(ct => `
+                            <div style="display:flex; justify-content:space-between; align-items:center; background:#ffffff; border:1px solid #dcfce7; padding:6px 10px; border-radius:6px; font-size:0.82rem; gap:8px;">
+                                <div>
+                                    <strong style="color:#15803d;">${ct.subject}</strong>: ${ct.title}
+                                </div>
+                                <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                                    <span style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.75rem;">🟢 ส่งแล้ว</span>
+                                    <button type="button" onclick="revertStudentTaskPending('${ct.id}', '${s.student_id}')" title="คืนสถานะเป็นค้างส่งสำหรับนักเรียนคนนี้" style="background:#fff1f2; color:#e11d48; border:1px solid #fecdd3; border-radius:4px; padding:3px 8px; font-size:0.74rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+                                        <i class="fa-solid fa-rotate-left"></i> คืนสถานะค้างส่ง
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
         if (isComplete) {
             resultCard.innerHTML = `
-                <div style="background:linear-gradient(135deg, #dcfce7, #f0fdf4); border:2px solid #22c55e; border-radius:12px; padding:16px; display:flex; align-items:center; gap:16px; box-shadow:0 4px 15px rgba(34,197,94,0.12);">
-                    <img src="${photoSrc}" onerror="this.outerHTML='<div class=\\'student-avatar\\'><i class=\\'fa-solid fa-user-graduate\\'></i></div>'" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:3px solid #22c55e;">
-                    <div style="flex:1;">
-                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                            <strong style="font-size:1.15rem; color:#14532d;">เลขที่ ${s.no} ${s.fullname} ${s.nickname ? `(${s.nickname})` : ''}</strong>
-                            <span class="badge badge-success" style="font-size:0.85rem;"><i class="fa-solid fa-star"></i> คนเก่งส่งงานครบ!</span>
+                <div style="background:linear-gradient(135deg, #dcfce7, #f0fdf4); border:2px solid #22c55e; border-radius:12px; padding:16px; box-shadow:0 4px 15px rgba(34,197,94,0.12);">
+                    <div style="display:flex; align-items:center; gap:16px;">
+                        <img src="${photoSrc}" onerror="this.outerHTML='<div class=\\'student-avatar\\'><i class=\\'fa-solid fa-user-graduate\\'></i></div>'" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:3px solid #22c55e;">
+                        <div style="flex:1;">
+                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                <strong style="font-size:1.15rem; color:#14532d;">เลขที่ ${s.no} ${s.fullname} ${s.nickname ? `(${s.nickname})` : ''}</strong>
+                                <span class="badge badge-success" style="font-size:0.85rem;"><i class="fa-solid fa-star"></i> คนเก่งส่งงานครบ!</span>
+                            </div>
+                            <p style="color:#166534; font-weight:700; font-size:0.95rem; margin-top:4px; margin-bottom:0;">
+                                🎉 ยินดีด้วยครับ! ไม่มีงานค้างในระบบ ส่งงานครบถ้วนทุกวิชาแล้ว 👍✨
+                            </p>
                         </div>
-                        <p style="color:#166534; font-weight:700; font-size:0.95rem; margin-top:4px; margin-bottom:0;">
-                            🎉 ยินดีด้วยครับ! ไม่มีงานค้างในระบบ ส่งงานครบถ้วนทุกวิชาแล้ว 👍✨
-                        </p>
                     </div>
+                    ${completedListHtml}
                 </div>
             `;
         } else {
@@ -1207,25 +1285,62 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <small style="color:#991b1b;">รหัสประจำตัว: ${s.student_id} | ห้อง ม.1.4 SMT</small>
                             </div>
                         </div>
-                        <div style="display:flex; gap:8px; align-items:center;">
+                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                             <span class="badge badge-danger" style="font-size:0.9rem; padding:6px 12px;">
                                 ⚠️ มีงานค้างทั้งหมด ${myPendingTasks.length} ชิ้นงาน
                             </span>
-                            <button type="button" class="btn-primary btn-sm" onclick="copyStudentPersonalHomeworkMsg('${s.student_id}')" style="background:#dc2626; border-color:#dc2626;">
-                                <i class="fa-solid fa-copy"></i> 📋 คัดลอกรายการงานค้าง
+                            <button type="button" class="btn-primary btn-sm" onclick="clearAllStudentTasks('${s.student_id}')" style="background:#16a34a; border-color:#16a34a; font-weight:700; padding:6px 14px; font-size:0.85rem; box-shadow:0 2px 6px rgba(22,163,74,0.3); display:inline-flex; align-items:center; gap:6px; cursor:pointer;" title="บันทึกว่านักเรียนคนนี้ส่งงานค้างครบทั้งหมด">
+                                <i class="fa-solid fa-check-double"></i> 🎉 เช็คส่งครบทุกชิ้น (${myPendingTasks.length})
+                            </button>
+                            <button type="button" class="btn-primary btn-sm" onclick="copyStudentPersonalHomeworkMsg('${s.student_id}')" style="background:#dc2626; border-color:#dc2626; padding:6px 12px; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+                                <i class="fa-solid fa-copy"></i> 📋 คัดลอกแจ้งผู้ปกครอง
                             </button>
                         </div>
                     </div>
 
-                    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:10px;">
+                    <div style="margin-bottom:10px; color:#991b1b; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-circle-info" style="color:#dc2626;"></i> ครูสามารถกดปุ่ม <strong>"🟢 ส่งแล้ว (ลบงานค้างนี้)"</strong> ที่ชิ้นงาน เพื่อตัดออกจากระบบและอัปเดตไปที่ผู้ปกครองทันที:
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap:10px;">
                         ${myPendingTasks.map(t => `
-                            <div style="background:#ffffff; border:1px solid #fca5a5; border-radius:8px; padding:10px; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
-                                <span class="badge badge-purple" style="font-size:0.8rem; margin-bottom:4px;">${t.subject}</span>
-                                <strong style="display:block; color:#0f172a; font-size:0.95rem;">${t.title}</strong>
-                                <small style="color:#991b1b; display:block; margin-top:4px;"><i class="fa-solid fa-clock"></i> กำหนดส่ง: ${t.dueDate || 'เร็วๆ นี้'}</small>
+                            <div style="background:#ffffff; border:1px solid #fca5a5; border-radius:10px; padding:12px; box-shadow:0 2px 6px rgba(0,0,0,0.03); display:flex; flex-direction:column; justify-content:space-between;">
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px; margin-bottom:6px;">
+                                        <span class="badge badge-purple" style="font-size:0.8rem;">${t.subject}</span>
+                                        <span style="background:#ffe4e6; color:#e11d48; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.72rem; white-space:nowrap;">
+                                            🔴 ค้างส่ง
+                                        </span>
+                                    </div>
+                                    <strong style="display:block; color:#0f172a; font-size:0.95rem; line-height:1.4;">${t.title}</strong>
+                                    <small style="color:#991b1b; display:block; margin-top:4px;"><i class="fa-solid fa-clock"></i> กำหนดส่ง: ${t.dueDate || 'เร็วๆ นี้'}</small>
+                                    ${t.attachedFiles && t.attachedFiles.length > 0 ? `
+                                        <div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:6px;">
+                                            ${t.attachedFiles.map(f => {
+                                                const isImg = f.type && f.type.startsWith('image/');
+                                                const icon = isImg ? '🖼️' : '📎';
+                                                if (isImg && f.dataURL) {
+                                                    return `<div onclick="openImageLightbox('${f.dataURL}', '${t.subject} - ${t.title}')" title="${f.name} (คลิกดูรูปขยาย)" style="display:inline-flex; align-items:center; gap:4px; background:#f0fdf4; border:1px solid #86efac; border-radius:6px; padding:2px 6px; font-size:0.74rem; color:#166534; font-weight:700; cursor:pointer;">
+                                                        <img src="${f.dataURL}" style="width:18px; height:18px; border-radius:3px; object-fit:cover;">
+                                                        <span>${icon} รูปใบงาน</span>
+                                                    </div>`;
+                                                }
+                                                return `<span style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; padding:2px 6px; font-size:0.74rem; color:#334155; font-weight:600;">${icon} ${f.name}</span>`;
+                                            }).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <div style="margin-top:12px; padding-top:8px; border-top:1px dashed #fca5a5; display:flex; justify-content:space-between; align-items:center;">
+                                    <button type="button" onclick="markStudentTaskCompleted('${t.id}', '${s.student_id}')" style="background:#16a34a; color:#ffffff; border:none; border-radius:6px; padding:6px 12px; font-size:0.82rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(22,163,74,0.25); transition:all 0.15s;" onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'">
+                                        <i class="fa-solid fa-circle-check"></i> 🟢 ส่งแล้ว (ลบงานค้างนี้)
+                                    </button>
+                                    <small style="color:#991b1b; font-weight:600; font-size:0.75rem;">ตัดออกจากงานค้าง</small>
+                                </div>
                             </div>
                         `).join('')}
                     </div>
+
+                    ${completedListHtml}
                 </div>
             `;
         }

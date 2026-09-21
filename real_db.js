@@ -159,6 +159,50 @@ window.DEFAULT_PENDING_TASKS = [
     }
 ];
 
+// Global Toast Notification for Live Cloud Updates
+window.showCloudSyncToast = function(msg, icon) {
+    if (typeof document === 'undefined') return;
+    var existing = document.getElementById('cloud-sync-toast');
+    if (existing) existing.remove();
+
+    var toast = document.createElement('div');
+    toast.id = 'cloud-sync-toast';
+    toast.style.cssText = 'position:fixed; bottom:24px; right:24px; background:linear-gradient(135deg, #0f172a, #1e293b); color:#ffffff; padding:12px 20px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.3); font-size:0.9rem; font-weight:600; display:flex; align-items:center; gap:10px; z-index:999999; border:1px solid #38bdf8;';
+    toast.innerHTML = (icon || '🔔') + ' <span>' + msg + '</span>';
+    document.body.appendChild(toast);
+
+    setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s ease';
+        setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 500);
+    }, 4500);
+};
+
+// Global Registered Listeners
+window._cloudTaskCallbacks = window._cloudTaskCallbacks || [];
+window._notifyCloudTaskListeners = function(tasks) {
+    if (!Array.isArray(tasks)) return;
+    window._cloudTaskCallbacks.forEach(function(fn) {
+        try { fn(tasks); } catch(e) { console.error('Listener callback error:', e); }
+    });
+};
+
+// Multi-Tab LocalStorage Event Listener (Instant Same-Browser Tab Sync)
+if (typeof window !== 'undefined') {
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'pending_homework_tasks' && e.newValue) {
+            try {
+                var tasks = JSON.parse(e.newValue);
+                if (Array.isArray(tasks)) {
+                    window._lastKnownTasks = tasks;
+                    window.DEFAULT_PENDING_TASKS = tasks;
+                    window._notifyCloudTaskListeners(tasks);
+                }
+            } catch(err) {}
+        }
+    });
+}
+
 // Save tasks to Cloud and LocalStorage
 window.saveTasksToCloud = async function(tasks) {
     if (!Array.isArray(tasks)) return false;
@@ -169,13 +213,17 @@ window.saveTasksToCloud = async function(tasks) {
         window.DEFAULT_PENDING_TASKS = tasks;
     } catch(e) {}
     
+    // Notify any local listeners immediately
+    window._notifyCloudTaskListeners(tasks);
+
     try {
         var payload = JSON.stringify(tasks);
         var res = await fetch(window.CLOUD_TASKS_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Title': 'm104_homework_sync',
-                'Tags': 'school,m104'
+                'Tags': 'school,m104',
+                'Content-Type': 'application/json; charset=utf-8'
             },
             body: payload
         });
@@ -221,6 +269,7 @@ window.syncTasksWithCloud = async function(callback) {
             if (typeof callback === 'function') {
                 callback(latestTasks);
             }
+            window._notifyCloudTaskListeners(latestTasks);
             return latestTasks;
         }
     } catch(e) {
@@ -233,7 +282,14 @@ window.syncTasksWithCloud = async function(callback) {
 window.activeEventSource = null;
 window.connectCloudRealtimeEvents = function(callback) {
     if (typeof EventSource === 'undefined') return;
+    if (typeof callback === 'function' && !window._cloudTaskCallbacks.includes(callback)) {
+        window._cloudTaskCallbacks.push(callback);
+    }
+
     try {
+        if (window.activeEventSource && window.activeEventSource.readyState === 1) {
+            return; // Already connected and open
+        }
         if (window.activeEventSource) {
             try { window.activeEventSource.close(); } catch(e) {}
         }
@@ -255,9 +311,7 @@ window.connectCloudRealtimeEvents = function(callback) {
                         window.DEFAULT_PENDING_TASKS = tasks;
                         window._lastKnownTasks = tasks;
                         window._lastCloudSyncTime = Date.now();
-                        if (typeof callback === 'function') {
-                            callback(tasks);
-                        }
+                        window._notifyCloudTaskListeners(tasks);
                     }
                 }
             } catch(err) {
@@ -268,8 +322,8 @@ window.connectCloudRealtimeEvents = function(callback) {
         es.onerror = function() {
             try { es.close(); } catch(e) {}
             setTimeout(function() {
-                window.connectCloudRealtimeEvents(callback);
-            }, 5000);
+                window.connectCloudRealtimeEvents();
+            }, 4000);
         };
     } catch(e) {
         console.warn('SSE warning:', e);
@@ -279,6 +333,9 @@ window.connectCloudRealtimeEvents = function(callback) {
 // Auto-sync runner for real-time polling across all devices
 window.startCloudAutoSync = function(callback, intervalMs) {
     var interval = intervalMs || 5000;
+    if (typeof callback === 'function' && !window._cloudTaskCallbacks.includes(callback)) {
+        window._cloudTaskCallbacks.push(callback);
+    }
     
     // 1. Establish instant SSE stream
     window.connectCloudRealtimeEvents(callback);
@@ -291,16 +348,16 @@ window.startCloudAutoSync = function(callback, intervalMs) {
     // 3. Fallback periodic poll
     var timer = setInterval(function() {
         if (typeof window.syncTasksWithCloud === 'function') {
-            window.syncTasksWithCloud(callback);
+            window.syncTasksWithCloud();
         }
     }, interval);
 
     function checkAndSync() {
-        if (!window.activeEventSource || window.activeEventSource.readyState === 2) {
-            window.connectCloudRealtimeEvents(callback);
+        if (!window.activeEventSource || window.activeEventSource.readyState !== 1) {
+            window.connectCloudRealtimeEvents();
         }
         if (typeof window.syncTasksWithCloud === 'function') {
-            window.syncTasksWithCloud(callback);
+            window.syncTasksWithCloud();
         }
     }
 

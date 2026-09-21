@@ -843,6 +843,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof window.startCloudAutoSync === 'function') {
             window.startCloudAutoSync(function(tasks) {
                 if (tasks && Array.isArray(tasks)) {
+                    // Detect if committee added new tasks
+                    if (pendingHomeworkTasks && pendingHomeworkTasks.length > 0 && tasks.length > pendingHomeworkTasks.length) {
+                        const newOnes = tasks.filter(t => !pendingHomeworkTasks.some(ot => String(ot.id) === String(t.id)));
+                        if (newOnes.length > 0 && typeof window.showCloudSyncToast === 'function') {
+                            window.showCloudSyncToast(`หัวหน้าห้องแจ้งภาระงานใหม่: "${newOnes[0].subject} - ${newOnes[0].title}"`, '👑');
+                        }
+                    }
                     pendingHomeworkTasks = tasks;
                     renderActiveTasksBoard();
                     renderOverviewTable();
@@ -850,7 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderPersonalHomeworkLookup();
                     updateTeacherCloudStatus(true);
                 }
-            }, 6000);
+            }, 5000);
         }
     }
 

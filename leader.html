@@ -577,8 +577,8 @@
                             <h4 style="font-size:1rem; color:#0f172a; margin:0; display:flex; align-items:center; gap:6px;">
                                 <i class="fa-solid fa-list-check" style="color:#0284c7;"></i> รายการการบ้านที่กำลังดำเนินการ:
                             </h4>
-                            <div id="leader-cloud-status" style="font-size:0.8rem; color:#16a34a; margin-top:3px; display:flex; align-items:center; gap:5px;">
-                                <i class="fa-solid fa-cloud" style="color:#0284c7;"></i> <span id="leader-cloud-text">เชื่อมต่อระบบคลาวด์ออนไลน์ (ซิงค์เรียลไทม์กับหน้าผู้ปกครอง)</span>
+                            <div id="leader-cloud-status" style="font-size:0.8rem; color:#16a34a; margin-top:3px; display:flex; align-items:center; gap:5px; font-weight:700;">
+                                <i class="fa-solid fa-satellite-dish" style="color:#16a34a;"></i> <span id="leader-cloud-text">เชื่อมต่อระบบคลาวด์ออนไลน์: ซิงค์เรียลไทม์กับคุณครู & ผู้ปกครอง 🟢</span>
                             </div>
                         </div>
                         <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -749,7 +749,7 @@
 
     </div>
 
-    <script src="real_db.js?v=20260921_v2"></script>
+    <script src="real_db.js?v=20260921_v3"></script>
     <script>
         const LEADER_PIN = "104104";
         let pendingTasks = [];
@@ -881,17 +881,24 @@
             renderLeaderDutyCards();
             renderLeaderStudentChecklist();
 
-            // Real-time Cloud Auto-Sync (every 6 seconds & on focus)
+            // Real-time Cloud Auto-Sync (every 5 seconds & on focus/visibilitychange)
             if (typeof window.startCloudAutoSync === 'function') {
                 if (autoSyncTimer) clearInterval(autoSyncTimer);
                 autoSyncTimer = window.startCloudAutoSync(function(tasks) {
                     if (tasks && Array.isArray(tasks)) {
+                        // Detect if teacher added new tasks
+                        if (pendingTasks && pendingTasks.length > 0 && tasks.length > pendingTasks.length) {
+                            const newOnes = tasks.filter(t => !pendingTasks.some(ot => String(ot.id) === String(t.id)));
+                            if (newOnes.length > 0 && typeof window.showCloudSyncToast === 'function') {
+                                window.showCloudSyncToast(`คุณครูได้สั่งภาระงานใหม่: "${newOnes[0].subject} - ${newOnes[0].title}"`, '🏛️');
+                            }
+                        }
                         pendingTasks = tasks;
                         renderLeaderTasks();
                         const statusText = document.getElementById('leader-cloud-text');
-                        if (statusText) statusText.textContent = 'เชื่อมต่อระบบคลาวด์ออนไลน์ (ซิงค์อัตโนมัติเรียลไทม์ 🟢)';
+                        if (statusText) statusText.textContent = 'เชื่อมต่อระบบคลาวด์ออนไลน์: ซิงค์เรียลไทม์กับคุณครู & ผู้ปกครอง 🟢';
                     }
-                }, 6000);
+                }, 5000);
             }
 
             // Immediately sync with cloud on portal open
@@ -901,7 +908,7 @@
                         pendingTasks = tasks;
                         renderLeaderTasks();
                         const statusText = document.getElementById('leader-cloud-text');
-                        if (statusText) statusText.textContent = 'เชื่อมต่อระบบคลาวด์ออนไลน์ (ซิงค์อัตโนมัติเรียลไทม์ 🟢)';
+                        if (statusText) statusText.textContent = 'เชื่อมต่อระบบคลาวด์ออนไลน์: ซิงค์เรียลไทม์กับคุณครู & ผู้ปกครอง 🟢';
                     }
                 }).catch(() => {});
             }

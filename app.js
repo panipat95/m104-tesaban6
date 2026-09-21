@@ -135,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTaskChecklist();
         renderActiveTasksBoard();
         renderDutyGrid();
-        populateLineStudentDropdown();
         populateLookupStudentDropdown();
     }
 
@@ -558,19 +557,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Populate LINE Student Dropdown
-    function populateLineStudentDropdown() {
-        const select = document.getElementById('line-student-select');
-        select.innerHTML = '<option value="all">-- ประกาศสำหรับนักเรียนทุกคน / กลุ่มห้อง 1.4 --</option>';
-
-        studentData.forEach(s => {
-            const opt = document.createElement('option');
-            opt.value = s.student_id;
-            opt.textContent = `เลขที่ ${s.no} - ${s.fullname} (${s.guardian_name || 'ผู้ปกครอง'})`;
-            select.appendChild(opt);
-        });
-    }
-
     // Filter Logic
     function filterData(data) {
         const query = globalSearch.value.trim().toLowerCase();
@@ -814,6 +800,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Pending Homework Tasks Manager Logic
     let pendingHomeworkTasks = [];
 
+    function updateTeacherCloudStatus(isOnline) {
+        const desc = document.getElementById('teacher-cloud-status-desc');
+        if (!desc) return;
+        if (isOnline) {
+            const now = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            desc.innerHTML = `ซิงค์เรียลไทม์กับพอร์ทัลหัวหน้าห้อง & ผู้ปกครอง 🟢 (ล่าสุด: ${now})`;
+            desc.style.color = '#15803d';
+        } else {
+            desc.innerHTML = `โหมดออฟไลน์ / ข้อมูลในเครื่อง ⚠️`;
+            desc.style.color = '#b45309';
+        }
+    }
+
     function loadSavedHomeworkTasks() {
         if (typeof window.getMergedPendingTasks === 'function') {
             pendingHomeworkTasks = window.getMergedPendingTasks();
@@ -823,14 +822,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 try { pendingHomeworkTasks = JSON.parse(saved); } catch(e){}
             }
         }
-        if (typeof window.startCloudAutoSync === 'function') {
-            window.startCloudAutoSync(function(tasks) {
-                if (tasks) {
+
+        // Immediately sync with cloud
+        if (typeof window.syncTasksWithCloud === 'function') {
+            window.syncTasksWithCloud().then(tasks => {
+                if (tasks && Array.isArray(tasks)) {
                     pendingHomeworkTasks = tasks;
                     renderActiveTasksBoard();
                     renderOverviewTable();
                     renderStudentCards();
                     renderPersonalHomeworkLookup();
+                    updateTeacherCloudStatus(true);
+                }
+            }).catch(() => {
+                updateTeacherCloudStatus(false);
+            });
+        }
+
+        // Listen for real-time cloud pushes and auto-sync
+        if (typeof window.startCloudAutoSync === 'function') {
+            window.startCloudAutoSync(function(tasks) {
+                if (tasks && Array.isArray(tasks)) {
+                    pendingHomeworkTasks = tasks;
+                    renderActiveTasksBoard();
+                    renderOverviewTable();
+                    renderStudentCards();
+                    renderPersonalHomeworkLookup();
+                    updateTeacherCloudStatus(true);
                 }
             }, 6000);
         }
@@ -838,10 +856,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveHomeworkTasks() {
         localStorage.setItem('pending_homework_tasks', JSON.stringify(pendingHomeworkTasks));
+        if (typeof window.DEFAULT_PENDING_TASKS !== 'undefined') {
+            window.DEFAULT_PENDING_TASKS = pendingHomeworkTasks;
+        }
         if (typeof window.saveTasksToCloud === 'function') {
             window.saveTasksToCloud(pendingHomeworkTasks);
         }
     }
+
+    window.refreshTeacherTasksFromCloud = async function() {
+        const btn = document.getElementById('btn-refresh-teacher-tasks');
+        const origHtml = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังดึงข้อมูล...';
+            btn.disabled = true;
+        }
+        try {
+            if (typeof window.syncTasksWithCloud === 'function') {
+                const latest = await window.syncTasksWithCloud();
+                if (latest && Array.isArray(latest)) {
+                    pendingHomeworkTasks = latest;
+                    renderActiveTasksBoard();
+                    renderOverviewTable();
+                    renderStudentCards();
+                    renderPersonalHomeworkLookup();
+                    updateTeacherCloudStatus(true);
+                    if (btn) {
+                        btn.innerHTML = '<i class="fa-solid fa-check"></i> ดึงข้อมูลสำเร็จ!';
+                        setTimeout(() => {
+                            btn.innerHTML = origHtml;
+                            btn.disabled = false;
+                        }, 1200);
+                        return;
+                    }
+                }
+            }
+        } catch(e) {
+            console.error('Teacher manual sync error:', e);
+        }
+        if (btn) {
+            btn.innerHTML = origHtml;
+            btn.disabled = false;
+        }
+    };
 
     function renderTaskChecklist() {
         const container = document.getElementById('task-student-checklist');
@@ -1248,6 +1305,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <button type="button" onclick="revertStudentTaskPending('${ct.id}', '${s.student_id}')" title="คืนสถานะเป็นค้างส่งสำหรับนักเรียนคนนี้" style="background:#fff1f2; color:#e11d48; border:1px solid #fecdd3; border-radius:4px; padding:3px 8px; font-size:0.74rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
                                         <i class="fa-solid fa-rotate-left"></i> คืนสถานะค้างส่ง
                                     </button>
+                                    <button type="button" onclick="deleteHomeworkTaskFromLookup('${ct.id}', '${s.student_id}')" title="ลบรายการภาระงานนี้ออกจากระบบทั้งหมด (ทั้งห้อง)" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; border-radius:4px; padding:3px 8px; font-size:0.74rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+                                        <i class="fa-solid fa-trash-can"></i> ลบงาน
+                                    </button>
                                 </div>
                             </div>
                         `).join('')}
@@ -1299,10 +1359,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
 
                     <div style="margin-bottom:10px; color:#991b1b; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:6px;">
-                        <i class="fa-solid fa-circle-info" style="color:#dc2626;"></i> ครูสามารถกดปุ่ม <strong>"🟢 ส่งแล้ว (ลบงานค้างนี้)"</strong> ที่ชิ้นงาน เพื่อตัดออกจากระบบและอัปเดตไปที่ผู้ปกครองทันที:
+                        <i class="fa-solid fa-circle-info" style="color:#dc2626;"></i> คุณครูสามารถกด <strong>"🟢 ส่งแล้ว (เฉพาะคนนี้)"</strong> เพื่อตัดออกจากงานค้าง หรือกด <strong>"🗑️ ลบงานนี้ทิ้ง (ทั้งห้อง)"</strong> เพื่อลบรายการงานออกจากระบบ:
                     </div>
 
-                    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap:10px;">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:10px;">
                         ${myPendingTasks.map(t => `
                             <div style="background:#ffffff; border:1px solid #fca5a5; border-radius:10px; padding:12px; box-shadow:0 2px 6px rgba(0,0,0,0.03); display:flex; flex-direction:column; justify-content:space-between;">
                                 <div>
@@ -1330,11 +1390,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                         </div>
                                     ` : ''}
                                 </div>
-                                <div style="margin-top:12px; padding-top:8px; border-top:1px dashed #fca5a5; display:flex; justify-content:space-between; align-items:center;">
-                                    <button type="button" onclick="markStudentTaskCompleted('${t.id}', '${s.student_id}')" style="background:#16a34a; color:#ffffff; border:none; border-radius:6px; padding:6px 12px; font-size:0.82rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(22,163,74,0.25); transition:all 0.15s;" onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'">
-                                        <i class="fa-solid fa-circle-check"></i> 🟢 ส่งแล้ว (ลบงานค้างนี้)
+                                <div style="margin-top:12px; padding-top:8px; border-top:1px dashed #fca5a5; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                    <button type="button" onclick="markStudentTaskCompleted('${t.id}', '${s.student_id}')" style="background:#16a34a; color:#ffffff; border:none; border-radius:6px; padding:6px 12px; font-size:0.82rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(22,163,74,0.25); transition:all 0.15s;" onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'" title="บันทึกว่านักเรียนคนนี้ส่งงานแล้ว">
+                                        <i class="fa-solid fa-circle-check"></i> 🟢 ส่งแล้ว (เฉพาะคนนี้)
                                     </button>
-                                    <small style="color:#991b1b; font-weight:600; font-size:0.75rem;">ตัดออกจากงานค้าง</small>
+                                    <button type="button" onclick="deleteHomeworkTaskFromLookup('${t.id}', '${s.student_id}')" style="background:#dc2626; color:#ffffff; border:none; border-radius:6px; padding:6px 12px; font-size:0.82rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(220,38,38,0.25); transition:all 0.15s;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'" title="ลบรายการภาระงานนี้ออกจากระบบทั้งหมด (ทั้งห้อง)">
+                                        <i class="fa-solid fa-trash-can"></i> 🗑️ ลบงานนี้ทิ้ง (ทั้งห้อง)
+                                    </button>
                                 </div>
                             </div>
                         `).join('')}
@@ -1345,6 +1407,20 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
     }
+
+    window.deleteHomeworkTaskFromLookup = function(taskId, currentStudentId) {
+        const task = pendingHomeworkTasks.find(t => String(t.id) === String(taskId));
+        if (!task) return;
+        if (confirm(`คุณต้องการลบรายการภาระงาน "${task.subject} - ${task.title}" ออกจากระบบทั้งหมด ใช่หรือไม่?\n\n(รายการงานนี้จะถูกลบออกจากทุกคนในห้อง และซิงค์ขึ้น Cloud ไปยังพอร์ทัลหัวหน้าห้องและผู้ปกครองทันที)`)) {
+            pendingHomeworkTasks = pendingHomeworkTasks.filter(t => String(t.id) !== String(taskId));
+            saveHomeworkTasks();
+            renderActiveTasksBoard();
+            renderOverviewTable();
+            renderStudentCards();
+            renderPersonalHomeworkLookup(currentStudentId);
+            alert(`🗑️ ลบรายการภาระงาน "${task.subject} - ${task.title}" ออกจากระบบเรียบร้อยแล้ว`);
+        }
+    };
 
     window.copyStudentPersonalHomeworkMsg = function(studentId) {
         const s = studentData.find(st => st.student_id.toString() === studentId.toString());

@@ -749,7 +749,7 @@
 
     </div>
 
-    <script src="real_db.js?v=20260910_v3"></script>
+    <script src="real_db.js?v=20260921_v2"></script>
     <script>
         const LEADER_PIN = "104104";
         let pendingTasks = [];
@@ -777,14 +777,15 @@
             }
 
             if (typeof window.syncTasksWithCloud === 'function') {
-                await window.syncTasksWithCloud(function(tasks) {
-                    if (tasks) {
-                        pendingTasks = tasks;
+                try {
+                    const latest = await window.syncTasksWithCloud();
+                    if (latest && Array.isArray(latest)) {
+                        pendingTasks = latest;
                         renderLeaderTasks();
                     }
-                });
-                loadLeaderTasks();
-                renderLeaderTasks();
+                } catch(e) {
+                    console.error('Leader manual sync error:', e);
+                }
             }
 
             if (btn) {
@@ -884,13 +885,25 @@
             if (typeof window.startCloudAutoSync === 'function') {
                 if (autoSyncTimer) clearInterval(autoSyncTimer);
                 autoSyncTimer = window.startCloudAutoSync(function(tasks) {
-                    if (tasks) {
+                    if (tasks && Array.isArray(tasks)) {
                         pendingTasks = tasks;
                         renderLeaderTasks();
                         const statusText = document.getElementById('leader-cloud-text');
                         if (statusText) statusText.textContent = 'เชื่อมต่อระบบคลาวด์ออนไลน์ (ซิงค์อัตโนมัติเรียลไทม์ 🟢)';
                     }
                 }, 6000);
+            }
+
+            // Immediately sync with cloud on portal open
+            if (typeof window.syncTasksWithCloud === 'function') {
+                window.syncTasksWithCloud().then(tasks => {
+                    if (tasks && Array.isArray(tasks)) {
+                        pendingTasks = tasks;
+                        renderLeaderTasks();
+                        const statusText = document.getElementById('leader-cloud-text');
+                        if (statusText) statusText.textContent = 'เชื่อมต่อระบบคลาวด์ออนไลน์ (ซิงค์อัตโนมัติเรียลไทม์ 🟢)';
+                    }
+                }).catch(() => {});
             }
         }
 
@@ -1014,7 +1027,7 @@
                 attachedFiles: [...leaderAttachedFiles]
             };
 
-            loadLeaderTasks();
+            if (!pendingTasks || pendingTasks.length === 0) loadLeaderTasks();
             pendingTasks.unshift(newTask);
             localStorage.setItem('pending_homework_tasks', JSON.stringify(pendingTasks));
             if (typeof window.DEFAULT_PENDING_TASKS !== 'undefined') {
@@ -1036,7 +1049,7 @@
 
         // Mark student task completed
         async function markStudentCompleted(taskId, studentId) {
-            loadLeaderTasks();
+            if (!pendingTasks || pendingTasks.length === 0) loadLeaderTasks();
             const task = pendingTasks.find(t => String(t.id) === String(taskId));
             if (task) {
                 task.pendingStudentIds = (task.pendingStudentIds || []).filter(id => String(id) !== String(studentId));
@@ -1055,7 +1068,7 @@
         // Delete entire homework task
         async function deleteHomeworkTask(taskId) {
             if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการงานค้างนี้?')) {
-                loadLeaderTasks();
+                if (!pendingTasks || pendingTasks.length === 0) loadLeaderTasks();
                 pendingTasks = pendingTasks.filter(t => String(t.id) !== String(taskId));
                 localStorage.setItem('pending_homework_tasks', JSON.stringify(pendingTasks));
                 if (typeof window.DEFAULT_PENDING_TASKS !== 'undefined') {
@@ -1070,7 +1083,7 @@
         }
 
         function copyParentShareLink() {
-            loadLeaderTasks();
+            if (!pendingTasks || pendingTasks.length === 0) loadLeaderTasks();
             if (pendingTasks.length === 0) {
                 alert('ยังไม่มีรายการงานค้างที่จะส่งออกครับ!');
                 return;
@@ -1078,31 +1091,47 @@
             try {
                 const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(pendingTasks))));
                 const baseUrl = window.location.href.split('?')[0].replace('leader.html', 'parent.html');
-                const shareUrl = `${baseUrl}?tasks=${encoded}`;
+                const shareUrl = `${baseUrl}?hw_data=${encoded}`;
                 
                 navigator.clipboard.writeText(shareUrl).then(() => {
-                    alert('📋 คัดลอกลิงก์ข้อมูลการบ้านสำหรับผู้ปกครองเรียบร้อยแล้ว!\nนำไปวางส่งต่อเพื่อให้ผู้ปกครองเข้าดูและซิงค์ข้อมูลได้ทันทีครับ ✨');
+                    alert('📋 คัดลอกลิงก์ส่งการบ้านให้ผู้ปกครองเรียบร้อยแล้ว!\nสามารถนำไปแชร์ให้ผู้ปกครองเปิดดูในมือถือได้ทันทีครับ ✨');
                 }).catch(() => {
-                    prompt('คัดลอกลิงก์ด้านล่างนี้เพื่อส่งให้ผู้ปกครอง:', shareUrl);
+                    prompt('คัดลอกลิงก์ด้านล่างนี้ไปแชร์ให้ผู้ปกครอง:', shareUrl);
                 });
             } catch(e) {
-                alert('เกิดข้อผิดพลาดในการสร้างลิงก์: ' + e.message);
+                alert('เกิดข้อผิดพลาดในการสร้างลิงก์ กรุณาลองใหม่อีกครั้ง');
             }
         }
 
-        function copyTasksSummaryText() {
-            loadLeaderTasks();
+        function copyAllTasksSummary() {
+            if (!pendingTasks || pendingTasks.length === 0) loadLeaderTasks();
             if (pendingTasks.length === 0) {
-                alert('ยังไม่มีรายการงานค้างในขณะนี้ครับ!');
+                alert('ยังไม่มีรายการงานค้างครับ');
                 return;
             }
+
             const students = getActiveStudents();
-            let msg = `📢 สรุปรายการงานค้าง ม.1/4 SMT (รร.เทศบาล 6)\n-----------------------------------\n`;
-            pendingTasks.forEach((t, i) => {
-                const count = t.pendingStudentIds ? t.pendingStudentIds.length : 0;
-                msg += `${i+1}. วิชา: ${t.subject}\n   📌 งาน: ${t.title}\n   📅 กำหนดส่ง: ${t.dueDate || 'ไม่ระบุ'}\n   ⚠️ ค้างส่ง: ${count} คน\n\n`;
+            let msg = `📢 [แจ้งเตือนภาระงาน/การบ้านค้างส่ง - ห้อง ม.1/4 SMT]\n`;
+            msg += `📅 ข้อมูล ณ วันที่ ${new Date().toLocaleDateString('th-TH')} เวลา ${new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})}\n`;
+            msg += `------------------------------------\n`;
+
+            pendingTasks.forEach((task, idx) => {
+                const pendingList = students.filter(s => 
+                    task.pendingStudentIds && task.pendingStudentIds.map(String).includes(s.student_id.toString())
+                );
+                msg += `\n${idx + 1}. วิชา: ${task.subject}\n`;
+                msg += `   📝 ชิ้นงาน: ${task.title}\n`;
+                msg += `   ⏰ กำหนดส่ง: ${task.dueDate || 'เร็วๆ นี้'}\n`;
+                if (pendingList.length === 0) {
+                    msg += `   ✔️ สถานะ: ส่งครบทุกคน 100% 👏\n`;
+                } else {
+                    msg += `   ⚠️ ค้างส่ง (${pendingList.length} คน): `;
+                    msg += pendingList.map(s => `${s.no}.${s.firstname}`).join(', ') + '\n';
+                }
             });
-            msg += `🌸 ตรวจสอบรายชื่อค้างส่งรายบุคคลสำหรับผู้ปกครอง:\nhttps://panipat95.github.io/m104-tesaban6/parent.html`;
+
+            msg += `\n------------------------------------\n`;
+            msg += `👉 ผู้ปกครองและเพื่อนๆ สามารถเช็ครายละเอียดเพิ่มเติมได้ที่: https://panipat95.github.io/m104-tesaban6/parent.html`;
 
             navigator.clipboard.writeText(msg).then(() => {
                 alert('📋 คัดลอกข้อความสรุปงานค้างเรียบร้อยแล้ว!\nสามารถนำไปวางแจ้งประชาสัมพันธ์ได้เลยครับ ✨');
@@ -1113,7 +1142,9 @@
 
         // Render Active Tasks
         function renderLeaderTasks() {
-            loadLeaderTasks();
+            if (!pendingTasks || pendingTasks.length === 0) {
+                loadLeaderTasks();
+            }
             const container = document.getElementById('leader-active-tasks-list');
             if (!container) return;
 

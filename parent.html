@@ -707,7 +707,7 @@
     </div>
 
     <!-- Real Database Scripts -->
-    <script src="real_db.js?v=20260910_v3"></script>
+    <script src="real_db.js?v=20260921_v2"></script>
     <script src="visit.js?v=20260807_v3"></script>
     <script>
         let currentStudent = null;
@@ -732,14 +732,15 @@
                 btn.disabled = true;
             }
             if (typeof window.syncTasksWithCloud === 'function') {
-                await window.syncTasksWithCloud(function(tasks) {
-                    if (tasks) {
-                        pendingTasks = tasks;
+                try {
+                    const latest = await window.syncTasksWithCloud();
+                    if (latest && Array.isArray(latest)) {
+                        pendingTasks = latest;
                         if (currentStudent) renderPendingTasksTab();
                     }
-                });
-                loadPendingTasks();
-                if (currentStudent) renderPendingTasksTab();
+                } catch(e) {
+                    console.error('Parent manual sync error:', e);
+                }
             }
             if (btn) {
                 btn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> กดรีเฟรชงานล่าสุด';
@@ -754,13 +755,25 @@
             if (typeof window.startCloudAutoSync === 'function') {
                 if (parentAutoSyncTimer) clearInterval(parentAutoSyncTimer);
                 parentAutoSyncTimer = window.startCloudAutoSync(function(tasks) {
-                    if (tasks) {
+                    if (tasks && Array.isArray(tasks)) {
                         pendingTasks = tasks;
                         if (currentStudent) {
                             renderPendingTasksTab();
                         }
                     }
                 }, 6000);
+            }
+
+            // Immediately pull fresh tasks from cloud on page load
+            if (typeof window.syncTasksWithCloud === 'function') {
+                window.syncTasksWithCloud().then(tasks => {
+                    if (tasks && Array.isArray(tasks)) {
+                        pendingTasks = tasks;
+                        if (currentStudent) {
+                            renderPendingTasksTab();
+                        }
+                    }
+                }).catch(() => {});
             }
 
             const params = new URLSearchParams(window.location.search);
@@ -864,7 +877,9 @@
             const container = document.getElementById('pending-tasks-container');
             if (!container || !currentStudent) return;
 
-            loadPendingTasks();
+            if (!pendingTasks || pendingTasks.length === 0) {
+                loadPendingTasks();
+            }
 
             const myTasks = pendingTasks.filter(t => 
                 t.pendingStudentIds && Array.isArray(t.pendingStudentIds) &&

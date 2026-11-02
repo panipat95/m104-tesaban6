@@ -892,15 +892,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderStudentCards();
                     renderPersonalHomeworkLookup();
                     updateTeacherCloudStatus(true);
-                    if (btn) {
-                        btn.innerHTML = '<i class="fa-solid fa-check"></i> ดึงข้อมูลสำเร็จ!';
-                        setTimeout(() => {
-                            btn.innerHTML = origHtml;
-                            btn.disabled = false;
-                        }, 1200);
-                        return;
-                    }
                 }
+            }
+            if (typeof window.syncFundWithCloud === 'function') {
+                await window.syncFundWithCloud();
+                if (typeof window.renderTeacherFund === 'function') window.renderTeacherFund();
+            }
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> ดึงข้อมูลสำเร็จ!';
+                setTimeout(() => {
+                    btn.innerHTML = origHtml;
+                    btn.disabled = false;
+                }, 1200);
+                return;
             }
         } catch(e) {
             console.error('Teacher manual sync error:', e);
@@ -2039,14 +2043,18 @@ window.renderTeacherFund = function() {
                 </td>
                 <td style="text-align:center; font-weight:600; color:#475569;">${r.nickname || '-'}</td>
                 <td style="text-align:center;">
-                    ${r.may 
-                        ? '<span style="background:#dcfce7; color:#15803d; padding:3px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-block;">✔️ จ่ายแล้ว</span>' 
-                        : '<span style="background:#fee2e2; color:#be123c; padding:3px 10px; border-radius:8px; font-weight:600; font-size:0.8rem; display:inline-block;">❌ ว่าง</span>'}
+                    <button type="button" onclick="toggleStudentFundPayment(${r.no}, 'may')" title="คลิกเพื่อสลับสถานะชำระเงิน พฤษภาคม" style="border:none; background:transparent; cursor:pointer; padding:0; outline:none; transition:transform 0.1s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+                        ${r.may 
+                            ? '<span style="background:#dcfce7; color:#15803d; border:1px solid #86efac; padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 3px rgba(0,0,0,0.06); cursor:pointer;"><i class="fa-solid fa-circle-check"></i> ✔️ จ่ายแล้ว</span>' 
+                            : '<span style="background:#fee2e2; color:#be123c; border:1px solid #fca5a5; padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 3px rgba(0,0,0,0.06); cursor:pointer;"><i class="fa-solid fa-circle-xmark"></i> ❌ ว่าง</span>'}
+                    </button>
                 </td>
                 <td style="text-align:center;">
-                    ${r.june 
-                        ? '<span style="background:#dcfce7; color:#15803d; padding:3px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-block;">✔️ จ่ายแล้ว</span>' 
-                        : '<span style="background:#fee2e2; color:#be123c; padding:3px 10px; border-radius:8px; font-weight:600; font-size:0.8rem; display:inline-block;">❌ ว่าง</span>'}
+                    <button type="button" onclick="toggleStudentFundPayment(${r.no}, 'june')" title="คลิกเพื่อสลับสถานะชำระเงิน มิถุนายน" style="border:none; background:transparent; cursor:pointer; padding:0; outline:none; transition:transform 0.1s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+                        ${r.june 
+                            ? '<span style="background:#dcfce7; color:#15803d; border:1px solid #86efac; padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 3px rgba(0,0,0,0.06); cursor:pointer;"><i class="fa-solid fa-circle-check"></i> ✔️ จ่ายแล้ว</span>' 
+                            : '<span style="background:#fee2e2; color:#be123c; border:1px solid #fca5a5; padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 3px rgba(0,0,0,0.06); cursor:pointer;"><i class="fa-solid fa-circle-xmark"></i> ❌ ว่าง</span>'}
+                    </button>
                 </td>
                 <td style="text-align:center; font-weight:800; font-size:0.9rem; color:${fullyPaid ? '#059669' : (partlyPaid ? '#d97706' : '#e11d48')};">
                     ${paidSum}.-
@@ -2092,8 +2100,9 @@ window.renderTeacherFund = function() {
                     </div>
                 </div>
             </div>
-            <div style="font-size:0.82rem; color:#475569; background:#ffffff; padding:6px 14px; border-radius:10px; border:1px solid #cbd5e1;">
-                <i class="fa-solid fa-circle-info" style="color:#0284c7;"></i> นักเรียนและผู้ปกครองสามารถตรวจสอบสถานะการชำระได้ผ่านพอร์ทัล parent.html
+            <div style="font-size:0.82rem; color:#475569; background:#ffffff; padding:8px 16px; border-radius:10px; border:1px solid #cbd5e1; display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-hand-pointer" style="color:#0284c7;"></i>
+                <span><strong>คุณครูสามารถคลิกที่ปุ่มสถานะ (✔️ / ❌)</strong> เพื่ออัปเดตการชำระเงินของนักเรียนได้ทันที • ซิงค์เรียลไทม์กับพอร์ทัลหัวหน้าห้องและผู้ปกครอง</span>
             </div>
         </div>
 

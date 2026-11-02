@@ -200,6 +200,13 @@ if (typeof window !== 'undefined') {
                 }
             } catch(err) {}
         }
+        if (e.key === 'm104_classroom_fund_data' && e.newValue) {
+            try {
+                if (typeof window.renderTeacherFund === 'function') window.renderTeacherFund();
+                if (typeof window.renderLeaderFundTab === 'function') window.renderLeaderFundTab();
+                if (typeof window.renderClassroomFundTab === 'function') window.renderClassroomFundTab();
+            } catch(err) {}
+        }
     });
 }
 
@@ -344,11 +351,17 @@ window.startCloudAutoSync = function(callback, intervalMs) {
     if (typeof window.syncTasksWithCloud === 'function') {
         window.syncTasksWithCloud(callback);
     }
+    if (typeof window.syncFundWithCloud === 'function') {
+        window.syncFundWithCloud();
+    }
 
     // 3. Fallback periodic poll
     var timer = setInterval(function() {
         if (typeof window.syncTasksWithCloud === 'function') {
             window.syncTasksWithCloud();
+        }
+        if (typeof window.syncFundWithCloud === 'function') {
+            window.syncFundWithCloud();
         }
     }, interval);
 
@@ -358,6 +371,9 @@ window.startCloudAutoSync = function(callback, intervalMs) {
         }
         if (typeof window.syncTasksWithCloud === 'function') {
             window.syncTasksWithCloud();
+        }
+        if (typeof window.syncFundWithCloud === 'function') {
+            window.syncFundWithCloud();
         }
     }
 
@@ -632,12 +648,128 @@ window.CLASSROOM_FUND_DATA = {
 };
 
 window.getClassroomFundData = function() {
+    var base = JSON.parse(JSON.stringify(window.CLASSROOM_FUND_DATA));
     try {
         var saved = localStorage.getItem('m104_classroom_fund_data');
         if (saved) {
             var parsed = JSON.parse(saved);
-            if (parsed && Array.isArray(parsed.records)) return parsed;
+            var paymentMap = {};
+            if (Array.isArray(parsed)) {
+                // compact format [{ no: 1, may: true, june: true }, ...]
+                parsed.forEach(function(item) {
+                    if (item && item.no) paymentMap[item.no] = item;
+                });
+            } else if (parsed && Array.isArray(parsed.records)) {
+                // full format { records: [...] }
+                parsed.records.forEach(function(item) {
+                    if (item && item.no) paymentMap[item.no] = item;
+                });
+            }
+            base.records.forEach(function(r) {
+                if (paymentMap[r.no]) {
+                    r.may = !!paymentMap[r.no].may;
+                    r.june = !!paymentMap[r.no].june;
+                }
+            });
         }
     } catch(e) {}
-    return window.CLASSROOM_FUND_DATA;
+    return base;
+};
+
+// Cloud Fund Endpoint for cross-device real-time sync
+window.CLOUD_FUND_ENDPOINT = 'https://ntfy.sh/m104_tesaban6_fund_sync_v2';
+
+window.saveClassroomFundData = async function(fundData) {
+    if (!fundData || !Array.isArray(fundData.records)) return false;
+    var compact = fundData.records.map(function(r) {
+        return { no: r.no, may: !!r.may, june: !!r.june };
+    });
+    try {
+        localStorage.setItem('m104_classroom_fund_data', JSON.stringify(compact));
+    } catch(e) {}
+    
+    // Broadcast via Cloud Pub/Sub
+    try {
+        await fetch(window.CLOUD_FUND_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Title': 'm104_fund_sync',
+                'Tags': 'fund,m104',
+                'Content-Type': 'application/json; charset=utf-8'
+            },
+            body: JSON.stringify(compact)
+        });
+    } catch(e) {
+        console.warn('Fund cloud save warning:', e);
+    }
+    return true;
+};
+
+window.syncFundWithCloud = async function(callback) {
+    try {
+        var res = await fetch(window.CLOUD_FUND_ENDPOINT + '/json?poll=1&since=all&t=' + Date.now());
+        if (res.ok) {
+            var text = await res.text();
+            var lines = text.trim().split('\n');
+            for (var i = lines.length - 1; i >= 0; i--) {
+                var line = lines[i].trim();
+                if (!line) continue;
+                try {
+                    var obj = JSON.parse(line);
+                    if (obj.event === 'message' && obj.message) {
+                        var parsed = JSON.parse(obj.message);
+                        if (Array.isArray(parsed) || (parsed && Array.isArray(parsed.records))) {
+                            var compact = Array.isArray(parsed) ? parsed : parsed.records.map(function(r) { return { no: r.no, may: !!r.may, june: !!r.june }; });
+                            var currentLocal = localStorage.getItem('m104_classroom_fund_data');
+                            var isChanged = !currentLocal || currentLocal !== JSON.stringify(compact);
+                            if (isChanged) {
+                                localStorage.setItem('m104_classroom_fund_data', JSON.stringify(compact));
+                                if (typeof window.renderTeacherFund === 'function') window.renderTeacherFund();
+                                if (typeof window.renderLeaderFundTab === 'function') window.renderLeaderFundTab();
+                                if (typeof window.renderClassroomFundTab === 'function') window.renderClassroomFundTab();
+                            }
+                            if (typeof callback === 'function') callback(window.getClassroomFundData());
+                            return window.getClassroomFundData();
+                        }
+                    }
+                } catch(e) {}
+            }
+        }
+    } catch(err) {
+        console.warn('Sync fund cloud warning:', err);
+    }
+    return null;
+};
+
+window.toggleStudentFundPayment = async function(studentNo, month) {
+    var data = window.getClassroomFundData();
+    var records = data.records.map(function(r) { return Object.assign({}, r); });
+    var target = records.find(function(r) { return r.no === studentNo; });
+    if (!target) return;
+
+    var monthLabel = month === 'may' ? 'พฤษภาคม (20 บาท)' : 'มิถุนายน (20 บาท)';
+    var newStatus = !target[month];
+    var actionDesc = newStatus ? 'เปลี่ยนเป็น "✔️ จ่ายแล้ว"' : 'เปลี่ยนเป็น "❌ ยังไม่จ่าย (ค้างชำระ)"';
+
+    var confirmMsg = 'ยืนยันการแก้ไขสถานะเงินห้อง:\n\n' +
+        '• นักเรียน: เลขที่ ' + target.no + ' ' + target.name + ' (' + (target.nickname || '-') + ')\n' +
+        '• ประจำเดือน: ' + monthLabel + '\n' +
+        '• ' + actionDesc + '\n\n' +
+        'ต้องการบันทึกการเปลี่ยนแปลงใช่หรือไม่?';
+
+    if (!confirm(confirmMsg)) return;
+
+    target[month] = newStatus;
+    data.records = records;
+
+    await window.saveClassroomFundData(data);
+
+    // Re-render local views
+    if (typeof window.renderTeacherFund === 'function') window.renderTeacherFund();
+    if (typeof window.renderLeaderFundTab === 'function') window.renderLeaderFundTab();
+    if (typeof window.renderClassroomFundTab === 'function') window.renderClassroomFundTab();
+    
+    if (typeof window.showCloudSyncToast === 'function') {
+        window.showCloudSyncToast('อัปเดตสถานะเงินห้องของ ' + (target.nickname || target.name) + ' เรียบร้อยแล้ว 💰', '🪙');
+    }
 };

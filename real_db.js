@@ -96,68 +96,41 @@ window.CLOUD_BACKUP_ENDPOINT = 'https://api.restful-api.dev/objects/ff808181a067
 window._lastKnownTasks = null;
 window._lastCloudSyncTime = 0;
 
-// Active real tasks for M.1/4 SMT initialized from current verified cloud database
-window.DEFAULT_PENDING_TASKS = [
-    {
-        "id": "task_1789965340245",
-        "subject": "ภาษาไทย (ท21101) - ครูพรรณนิภา",
-        "title": "กำหนดส่ง บัญชีคำศัพท์พื้นฐาน วันพุธ",
-        "dueDate": "กำหนดส่ง บัญชีคำศัพท์พื้นฐาน วันพุธ",
-        "pendingStudentIds": [
-            "19168","19169","19170","19172","19173","19174","19175","19176","19177","19178",
-            "19179","19180","19181","19182","19183","19184","19185","19186","19187","19188",
-            "19189","19190","19191","19192","19193","19194","19195","19196","19197","19198",
-            "19199","19200","19201","19202","19203","19204","19205","19206","19207"
-        ],
-        "createdAt": "21/9/2569",
-        "attachedFiles": []
-    },
-    {
-        "id": "task_1789965175697",
-        "subject": "วิทย์ ครูแจ๊ค สอบปฎิบัติ ค้าง 1.เด็กชายชยณัฐ  เทพวงค์ 2.เด็กชายวรานนท์  ใจกุศลดำรง",
-        "title": "วิทย์ ครูแจ๊ค สอบปฎิบัติ ค้าง 1.เด็กชายชยณัฐ  เทพวงค์ 2.เด็กชายวรานนท์  ใจกุศลดำรง",
-        "dueDate": "ติดต่อสอบ วันพุธ เท่านั้น",
-        "pendingStudentIds": ["19174", "19180"],
-        "createdAt": "21/9/2569",
-        "attachedFiles": []
-    },
-    {
-        "id": "task_1789965094922",
-        "subject": "คอม ครูเจ [แก้]สอบกลางภาค เลขที่ 3, 11, 12, 13, 15, 20, 27, 31, 32, 34, 37, 38, และ 39",
-        "title": "คอม ครูเจ [แก้]สอบกลางภาค เลขที่ 3, 11, 12, 13, 15, 20, 27, 31, 32, 34, 37, 38, และ 39",
-        "dueDate": "สอบวันสุดท้าย",
-        "pendingStudentIds": [
-            "19170","19179","19180","19181","19183","19188","19195","19199","19200","19202","19205","19206","19207"
-        ],
-        "createdAt": "21/9/2569",
-        "attachedFiles": [
-            {
-                "name": "แก้สอบ เทคโนโลยีสร้างสรรค์.pdf",
-                "type": "application/pdf",
-                "size": 30912,
-                "dataURL": null
-            }
-        ]
-    },
-    {
-        "id": "task_1789964815255",
-        "subject": "คอม ครูเจ สอบปลายภาค เลขที่ 30 และ 36",
-        "title": "คอม ครูเจ สอบปลายภาค เลขที่ 30 และ 36",
-        "dueDate": "",
-        "pendingStudentIds": ["19198", "19204"],
-        "createdAt": "21/9/2569",
-        "attachedFiles": []
-    },
-    {
-        "id": "task_1789964779188",
-        "subject": "คอม ครูเจ สร้างฉากนิทานด้วย AI ค้างส่งเลขที่ 16 , 37",
-        "title": "คอม ครูเจ สร้างฉากนิทานด้วย AI ค้างส่งเลขที่ 16 , 37",
-        "dueDate": "",
-        "pendingStudentIds": ["19184", "19205"],
-        "createdAt": "21/9/2569",
-        "attachedFiles": []
-    }
+// Active real tasks for M.1/4 SMT (Currently all cleared: 0 pending tasks across all students)
+window.DEFAULT_PENDING_TASKS = [];
+
+// Legacy sample task IDs that must never be resurrected
+window._LEGACY_PURGED_TASK_IDS = [
+    "task_1789965340245",
+    "task_1789965175697",
+    "task_1789965094922",
+    "task_1789964815255",
+    "task_1789964779188"
 ];
+
+// Helper to sanitize task list and strip any legacy dummy tasks
+window._sanitizeTaskList = function(list) {
+    if (!Array.isArray(list)) return [];
+    return list.filter(function(t) {
+        return t && t.id && !window._LEGACY_PURGED_TASK_IDS.includes(String(t.id));
+    });
+};
+
+// Automatic one-time migration / reset guard (2 Nov 2569) to clear all legacy tasks from browser storage
+(function() {
+    var CLEARED_VERSION = '20261102_cleared_all_v1';
+    try {
+        if (typeof localStorage !== 'undefined') {
+            var currentClearedVer = localStorage.getItem('m104_tasks_cleared_ver');
+            if (currentClearedVer !== CLEARED_VERSION) {
+                localStorage.setItem('pending_homework_tasks', JSON.stringify([]));
+                localStorage.setItem('m104_tasks_cleared_ver', CLEARED_VERSION);
+                window._lastKnownTasks = null;
+                window.DEFAULT_PENDING_TASKS = [];
+            }
+        }
+    } catch(e) {}
+})();
 
 // Global Toast Notification for Live Cloud Updates
 window.showCloudSyncToast = function(msg, icon) {
@@ -192,7 +165,8 @@ if (typeof window !== 'undefined') {
     window.addEventListener('storage', function(e) {
         if (e.key === 'pending_homework_tasks' && e.newValue) {
             try {
-                var tasks = JSON.parse(e.newValue);
+                var rawTasks = JSON.parse(e.newValue);
+                var tasks = window._sanitizeTaskList ? window._sanitizeTaskList(rawTasks) : rawTasks;
                 if (Array.isArray(tasks)) {
                     window._lastKnownTasks = tasks;
                     window.DEFAULT_PENDING_TASKS = tasks;
@@ -213,6 +187,7 @@ if (typeof window !== 'undefined') {
 // Save tasks to Cloud and LocalStorage
 window.saveTasksToCloud = async function(tasks) {
     if (!Array.isArray(tasks)) return false;
+    tasks = window._sanitizeTaskList ? window._sanitizeTaskList(tasks) : tasks;
     window._lastKnownTasks = tasks;
     window._lastCloudSyncTime = Date.now();
     try {
@@ -267,6 +242,7 @@ window.syncTasksWithCloud = async function(callback) {
         }
 
         if (Array.isArray(latestTasks)) {
+            latestTasks = window._sanitizeTaskList ? window._sanitizeTaskList(latestTasks) : latestTasks;
             try {
                 localStorage.setItem('pending_homework_tasks', JSON.stringify(latestTasks));
             } catch(e) {}
@@ -312,6 +288,7 @@ window.connectCloudRealtimeEvents = function(callback) {
                     var parsed = JSON.parse(obj.message);
                     var tasks = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.tasks) ? parsed.tasks : null);
                     if (Array.isArray(tasks)) {
+                        tasks = window._sanitizeTaskList ? window._sanitizeTaskList(tasks) : tasks;
                         try {
                             localStorage.setItem('pending_homework_tasks', JSON.stringify(tasks));
                         } catch(e) {}
@@ -339,7 +316,7 @@ window.connectCloudRealtimeEvents = function(callback) {
 
 // Auto-sync runner for real-time polling across all devices
 window.startCloudAutoSync = function(callback, intervalMs) {
-    var interval = intervalMs || 5000;
+    var interval = Math.max(intervalMs || 25000, 20000);
     if (typeof callback === 'function' && !window._cloudTaskCallbacks.includes(callback)) {
         window._cloudTaskCallbacks.push(callback);
     }
@@ -390,7 +367,7 @@ window.startCloudAutoSync = function(callback, intervalMs) {
 
 window.getMergedPendingTasks = function() {
     if (window._lastKnownTasks && Array.isArray(window._lastKnownTasks)) {
-        return window._lastKnownTasks;
+        return window._sanitizeTaskList ? window._sanitizeTaskList(window._lastKnownTasks) : window._lastKnownTasks;
     }
     try {
         var params = new URLSearchParams(window.location.search);
@@ -399,10 +376,11 @@ window.getMergedPendingTasks = function() {
             var decodedStr = decodeURIComponent(escape(atob(urlTasks)));
             var decoded = JSON.parse(decodedStr);
             if (Array.isArray(decoded)) {
-                try { localStorage.setItem('pending_homework_tasks', JSON.stringify(decoded)); } catch(e) {}
-                window.DEFAULT_PENDING_TASKS = decoded;
-                window._lastKnownTasks = decoded;
-                return decoded;
+                var cleaned = window._sanitizeTaskList ? window._sanitizeTaskList(decoded) : decoded;
+                try { localStorage.setItem('pending_homework_tasks', JSON.stringify(cleaned)); } catch(e) {}
+                window.DEFAULT_PENDING_TASKS = cleaned;
+                window._lastKnownTasks = cleaned;
+                return cleaned;
             }
         }
     } catch(e) {}
@@ -412,13 +390,15 @@ window.getMergedPendingTasks = function() {
         if (local !== null) {
             var parsed = JSON.parse(local);
             if (Array.isArray(parsed)) {
-                window._lastKnownTasks = parsed;
-                return parsed;
+                var cleanedLocal = window._sanitizeTaskList ? window._sanitizeTaskList(parsed) : parsed;
+                window._lastKnownTasks = cleanedLocal;
+                return cleanedLocal;
             }
         }
     } catch(e) {}
 
-    return Array.isArray(window.DEFAULT_PENDING_TASKS) ? window.DEFAULT_PENDING_TASKS : [];
+    var fallback = Array.isArray(window.DEFAULT_PENDING_TASKS) ? window.DEFAULT_PENDING_TASKS : [];
+    return window._sanitizeTaskList ? window._sanitizeTaskList(fallback) : fallback;
 };
 
 // Smart Image Compression Helper for Homework/Worksheet Uploads

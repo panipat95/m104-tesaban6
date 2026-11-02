@@ -573,9 +573,9 @@
             <!-- Navigation Tabs -->
             <div class="nav-tabs">
                 <button class="tab-btn active" onclick="switchTab('parent-tab-pending')">📌 เช็คงานค้าง</button>
-                <button class="tab-btn" onclick="switchTab('parent-tab-schedule')">📅 ตารางเรียน</button>
+                <button class="tab-btn" onclick="switchTab('parent-tab-schedule')">📅 ตารางเรียน 2/2569</button>
                 <button class="tab-btn" onclick="switchTab('parent-tab-scores')">📊 คะแนนสอบ</button>
-                <button class="tab-btn" onclick="switchTab('parent-tab-visit')">🏠 บันทึกเยี่ยมบ้าน</button>
+                <button class="tab-btn" onclick="switchTab('parent-tab-fund')"><i class="fa-solid fa-coins"></i> 💰 ตรวจเงินห้อง 1.4</button>
             </div>
 
             <!-- Tab 1: Pending Tasks -->
@@ -585,31 +585,36 @@
                 </div>
             </div>
 
-            <!-- Tab 2: Class Timetable -->
+            <!-- Tab 2: Class Timetable (Semester 2/2569) -->
             <div id="parent-tab-schedule" class="tab-content">
                 <div class="card" style="padding:1.2rem;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
-                        <h3 style="font-size:1.1rem; color:#0369a1; display:flex; align-items:center; gap:6px; margin:0;">
-                            <i class="fa-solid fa-calendar-days" style="color:#38bdf8;"></i> 📅 ตารางเรียน ชั้น ม.1/4 (ภาคเรียนที่ 1/2569)
-                        </h3>
-                        <span style="font-size:0.8rem; background:#e0f2fe; color:#0369a1; padding:4px 10px; border-radius:12px; font-weight:600;">🏫 โรงเรียนเทศบาล 6 นครเชียงราย</span>
+                        <div>
+                            <h3 style="font-size:1.1rem; color:#0369a1; display:flex; align-items:center; gap:6px; margin:0;">
+                                <i class="fa-solid fa-calendar-days" style="color:#38bdf8;"></i> 📅 ตารางเรียน ชั้น ม.1/4 ห้องเรียนประจำ 332
+                            </h3>
+                            <span style="font-size:0.82rem; color:#64748b; font-weight:600;">ภาคเรียนที่ 2/2569 • โรงเรียนเทศบาล 6 นครเชียงราย</span>
+                        </div>
+                        <button type="button" onclick="openImageLightbox('timetable_2_2569.jpg', 'ตารางเรียน ชั้น ม.1.4 ภาคเรียนที่ 2/2569')" class="btn" style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; font-size:0.8rem; font-weight:700; cursor:pointer; padding:6px 12px; border-radius:8px; display:inline-flex; align-items:center; gap:6px;">
+                            <i class="fa-solid fa-image"></i> 🖼️ ดูรูปตารางเรียนฉบับทางการ
+                        </button>
                     </div>
 
                     <div class="table-responsive">
-                        <table style="min-width:780px;">
+                        <table style="min-width:860px; text-align:center;">
                             <thead>
                                 <tr style="background:#f0f9ff; color:#0369a1;">
                                     <th style="width:85px;">วัน / เวลา</th>
                                     <th>คาบ 1<br><small style="font-weight:400; font-size:0.75rem;">08.20-09.10</small></th>
                                     <th>คาบ 2<br><small style="font-weight:400; font-size:0.75rem;">09.10-10.00</small></th>
                                     <th style="background:#f1f5f9; color:#64748b; font-size:0.76rem; width:70px;">พัก 20 นาที<br><small style="font-weight:400; font-size:0.72rem;">10.00-10.20</small></th>
-                                    <th>คาบ 4<br><small style="font-weight:400; font-size:0.75rem;">10.20-11.10</small></th>
-                                    <th>คาบ 5<br><small style="font-weight:400; font-size:0.75rem;">11.10-12.00</small></th>
-                                    <th style="background:#f1f5f9; color:#64748b; font-size:0.76rem; width:80px;">พักทานอาหาร<br><small style="font-weight:400; font-size:0.72rem;">12.00-12.50</small></th>
-                                    <th>คาบ 7<br><small style="font-weight:400; font-size:0.75rem;">12.50-13.40</small></th>
-                                    <th>คาบ 8<br><small style="font-weight:400; font-size:0.75rem;">13.40-14.30</small></th>
-                                    <th>คาบ 9<br><small style="font-weight:400; font-size:0.75rem;">14.30-15.20</small></th>
-                                    <th>คาบ 10<br><small style="font-weight:400; font-size:0.75rem;">15.20-16.10</small></th>
+                                    <th>คาบ 3<br><small style="font-weight:400; font-size:0.75rem;">10.20-11.10</small></th>
+                                    <th style="background:#f1f5f9; color:#64748b; font-size:0.76rem; width:85px;">พักทานอาหาร<br><small style="font-weight:400; font-size:0.72rem;">11.10-12.00</small></th>
+                                    <th>คาบ 5<br><small style="font-weight:400; font-size:0.75rem;">12.00-12.50</small></th>
+                                    <th>คาบ 6<br><small style="font-weight:400; font-size:0.75rem;">12.50-13.40</small></th>
+                                    <th>คาบ 7<br><small style="font-weight:400; font-size:0.75rem;">13.40-14.30</small></th>
+                                    <th>คาบ 8<br><small style="font-weight:400; font-size:0.75rem;">14.30-15.20</small></th>
+                                    <th>คาบ 9<br><small style="font-weight:400; font-size:0.75rem;">15.20-16.10</small></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -617,63 +622,63 @@
                                 <tr>
                                     <td style="background:#fef9c3; font-weight:700; color:#854d0e;">จันทร์</td>
                                     <td><strong style="display:block; color:#0f172a;">อบรม</strong><small style="color:#64748b;">โฮมรูม</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">อ21201</strong><small style="color:#475569;">ครูพัชรินทร์ (332)</small></td>
-                                    <td rowspan="5" style="background:#f8fafc; color:#94a3b8; font-size:0.75rem; writing-mode:vertical-lr; text-align:center;">พักผ่อน</td>
-                                    <td><strong style="display:block; color:#0f172a;">ว21101</strong><small style="color:#475569;">ครูอังคณา (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ค21201</strong><small style="color:#475569;">ครูเปรมฤดี (332)</small></td>
-                                    <td rowspan="5" style="background:#f8fafc; color:#94a3b8; font-size:0.75rem; writing-mode:vertical-lr; text-align:center;">พักทานอาหาร</td>
-                                    <td><strong style="display:block; color:#0f172a;">ท21101</strong><small style="color:#475569;">ครูพรรณนิภา (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ศ21101</strong><small style="color:#475569;">ครูอุกฤษฎ์ (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ว21201</strong><small style="color:#475569;">ครูวราวุฒิ (231)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ว21201</strong><small style="color:#475569;">ครูวราวุฒิ (231)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21102</strong><small style="color:#475569;">ครูศิริลักษณ์ (332)</small></td>
+                                    <td rowspan="5" style="background:#f8fafc; color:#94a3b8; font-size:0.75rem; writing-mode:vertical-lr; text-align:center;">พัก 20 นาที</td>
+                                    <td><strong style="display:block; color:#0f172a;">ส21103</strong><small style="color:#475569;">ครูธนาวัฒน์ (332)</small></td>
+                                    <td rowspan="5" style="background:#f8fafc; color:#94a3b8; font-size:0.75rem; writing-mode:vertical-lr; text-align:center;">พักรับประทานอาหาร</td>
+                                    <td><strong style="display:block; color:#0f172a;">อ21102</strong><small style="color:#475569;">ครูดิ่งธิวา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21202</strong><small style="color:#475569;">ครูเปรมฤดี (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">อ21204</strong><small style="color:#475569;">ครูKathleen (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21104</strong><small style="color:#475569;">ครูวริศลา (321)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21104</strong><small style="color:#475569;">ครูวริศลา (321)</small></td>
                                 </tr>
                                 <!-- อังคาร -->
                                 <tr>
                                     <td style="background:#fce7f3; font-weight:700; color:#9d174d;">อังคาร</td>
-                                    <td><strong style="display:block; color:#0f172a;">อ21201</strong><small style="color:#475569;">ครูพัชรินทร์ (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ส21101</strong><small style="color:#475569;">ครูธนาวัฒน์ (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ว20202</strong><small style="color:#475569;">ครูเขตตะวัน (341)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">อ21101</strong><small style="color:#475569;">ครูดิ่งธิวา (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ท21101</strong><small style="color:#475569;">ครูพรรณนิภา (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ค21101</strong><small style="color:#475569;">ครูศิริลักษณ์ (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ว20201</strong><small style="color:#475569;">ครูซงโค (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">พ21102</strong><small style="color:#475569;">ครูภิษกินติ์ (ว่ายน้ำ)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21202</strong><small style="color:#475569;">ครูวรางคณา (234)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21202</strong><small style="color:#475569;">ครูวรางคณา (234)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">อ21102</strong><small style="color:#475569;">ครูดิ่งธิวา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21206</strong><small style="color:#475569;">ครูคอมพิวเตอร์ (341)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">เลือกเสรี</strong><small style="color:#64748b;">วิชาเลือกเสรี</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">เลือกเสรี</strong><small style="color:#64748b;">วิชาเลือกเสรี</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21102</strong><small style="color:#475569;">ครูศิริลักษณ์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21204</strong><small style="color:#475569;">ครูเกษมณี (332)</small></td>
                                 </tr>
                                 <!-- พุธ -->
                                 <tr>
                                     <td style="background:#dcfce7; font-weight:700; color:#166534;">พุธ</td>
-                                    <td><strong style="display:block; color:#0f172a;">ว21103</strong><small style="color:#475569;">ครูวริศลา (321)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ว21103</strong><small style="color:#475569;">ครูวริศลา (321)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">จ21201</strong><small style="color:#475569;">ครูนภัสสนันท์ (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ค21203</strong><small style="color:#475569;">ครูกมลลักษณ์ (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ส21101</strong><small style="color:#475569;">ครูธนาวัฒน์ (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ว21101</strong><small style="color:#475569;">ครูอังคณา (221)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ว21101</strong><small style="color:#475569;">ครูอังคณา (221)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ชุมนุม</strong><small style="color:#64748b;">กิจกรรมชุมนุม</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21202</strong><small style="color:#475569;">ครูเปรมฤดี (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">อ21102</strong><small style="color:#475569;">ครูดิ่งธิวา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">แนะแนว</strong><small style="color:#475569;">ครูฐิติพร (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">อ21202</strong><small style="color:#475569;">ครูพัชรินทร์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ท21102</strong><small style="color:#475569;">ครูพรรณนิภา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ศ21102</strong><small style="color:#475569;">ครูอุกฤษฎ์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">พ21104</strong><small style="color:#475569;">ครูหทัยชนก (ว่ายน้ำ)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">อ21204</strong><small style="color:#475569;">ครูKathleen (332)</small></td>
                                 </tr>
                                 <!-- พฤหัสบดี -->
                                 <tr>
                                     <td style="background:#ffedd5; font-weight:700; color:#9a3412;">พฤหัสฯ</td>
-                                    <td><strong style="display:block; color:#0f172a;">ค21201</strong><small style="color:#475569;">ครูเปรมฤดี (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ส21102</strong><small style="color:#475569;">ครูธีร์สุดา (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ท21101</strong><small style="color:#475569;">ครูพรรณนิภา (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">แนะแนว</strong><small style="color:#475569;">ครูฐิติพร (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ค21101</strong><small style="color:#475569;">ครูศิริลักษณ์ (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">อ21101</strong><small style="color:#475569;">ครูดิ่งธิวา (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">อ21203</strong><small style="color:#475569;">ครู Chang (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ง21101</strong><small style="color:#475569;">ครูสิริพรรณ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21102</strong><small style="color:#475569;">ครูศิริลักษณ์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21102</strong><small style="color:#475569;">ครูวราวุฒิ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ท21102</strong><small style="color:#475569;">ครูพรรณนิภา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ส21103</strong><small style="color:#475569;">ครูธนาวัฒน์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">พ21103</strong><small style="color:#475569;">ครูศักรินทร์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21204</strong><small style="color:#475569;">ครูกมลลักษณ์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ชุมนุม</strong><small style="color:#64748b;">กิจกรรมชุมนุม</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค้นคว้า</strong><small style="color:#64748b;">กิจกรรมค้นคว้า</small></td>
                                 </tr>
                                 <!-- ศุกร์ -->
                                 <tr>
                                     <td style="background:#e0f2fe; font-weight:700; color:#0369a1;">ศุกร์</td>
-                                    <td><strong style="display:block; color:#0f172a;">อ21101</strong><small style="color:#475569;">ครูดิ่งธิวา (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">อ21203</strong><small style="color:#475569;">ครูหลิน (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ส21101</strong><small style="color:#475569;">ครูธนาวัฒน์ (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ค21101</strong><small style="color:#475569;">ครูศิริลักษณ์ (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">พ21101</strong><small style="color:#475569;">ครูศักรินทร์ (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ค21201</strong><small style="color:#475569;">ครูเปรมฤดี (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">จ21201</strong><small style="color:#475569;">ครูนภัสสนันท์ (332)</small></td>
-                                    <td><strong style="display:block; color:#0f172a;">ค้นคว้า</strong><small style="color:#64748b;">กิจกรรมค้นคว้า</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21102</strong><small style="color:#475569;">ครูวราวุฒิ (221)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ว21102</strong><small style="color:#475569;">ครูวราวุฒิ (221)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">จ21202</strong><small style="color:#475569;">ครูณภัสนันท์ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ส21104</strong><small style="color:#475569;">ครูธีร์สุดา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ง21102</strong><small style="color:#475569;">ครูสิริพรรณ (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ค21202</strong><small style="color:#475569;">ครูเปรมฤดี (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ท21102</strong><small style="color:#475569;">ครูพรรณนิภา (332)</small></td>
+                                    <td><strong style="display:block; color:#0f172a;">ส21103</strong><small style="color:#475569;">ครูธนาวัฒน์ (332)</small></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -688,10 +693,10 @@
                 </div>
             </div>
 
-            <!-- Tab 4: Home Visit Form & Status -->
-            <div id="parent-tab-visit" class="tab-content">
-                <div class="card" id="home-visit-tab-container" style="padding:1.2rem;">
-                    <!-- Dynamic Home Visit Content -->
+            <!-- Tab 4: Classroom Fund 1.4 -->
+            <div id="parent-tab-fund" class="tab-content">
+                <div class="card" id="classroom-fund-container" style="padding:1.2rem;">
+                    <!-- Dynamic Classroom Fund Content -->
                 </div>
             </div>
 
@@ -708,7 +713,6 @@
 
     <!-- Real Database Scripts -->
     <script src="real_db.js?v=20260921_v3"></script>
-    <script src="visit.js?v=20260807_v3"></script>
     <script>
         let currentStudent = null;
         let pendingTasks = [];
@@ -841,9 +845,7 @@
 
             renderPendingTasksTab();
             renderScoresTab();
-            if (typeof renderParentHomeVisitTab === 'function') {
-                renderParentHomeVisitTab();
-            }
+            renderClassroomFundTab();
 
             // Sync from cloud in background
             if (typeof window.syncTasksWithCloud === 'function') {
@@ -869,8 +871,20 @@
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-            event.target.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
+            const targetBtn = (window.event && window.event.target) ? window.event.target.closest('.tab-btn') : null;
+            if (targetBtn) {
+                targetBtn.classList.add('active');
+            } else {
+                const matched = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(tabId));
+                if (matched) matched.classList.add('active');
+            }
+
+            const targetEl = document.getElementById(tabId);
+            if (targetEl) targetEl.classList.add('active');
+
+            if (tabId === 'parent-tab-fund') {
+                renderClassroomFundTab();
+            }
         }
 
         function renderPendingTasksTab() {
@@ -1108,6 +1122,333 @@
 
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:12px;">
                     ${subjectsHtml}
+                </div>
+            `;
+        }
+
+        let currentFundFilter = 'all';
+        let currentFundSearch = '';
+
+        function setFundFilter(filter) {
+            currentFundFilter = filter;
+            renderClassroomFundTab();
+        }
+
+        function handleFundSearch(e) {
+            currentFundSearch = e.target.value.trim().toLowerCase();
+            renderClassroomFundTab();
+        }
+
+        function renderClassroomFundTab() {
+            const container = document.getElementById('classroom-fund-container');
+            if (!container) return;
+
+            const fundData = (typeof window.getClassroomFundData === 'function') ? window.getClassroomFundData() : (window.CLASSROOM_FUND_DATA || { records: [] });
+            const records = fundData.records || [];
+            const treasurer = fundData.treasurer || {
+                no: 24,
+                student_id: "19192",
+                name: "เด็กหญิงณัฐธิดา บุรีนอก",
+                nickname: "นาเนียร์",
+                role: "เหรัญญิกห้องเรียน ม.1/4 SMT",
+                photo_url: "photos/19192.jpg"
+            };
+
+            // Compute statistics
+            const totalStudents = records.length || 39;
+            const mayPaidCount = records.filter(r => r.may).length;
+            const junePaidCount = records.filter(r => r.june).length;
+            const bothPaidCount = records.filter(r => r.may && r.june).length;
+            const partialCount = records.filter(r => (r.may && !r.june) || (!r.may && r.june)).length;
+            const unpaidCount = records.filter(r => !r.may && !r.june).length;
+
+            const totalMayMoney = mayPaidCount * 20;
+            const totalJuneMoney = junePaidCount * 20;
+            const totalMoneyCollected = totalMayMoney + totalJuneMoney;
+            const totalTarget = totalStudents * 40; // 39 * 40 = 1560
+            const collectionPct = ((totalMoneyCollected / totalTarget) * 100).toFixed(1);
+
+            // Find current student record
+            let myRecord = null;
+            if (currentStudent) {
+                myRecord = records.find(r => 
+                    parseInt(r.no, 10) === parseInt(currentStudent.no, 10) || 
+                    String(r.student_id) === String(currentStudent.student_id)
+                );
+            }
+
+            // Student personal status banner
+            let personalStatusHtml = '';
+            if (myRecord) {
+                const mayStatus = myRecord.may;
+                const juneStatus = myRecord.june;
+                const paidAmount = (mayStatus ? 20 : 0) + (juneStatus ? 20 : 0);
+                const isFullyPaid = mayStatus && juneStatus;
+                const isPartiallyPaid = (mayStatus && !juneStatus) || (!mayStatus && juneStatus);
+
+                let statusBadge = '';
+                let statusBg = '';
+                let statusBorder = '';
+                let statusDesc = '';
+
+                if (isFullyPaid) {
+                    statusBg = 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)';
+                    statusBorder = '#6ee7b7';
+                    statusBadge = '<span style="background:#059669; color:#fff; padding:4px 12px; border-radius:12px; font-weight:700; font-size:0.85rem;"><i class="fa-solid fa-circle-check"></i> ชำระครบถ้วน 2 เดือนแล้ว (40 บาท)</span>';
+                    statusDesc = `🎉 ขอขอบคุณผู้ปกครองและ <strong>${currentStudent.fullname}</strong> มากครับ! ชำระเงินห้องเรียนครบถ้วนทั้งเดือนพฤษภาคมและมิถุนายนแล้ว (รวม 40 บาท)`;
+                } else if (isPartiallyPaid) {
+                    statusBg = 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)';
+                    statusBorder = '#fde68a';
+                    const pendingMonth = !mayStatus ? 'เดือนพฤษภาคม (20 บาท)' : 'เดือนมิถุนายน (20 บาท)';
+                    statusBadge = '<span style="background:#d97706; color:#fff; padding:4px 12px; border-radius:12px; font-weight:700; font-size:0.85rem;"><i class="fa-solid fa-clock"></i> ชำระแล้ว 1 เดือน (ค้างอีก 20 บาท)</span>';
+                    statusDesc = `⚠️ ชำระแล้ว 20 บาท ยังคงค้างชำระ: <strong>${pendingMonth}</strong> สามารถชำระเงินกับน้องนาเนียร์ (เหรัญญิกห้อง) ได้เลยครับ`;
+                } else {
+                    statusBg = 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)';
+                    statusBorder = '#fca5a5';
+                    statusBadge = '<span style="background:#e11d48; color:#fff; padding:4px 12px; border-radius:12px; font-weight:700; font-size:0.85rem;"><i class="fa-solid fa-triangle-exclamation"></i> ยังไม่ได้ชำระ (ค้าง 40 บาท)</span>';
+                    statusDesc = `⏳ ยังไม่มียอดชำระเงินห้องเรียนเดือนพฤษภาคม (20 บาท) และมิถุนายน (20 บาท) รวม 40 บาท สามารถนำเงินมาชำระกับน้องนาเนียร์ได้เลยครับ`;
+                }
+
+                personalStatusHtml = `
+                    <div style="background:${statusBg}; border:2px solid ${statusBorder}; border-radius:16px; padding:16px; margin-bottom:1.5rem; box-shadow:0 4px 14px rgba(0,0,0,0.04);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:1.4rem;">💰</span>
+                                <div>
+                                    <strong style="font-size:1.05rem; color:#0f172a;">สถานะเงินห้องของ ${currentStudent.firstname} ${currentStudent.nickname ? `(${currentStudent.nickname})` : ''}</strong>
+                                    <div style="font-size:0.8rem; color:#64748b;">เลขที่ ${currentStudent.no} • รหัสประจำตัว: ${currentStudent.student_id}</div>
+                                </div>
+                            </div>
+                            <div>${statusBadge}</div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin:12px 0;">
+                            <div style="background:#ffffff; border:1px solid rgba(0,0,0,0.08); border-radius:12px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <span style="font-size:0.8rem; color:#64748b; font-weight:600;">🗓️ เดือนพฤษภาคม (20.-)</span>
+                                    <div style="font-size:0.95rem; font-weight:700; color:${mayStatus ? '#059669' : '#e11d48'};">
+                                        ${mayStatus ? '✅ จ่ายแล้ว (20 บาท)' : '❌ ยังไม่จ่าย (ค้าง 20.-)'}
+                                    </div>
+                                </div>
+                                <span style="font-size:1.4rem;">${mayStatus ? '🟢' : '⚪'}</span>
+                            </div>
+
+                            <div style="background:#ffffff; border:1px solid rgba(0,0,0,0.08); border-radius:12px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <span style="font-size:0.8rem; color:#64748b; font-weight:600;">🗓️ เดือนมิถุนายน (20.-)</span>
+                                    <div style="font-size:0.95rem; font-weight:700; color:${juneStatus ? '#059669' : '#e11d48'};">
+                                        ${juneStatus ? '✅ จ่ายแล้ว (20 บาท)' : '❌ ยังไม่จ่าย (ค้าง 20.-)'}
+                                    </div>
+                                </div>
+                                <span style="font-size:1.4rem;">${juneStatus ? '🟢' : '⚪'}</span>
+                            </div>
+                        </div>
+
+                        <p style="font-size:0.85rem; color:#334155; margin:0; line-height:1.5;">${statusDesc}</p>
+                    </div>
+                `;
+            }
+
+            // Filtered records
+            let filteredRecords = records.filter(r => {
+                // Filter type
+                if (currentFundFilter === 'paid') {
+                    if (!(r.may && r.june)) return false;
+                } else if (currentFundFilter === 'pending') {
+                    if (r.may && r.june) return false;
+                }
+
+                // Search query
+                if (currentFundSearch) {
+                    const matchName = (r.name || '').toLowerCase().includes(currentFundSearch);
+                    const matchNick = (r.nickname || '').toLowerCase().includes(currentFundSearch);
+                    const matchNo = String(r.no).includes(currentFundSearch);
+                    const matchId = String(r.student_id).includes(currentFundSearch);
+                    if (!matchName && !matchNick && !matchNo && !matchId) return false;
+                }
+
+                return true;
+            });
+
+            // Build table rows
+            let rowsHtml = '';
+            filteredRecords.forEach(r => {
+                const isMe = currentStudent && (parseInt(r.no, 10) === parseInt(currentStudent.no, 10) || String(r.student_id) === String(currentStudent.student_id));
+                const isTreasurer = parseInt(r.no, 10) === parseInt(treasurer.no, 10);
+                const paidSum = (r.may ? 20 : 0) + (r.june ? 20 : 0);
+                const fullyPaid = r.may && r.june;
+                const partlyPaid = (r.may && !r.june) || (!r.may && r.june);
+
+                const rowBg = isMe ? 'background:#fef3c7; border-left:4px solid #f59e0b;' : (isTreasurer ? 'background:#f0fdf4;' : '');
+
+                rowsHtml += `
+                    <tr style="${rowBg}">
+                        <td style="font-weight:700; text-align:center;">${r.no}</td>
+                        <td style="text-align:center; font-family:monospace; font-size:0.85rem; color:#64748b;">${r.student_id}</td>
+                        <td>
+                            <strong style="color:#0f172a;">${r.name}</strong>
+                            ${isMe ? '<span style="background:#f59e0b; color:#fff; padding:2px 8px; border-radius:10px; font-size:0.72rem; font-weight:700; margin-left:6px;">คุณ / บุตรหลาน</span>' : ''}
+                            ${isTreasurer ? '<span style="background:#fef08a; color:#854d0e; padding:2px 8px; border-radius:10px; font-size:0.72rem; font-weight:700; margin-left:6px;">🪙 เหรัญญิก</span>' : ''}
+                        </td>
+                        <td style="text-align:center; font-weight:600; color:#475569;">${r.nickname || '-'}</td>
+                        <td style="text-align:center;">
+                            ${r.may 
+                                ? '<span style="background:#dcfce7; color:#15803d; padding:3px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-block;">✔️ จ่ายแล้ว</span>' 
+                                : '<span style="background:#fee2e2; color:#be123c; padding:3px 10px; border-radius:8px; font-weight:600; font-size:0.8rem; display:inline-block;">❌ ว่าง</span>'}
+                        </td>
+                        <td style="text-align:center;">
+                            ${r.june 
+                                ? '<span style="background:#dcfce7; color:#15803d; padding:3px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-block;">✔️ จ่ายแล้ว</span>' 
+                                : '<span style="background:#fee2e2; color:#be123c; padding:3px 10px; border-radius:8px; font-weight:600; font-size:0.8rem; display:inline-block;">❌ ว่าง</span>'}
+                        </td>
+                        <td style="text-align:center; font-weight:800; font-size:0.9rem; color:${fullyPaid ? '#059669' : (partlyPaid ? '#d97706' : '#e11d48')};">
+                            ${paidSum}.-
+                        </td>
+                        <td style="text-align:center;">
+                            ${fullyPaid 
+                                ? '<span style="background:#059669; color:#fff; padding:3px 8px; border-radius:10px; font-size:0.75rem; font-weight:700;">🟢 ครบถ้วน</span>' 
+                                : (partlyPaid 
+                                    ? '<span style="background:#d97706; color:#fff; padding:3px 8px; border-radius:10px; font-size:0.75rem; font-weight:700;">🟡 ค้าง 1 เดือน</span>' 
+                                    : '<span style="background:#e11d48; color:#fff; padding:3px 8px; border-radius:10px; font-size:0.75rem; font-weight:700;">🔴 ค้าง 2 เดือน</span>')}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            container.innerHTML = `
+                <!-- Header -->
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                    <div>
+                        <h3 style="font-size:1.2rem; color:#0369a1; margin:0; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-coins" style="color:#f59e0b;"></i> ตรวจสอบเงินห้องเรียน ชั้น ม.1/4 SMT
+                        </h3>
+                        <span style="font-size:0.82rem; color:#64748b; font-weight:600;">
+                            อัตราเก็บเงินห้อง: เดือนละ 20 บาท • พฤษภาคม และ มิถุนายน 2569 (รวม 40 บาท)
+                        </span>
+                    </div>
+                    <button type="button" onclick="openImageLightbox('fund_record_sheet.jpg', 'ใบบันทึกลายมือชื่อการเก็บเงินห้องเรียน ม.1/4 SMT')" class="btn" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:0.82rem; font-weight:700; cursor:pointer; padding:6px 14px; border-radius:10px; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> 🖼️ ดูใบบัญชีจริงลายมือเหรัญญิก
+                    </button>
+                </div>
+
+                <!-- Personal Student Card -->
+                ${personalStatusHtml}
+
+                <!-- Treasurer Profile Card -->
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:12px 16px; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <img src="${treasurer.photo_url || 'photos/19192.jpg'}" onerror="this.src='https://ui-avatars.com/api/?name=N+B&background=eab308&color=fff'" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid #eab308; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="background:#fef08a; color:#854d0e; padding:2px 8px; border-radius:8px; font-size:0.75rem; font-weight:700;">🪙 เหรัญญิกห้องเรียน</span>
+                                <strong style="font-size:0.95rem; color:#0f172a;">${treasurer.name} (${treasurer.nickname})</strong>
+                            </div>
+                            <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">
+                                เลขที่ ${treasurer.no} | รหัสประจำตัว: ${treasurer.student_id} | ผู้ดูแลสมุดบัญชีเงินห้องเรียน ม.1/4
+                            </div>
+                        </div>
+                    </div>
+                    <div style="font-size:0.8rem; color:#475569; background:#ffffff; padding:6px 12px; border-radius:10px; border:1px solid #cbd5e1;">
+                        <i class="fa-solid fa-circle-info" style="color:#0284c7;"></i> หากมีข้อสงสัยหรือต้องการชำระเงิน ติดต่อได้ที่ <strong>น้องนาเนียร์ (เลขที่ 24)</strong> ครับ
+                    </div>
+                </div>
+
+                <!-- Summary Overview Badges -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:12px; margin-bottom:1.5rem;">
+                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:14px; box-shadow:0 2px 6px rgba(0,0,0,0.03);">
+                        <span style="font-size:0.8rem; color:#64748b; font-weight:600;">💰 ยอดเงินห้องที่เก็บได้รวม:</span>
+                        <div style="display:flex; align-items:baseline; gap:6px; margin:4px 0;">
+                            <strong style="font-size:1.6rem; color:#059669; font-weight:800;">${totalMoneyCollected.toLocaleString()}</strong>
+                            <span style="font-size:0.85rem; color:#64748b;">/ ${totalTarget.toLocaleString()} บาท</span>
+                        </div>
+                        <div style="background:#e2e8f0; height:6px; border-radius:6px; overflow:hidden; margin-top:6px;">
+                            <div style="width:${collectionPct}%; background:#059669; height:100%;"></div>
+                        </div>
+                        <div style="font-size:0.75rem; color:#059669; font-weight:700; margin-top:4px;">คิดเป็น ${collectionPct}% ของเป้าหมาย</div>
+                    </div>
+
+                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:14px; box-shadow:0 2px 6px rgba(0,0,0,0.03);">
+                        <span style="font-size:0.8rem; color:#64748b; font-weight:600;">🗓️ เดือนพฤษภาคม (20.-):</span>
+                        <div style="display:flex; align-items:baseline; gap:6px; margin:4px 0;">
+                            <strong style="font-size:1.6rem; color:#0284c7; font-weight:800;">${mayPaidCount}</strong>
+                            <span style="font-size:0.85rem; color:#64748b;">/ ${totalStudents} คน (${totalMayMoney} บาท)</span>
+                        </div>
+                        <div style="font-size:0.75rem; color:#64748b; margin-top:8px;">
+                            ค้างชำระ: <strong style="color:#e11d48;">${totalStudents - mayPaidCount} คน</strong> (${(totalStudents - mayPaidCount) * 20} บาท)
+                        </div>
+                    </div>
+
+                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:14px; box-shadow:0 2px 6px rgba(0,0,0,0.03);">
+                        <span style="font-size:0.8rem; color:#64748b; font-weight:600;">🗓️ เดือนมิถุนายน (20.-):</span>
+                        <div style="display:flex; align-items:baseline; gap:6px; margin:4px 0;">
+                            <strong style="font-size:1.6rem; color:#7c3aed; font-weight:800;">${junePaidCount}</strong>
+                            <span style="font-size:0.85rem; color:#64748b;">/ ${totalStudents} คน (${totalJuneMoney} บาท)</span>
+                        </div>
+                        <div style="font-size:0.75rem; color:#64748b; margin-top:8px;">
+                            ค้างชำระ: <strong style="color:#e11d48;">${totalStudents - junePaidCount} คน</strong> (${(totalStudents - junePaidCount) * 20} บาท)
+                        </div>
+                    </div>
+
+                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:14px; box-shadow:0 2px 6px rgba(0,0,0,0.03);">
+                        <span style="font-size:0.8rem; color:#64748b; font-weight:600;">👥 สถิติการชำระของเพื่อนในห้อง:</span>
+                        <div style="display:flex; flex-direction:column; gap:4px; margin-top:6px; font-size:0.8rem;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <span>🟢 จ่ายครบ 2 เดือน:</span>
+                                <strong style="color:#059669;">${bothPaidCount} คน</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between;">
+                                <span>🟡 จ่าย 1 เดือน:</span>
+                                <strong style="color:#d97706;">${partialCount} คน</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between;">
+                                <span>🔴 ยังไม่จ่ายทั้ง 2 เดือน:</span>
+                                <strong style="color:#e11d48;">${unpaidCount} คน</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter & Search Controls -->
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        <button type="button" onclick="setFundFilter('all')" class="btn" style="background:${currentFundFilter === 'all' ? '#0369a1' : '#f1f5f9'}; color:${currentFundFilter === 'all' ? '#fff' : '#475569'}; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">
+                            ทั้งหมด (${records.length})
+                        </button>
+                        <button type="button" onclick="setFundFilter('paid')" class="btn" style="background:${currentFundFilter === 'paid' ? '#059669' : '#f1f5f9'}; color:${currentFundFilter === 'paid' ? '#fff' : '#475569'}; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">
+                            🟢 จ่ายครบแล้ว (${bothPaidCount})
+                        </button>
+                        <button type="button" onclick="setFundFilter('pending')" class="btn" style="background:${currentFundFilter === 'pending' ? '#e11d48' : '#f1f5f9'}; color:${currentFundFilter === 'pending' ? '#fff' : '#475569'}; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">
+                            🔴 ค้างชำระ (${records.length - bothPaidCount})
+                        </button>
+                    </div>
+
+                    <div style="position:relative; min-width:240px;">
+                        <input type="text" placeholder="🔍 ค้นหาเลขที่ / ชื่อเล่น / ชื่อ-สกุล..." value="${currentFundSearch}" oninput="handleFundSearch(event)" class="form-control" style="font-size:0.85rem; padding:6px 12px; border-radius:8px;">
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="table-responsive" style="border:1px solid #e2e8f0; border-radius:12px; overflow:hidden;">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.86rem;">
+                        <thead>
+                            <tr style="background:#f0f9ff; color:#0369a1; text-align:center;">
+                                <th style="padding:10px; width:55px;">เลขที่</th>
+                                <th style="padding:10px; width:90px;">รหัส</th>
+                                <th style="padding:10px; text-align:left;">ชื่อ - สกุล</th>
+                                <th style="padding:10px; width:75px;">ชื่อเล่น</th>
+                                <th style="padding:10px; width:110px;">พฤษภาคม (20.-)</th>
+                                <th style="padding:10px; width:110px;">มิถุนายน (20.-)</th>
+                                <th style="padding:10px; width:90px;">ยอดชำระ</th>
+                                <th style="padding:10px; width:100px;">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+                <div style="font-size:0.76rem; color:#94a3b8; margin-top:8px; text-align:right;">
+                    * ข้อมูลอ้างอิงจากสมุดบันทึกบัญชีเงินห้องเรียน ม.1/4 SMT ภาคเรียนที่ 2/2569
                 </div>
             `;
         }

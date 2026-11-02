@@ -569,3 +569,75 @@ window.triggerPwaPrompt = function() {
         });
     }
 };
+
+// ==========================================
+// 💰 ข้อมูลการเก็บเงินห้องเรียน ม.1/4 (Classroom Fund)
+// เหรัญญิกห้องเรียน: เด็กหญิงณัฐธิดา บุรีนอก (นาเนียร์ - เลขที่ 24)
+// ==========================================
+window.CLASSROOM_FUND_DATA = {
+    treasurer: {
+        no: 24,
+        student_id: "19192",
+        name: "เด็กหญิงณัฐธิดา บุรีนอก",
+        nickname: "นาเนียร์",
+        role: "เหรัญญิกห้องเรียน ม.1/4 SMT",
+        photo_url: "photos/19192.jpg"
+    },
+    months: [
+        { id: "may", name: "พฤษภาคม", amount: 20 },
+        { id: "june", name: "มิถุนายน", amount: 20 }
+    ],
+    sheet_image: "fund_record_sheet.jpg",
+    records: [
+        { no: 1, student_id: "19168", name: "เด็กชายกฤษณ โปทาอุด", nickname: "ข้นโตน", may: true, june: true },
+        { no: 2, student_id: "19169", name: "เด็กชายกฤติกร สุวรรณ์", nickname: "โอดิน", may: true, june: true },
+        { no: 3, student_id: "19170", name: "เด็กชายกฤษณพล กองห่อ", nickname: "ภูมิใจ", may: true, june: true },
+        { no: 4, student_id: "19172", name: "เด็กชายคุณภัทร ยัง", nickname: "เบนนี่", may: true, june: true },
+        { no: 5, student_id: "19173", name: "เด็กชายจารุภัทร รัตนอนมรวิสิทธิ์", nickname: "เอิร์ธ", may: true, june: false },
+        { no: 6, student_id: "19174", name: "เด็กชายชยณัฐ เทพวงค์", nickname: "พอยเตอร์", may: true, june: true },
+        { no: 7, student_id: "19175", name: "เด็กชายณวัฒน์ คำเครื่อง", nickname: "ผักไผ่", may: true, june: false },
+        { no: 8, student_id: "19176", name: "เด็กชายปวรุตม์ คันธะ", nickname: "อังเปา", may: true, june: true },
+        { no: 9, student_id: "19177", name: "เด็กชายพชรพล สุ่มใจยา", nickname: "เกื้อ", may: true, june: true },
+        { no: 10, student_id: "19178", name: "เด็กชายภานุวัฒน์ บุษดี", nickname: "การ์ฟิว", may: true, june: false },
+        { no: 11, student_id: "19179", name: "เด็กชายภูมิลักษณ์ แสนหนองศักดิ์", nickname: "อาตี้", may: true, june: true },
+        { no: 12, student_id: "19180", name: "เด็กชายวรานนท์ ใจกุศลดำรง", nickname: "หนึ่ง", may: true, june: false },
+        { no: 13, student_id: "19181", name: "เด็กชายวสุธร มหาวัน", nickname: "ออมตังค์", may: false, june: false },
+        { no: 14, student_id: "19182", name: "เด็กชายศุภากร รวมจิตต์", nickname: "นีโอ", may: true, june: false },
+        { no: 15, student_id: "19183", name: "เด็กชายอรรถพันธ์ ตาสาย", nickname: "ภูริ", may: false, june: true },
+        { no: 16, student_id: "19184", name: "เด็กชายอัฟฟานคาน อนุรักษ์", nickname: "อัฟฟาน", may: true, june: true },
+        { no: 17, student_id: "19185", name: "เด็กหญิงกชกานต์ แสนคำลือ", nickname: "เนปจูน", may: true, june: true },
+        { no: 18, student_id: "19186", name: "เด็กหญิงกชพรรณ กองแสง", nickname: "ชะเอม", may: true, june: true },
+        { no: 19, student_id: "19187", name: "เด็กหญิงชลธิชา แซตูกู", nickname: "มีน", may: true, june: true },
+        { no: 20, student_id: "19188", name: "เด็กหญิงฌานณิชา จารุชัยกุล", nickname: "เฌอ", may: true, june: false },
+        { no: 21, student_id: "19189", name: "เด็กหญิงญาณวิภา วงค์แสนสี", nickname: "พลอย", may: true, june: false },
+        { no: 22, student_id: "19190", name: "เด็กหญิงณัฏฐรียา วงค์พิบูลย์", nickname: "แพรไหม", may: false, june: false },
+        { no: 23, student_id: "19191", name: "เด็กหญิงณัฐฐิริณีย์ เผือกนอก", nickname: "ขิม", may: true, june: true },
+        { no: 24, student_id: "19192", name: "เด็กหญิงณัฐธิดา บุรีนอก", nickname: "นาเนียร์", may: true, june: true },
+        { no: 25, student_id: "19193", name: "เด็กหญิงณิชารีย์ ธิแก้ว", nickname: "ยิ้ม", may: true, june: false },
+        { no: 26, student_id: "19194", name: "เด็กหญิงดุลยา เขื่อนแก้ว", nickname: "น้ำหอม", may: true, june: false },
+        { no: 27, student_id: "19195", name: "เด็กชายธนดล ทาทอง", nickname: "แสตมป์", may: false, june: false },
+        { no: 28, student_id: "19196", name: "เด็กหญิงธนัญชญท สมแดง", nickname: "วันดี", may: true, june: true },
+        { no: 29, student_id: "19197", name: "เด็กหญิงนภัสนันท์ เทพพงค์ชัย", nickname: "แอปเปิ้ล", may: true, june: true },
+        { no: 30, student_id: "19198", name: "เด็กหญิงนวรัตน์ พูนชัย", nickname: "ขนมหวาน", may: true, june: true },
+        { no: 31, student_id: "19199", name: "เด็กหญิงนิชาภา กันทะอินทร์", nickname: "พราว", may: true, june: true },
+        { no: 32, student_id: "19200", name: "เด็กหญิงเบญญาภา ปันอินแปง", nickname: "โฟกัส", may: true, june: true },
+        { no: 33, student_id: "19201", name: "เด็กหญิงประภัชณิชา ยาปะโลหิต", nickname: "ไคชิน", may: true, june: true },
+        { no: 34, student_id: "19202", name: "เด็กหญิงปุณฑริกา ต้นแก้ว", nickname: "สบาย", may: true, june: true },
+        { no: 35, student_id: "19203", name: "เด็กหญิงพัชรพร ทองทิพย์", nickname: "ฝ้าย", may: false, june: false },
+        { no: 36, student_id: "19204", name: "เด็กหญิงพิมพ์ชนก พุทธสาร", nickname: "พิมมี่", may: true, june: true },
+        { no: 37, student_id: "19205", name: "เด็กหญิงวรนุช นามแสง", nickname: "นุ่น", may: true, june: true },
+        { no: 38, student_id: "19206", name: "เด็กหญิงสุพรรณษา กิติ", nickname: "แก้ม", may: true, june: true },
+        { no: 39, student_id: "19207", name: "เด็กหญิงอังศวิกา กันทะนันท์", nickname: "อัยย์ยี", may: true, june: true }
+    ]
+};
+
+window.getClassroomFundData = function() {
+    try {
+        var saved = localStorage.getItem('m104_classroom_fund_data');
+        if (saved) {
+            var parsed = JSON.parse(saved);
+            if (parsed && Array.isArray(parsed.records)) return parsed;
+        }
+    } catch(e) {}
+    return window.CLASSROOM_FUND_DATA;
+};

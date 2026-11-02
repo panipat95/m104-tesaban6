@@ -1011,7 +1011,7 @@ window.openAddFundTransactionModal = function(callerRole) {
 };
 
 // State trackers for shared fund full view
-window._fundActiveSubTab = window._fundActiveSubTab || 'ledger'; // 'ledger' or 'students'
+window._fundActiveSubTab = window._fundActiveSubTab || 'students'; // 'students' or 'ledger'
 window._fundLedgerFilter = window._fundLedgerFilter || 'all'; // 'all', 'income', 'expense'
 window._fundLedgerSearch = window._fundLedgerSearch || '';
 window._fundStudentFilter = window._fundStudentFilter || 'all'; // 'all', 'paid', 'pending'
@@ -1078,7 +1078,7 @@ window.renderClassroomFundFullView = function(containerId, options) {
         if (window._fundLedgerFilter === 'income' && t.type !== 'income') return false;
         if (window._fundLedgerFilter === 'expense' && t.type !== 'expense') return false;
         if (window._fundLedgerSearch) {
-            var q = window._fundLedgerSearch;
+            var q = window._fundLedgerSearch.toLowerCase();
             var matchDesc = (t.description || '').toLowerCase().includes(q);
             var matchCat = (t.category || '').toLowerCase().includes(q);
             var matchBy = (t.recorded_by || '').toLowerCase().includes(q);
@@ -1095,50 +1095,37 @@ window.renderClassroomFundFullView = function(containerId, options) {
         var sign = isIncome ? '+' : '-';
         var amountColor = isIncome ? '#059669' : '#dc2626';
         var typeBadge = isIncome 
-            ? '<span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:6px; font-weight:700; font-size:0.75rem;">🟢 รายรับ</span>'
-            : '<span style="background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:6px; font-weight:700; font-size:0.75rem;">🔴 รายจ่าย</span>';
+            ? '<span style="display:inline-flex; align-items:center; justify-content:center; gap:4px; min-width:80px; height:26px; background:#dcfce7; color:#15803d; border-radius:6px; font-weight:700; font-size:0.76rem; border:1px solid #86efac;"><i class="fa-solid fa-arrow-down"></i> รายรับ</span>'
+            : '<span style="display:inline-flex; align-items:center; justify-content:center; gap:4px; min-width:80px; height:26px; background:#fee2e2; color:#b91c1c; border-radius:6px; font-weight:700; font-size:0.76rem; border:1px solid #fca5a5;"><i class="fa-solid fa-arrow-up"></i> รายจ่าย</span>';
 
         var actionHtml = '';
         if (canEdit) {
             if (t.id === 'tx_01' || t.id === 'tx_03') {
                 actionHtml = '<span style="color:#94a3b8; font-size:0.75rem;" title="ยอดคำนวณอัตโนมัติจากสมุดเช็ครายบุคคล">🔒 อัตโนมัติ</span>';
             } else {
-                actionHtml = `
-                    <button type="button" onclick="deleteClassroomFundTransaction('${t.id}')" title="ลบรายการนี้" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; border-radius:6px; padding:3px 8px; font-size:0.75rem; cursor:pointer; font-weight:600;">
-                        <i class="fa-solid fa-trash-can"></i> ลบ
-                    </button>
-                `;
+                actionHtml = '<button type="button" onclick="deleteClassroomFundTransaction(\'' + t.id + '\')" title="ลบรายการนี้" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; border-radius:6px; padding:4px 10px; font-size:0.75rem; cursor:pointer; font-weight:600;"><i class="fa-solid fa-trash-can"></i> ลบ</button>';
             }
         }
 
-        txRowsHtml += `
-            <tr style="border-bottom:1px solid #f1f5f9;">
-                <td style="text-align:center; color:#64748b; font-size:0.8rem;">${idx + 1}</td>
-                <td style="text-align:center; font-weight:600; font-size:0.82rem; white-space:nowrap; color:#334155;">${t.date}</td>
-                <td style="text-align:center;">${typeBadge}</td>
-                <td style="font-weight:600; font-size:0.82rem; color:#475569;">${t.category || '-'}</td>
-                <td>
-                    <strong style="color:#0f172a; font-size:0.88rem; display:block;">${t.description}</strong>
-                    ${t.note && t.note !== '-' ? `<small style="color:#64748b; font-size:0.75rem;">📌 ${t.note}</small>` : ''}
-                </td>
-                <td style="text-align:right; font-weight:800; font-size:0.95rem; color:${amountColor}; white-space:nowrap;">
-                    ${sign}${Number(t.amount || 0).toLocaleString()}.-
-                </td>
-                <td style="font-size:0.8rem; color:#475569;">${t.recorded_by || '-'}</td>
-                ${canEdit ? `<td style="text-align:center;">${actionHtml}</td>` : ''}
-            </tr>
-        `;
+        txRowsHtml += '<tr style="border-bottom:1px solid #f1f5f9;">' +
+            '<td style="text-align:center !important; color:#64748b; font-size:0.82rem; font-weight:600; width:45px;">' + (idx + 1) + '</td>' +
+            '<td style="text-align:center !important; font-weight:600; font-size:0.84rem; white-space:nowrap; width:110px; color:#334155;">' + t.date + '</td>' +
+            '<td style="text-align:center !important; width:95px;">' + typeBadge + '</td>' +
+            '<td style="text-align:left !important; font-weight:600; font-size:0.84rem; color:#475569; width:140px;">' + (t.category || '-') + '</td>' +
+            '<td style="text-align:left !important; min-width:240px;">' +
+                '<strong style="color:#0f172a; font-size:0.88rem; display:block; line-height:1.45;">' + t.description + '</strong>' +
+                (t.note && t.note !== '-' ? '<small style="color:#64748b; font-size:0.78rem; display:inline-flex; align-items:center; gap:4px; margin-top:3px;">📌 ' + t.note + '</small>' : '') +
+            '</td>' +
+            '<td style="text-align:right !important; font-weight:800; font-size:0.98rem; color:' + amountColor + '; white-space:nowrap; width:120px;">' +
+                sign + Number(t.amount || 0).toLocaleString() + '.-' +
+            '</td>' +
+            '<td style="text-align:left !important; font-size:0.82rem; color:#475569; width:160px; line-height:1.4;">' + (t.recorded_by || '-') + '</td>' +
+            (canEdit ? '<td style="text-align:center !important; width:75px;">' + actionHtml + '</td>' : '') +
+        '</tr>';
     });
 
     if (filteredTxs.length === 0) {
-        txRowsHtml = `
-            <tr>
-                <td colspan="${canEdit ? 8 : 7}" style="text-align:center; padding:24px; color:#94a3b8; font-size:0.88rem;">
-                    <i class="fa-solid fa-folder-open" style="font-size:1.8rem; display:block; margin-bottom:8px;"></i>
-                    ไม่พบรายการตามเงื่อนไขที่ค้นหา
-                </td>
-            </tr>
-        `;
+        txRowsHtml = '<tr><td colspan="' + (canEdit ? 8 : 7) + '" style="text-align:center !important; padding:28px; color:#94a3b8; font-size:0.88rem;"><i class="fa-solid fa-folder-open" style="font-size:2rem; display:block; margin-bottom:8px; color:#cbd5e1;"></i>ไม่พบรายการตามเงื่อนไขที่ค้นหา</td></tr>';
     }
 
     // Filter students
@@ -1149,7 +1136,7 @@ window.renderClassroomFundFullView = function(containerId, options) {
             if (r.may && r.june) return false;
         }
         if (window._fundStudentSearch) {
-            var q = window._fundStudentSearch;
+            var q = window._fundStudentSearch.toLowerCase();
             var matchName = (r.name || '').toLowerCase().includes(q);
             var matchNick = (r.nickname || '').toLowerCase().includes(q);
             var matchNo = String(r.no).includes(q);
@@ -1167,58 +1154,60 @@ window.renderClassroomFundFullView = function(containerId, options) {
         var paidSum = (r.may ? 20 : 0) + (r.june ? 20 : 0);
         var fullyPaid = r.may && r.june;
         var partlyPaid = (r.may && !r.june) || (!r.may && r.june);
-        var rowBg = isMe ? 'background:#fef3c7; border-left:4px solid #f59e0b;' : (isTreasurer ? 'background:#fefce8;' : '');
+        
+        var rowClass = 'fund-student-row';
+        if (isMe) rowClass += ' row-is-me';
+        else if (isTreasurer) rowClass += ' row-is-treasurer';
 
         var mayBtn = '';
         var juneBtn = '';
         if (canEdit) {
-            mayBtn = `
-                <button type="button" onclick="toggleStudentFundPayment(${r.no}, 'may')" title="คลิกเพื่อสลับสถานะชำระเงิน พฤษภาคม" style="border:none; background:transparent; cursor:pointer; padding:0; outline:none; transition:transform 0.1s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
-                    ${r.may 
-                        ? '<span style="background:#dcfce7; color:#15803d; border:1px solid #86efac; padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 3px rgba(0,0,0,0.06); cursor:pointer;"><i class="fa-solid fa-circle-check"></i> ✔️ จ่ายแล้ว</span>' 
-                        : '<span style="background:#fee2e2; color:#be123c; border:1px solid #fca5a5; padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 3px rgba(0,0,0,0.06); cursor:pointer;"><i class="fa-solid fa-circle-xmark"></i> ❌ ว่าง</span>'}
-                </button>
-            `;
-            juneBtn = `
-                <button type="button" onclick="toggleStudentFundPayment(${r.no}, 'june')" title="คลิกเพื่อสลับสถานะชำระเงิน มิถุนายน" style="border:none; background:transparent; cursor:pointer; padding:0; outline:none; transition:transform 0.1s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
-                    ${r.june 
-                        ? '<span style="background:#dcfce7; color:#15803d; border:1px solid #86efac; padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 3px rgba(0,0,0,0.06); cursor:pointer;"><i class="fa-solid fa-circle-check"></i> ✔️ จ่ายแล้ว</span>' 
-                        : '<span style="background:#fee2e2; color:#be123c; border:1px solid #fca5a5; padding:4px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 3px rgba(0,0,0,0.06); cursor:pointer;"><i class="fa-solid fa-circle-xmark"></i> ❌ ว่าง</span>'}
-                </button>
-            `;
+            mayBtn = '<button type="button" onclick="toggleStudentFundPayment(' + r.no + ', \'may\')" title="คลิกเพื่อสลับสถานะชำระเงิน พฤษภาคม" style="border:none; background:transparent; cursor:pointer; padding:0; outline:none; transition:transform 0.1s;" onmouseover="this.style.transform=\'scale(1.04)\'" onmouseout="this.style.transform=\'scale(1)\'">' +
+                (r.may 
+                    ? '<span class="fund-badge-pill" style="background:#dcfce7; color:#15803d; border:1px solid #86efac; box-shadow:0 1px 2px rgba(0,0,0,0.04);"><i class="fa-solid fa-circle-check"></i> จ่ายแล้ว</span>' 
+                    : '<span class="fund-badge-pill" style="background:#fee2e2; color:#be123c; border:1px solid #fca5a5; box-shadow:0 1px 2px rgba(0,0,0,0.04);"><i class="fa-solid fa-circle-xmark"></i> ว่าง (ค้าง)</span>') +
+            '</button>';
+
+            juneBtn = '<button type="button" onclick="toggleStudentFundPayment(' + r.no + ', \'june\')" title="คลิกเพื่อสลับสถานะชำระเงิน มิถุนายน" style="border:none; background:transparent; cursor:pointer; padding:0; outline:none; transition:transform 0.1s;" onmouseover="this.style.transform=\'scale(1.04)\'" onmouseout="this.style.transform=\'scale(1)\'">' +
+                (r.june 
+                    ? '<span class="fund-badge-pill" style="background:#dcfce7; color:#15803d; border:1px solid #86efac; box-shadow:0 1px 2px rgba(0,0,0,0.04);"><i class="fa-solid fa-circle-check"></i> จ่ายแล้ว</span>' 
+                    : '<span class="fund-badge-pill" style="background:#fee2e2; color:#be123c; border:1px solid #fca5a5; box-shadow:0 1px 2px rgba(0,0,0,0.04);"><i class="fa-solid fa-circle-xmark"></i> ว่าง (ค้าง)</span>') +
+            '</button>';
         } else {
             mayBtn = r.may 
-                ? '<span style="background:#dcfce7; color:#15803d; padding:3px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-block;">✔️ จ่ายแล้ว</span>' 
-                : '<span style="background:#fee2e2; color:#be123c; padding:3px 10px; border-radius:8px; font-weight:600; font-size:0.8rem; display:inline-block;">❌ ว่าง</span>';
+                ? '<span class="fund-badge-pill" style="background:#dcfce7; color:#15803d; border:1px solid #86efac;"><i class="fa-solid fa-circle-check"></i> จ่ายแล้ว</span>' 
+                : '<span class="fund-badge-pill" style="background:#fee2e2; color:#be123c; border:1px solid #fca5a5;"><i class="fa-solid fa-circle-xmark"></i> ว่าง (ค้าง)</span>';
             juneBtn = r.june 
-                ? '<span style="background:#dcfce7; color:#15803d; padding:3px 10px; border-radius:8px; font-weight:700; font-size:0.8rem; display:inline-block;">✔️ จ่ายแล้ว</span>' 
-                : '<span style="background:#fee2e2; color:#be123c; padding:3px 10px; border-radius:8px; font-weight:600; font-size:0.8rem; display:inline-block;">❌ ว่าง</span>';
+                ? '<span class="fund-badge-pill" style="background:#dcfce7; color:#15803d; border:1px solid #86efac;"><i class="fa-solid fa-circle-check"></i> จ่ายแล้ว</span>' 
+                : '<span class="fund-badge-pill" style="background:#fee2e2; color:#be123c; border:1px solid #fca5a5;"><i class="fa-solid fa-circle-xmark"></i> ว่าง (ค้าง)</span>';
         }
 
-        studentRowsHtml += `
-            <tr style="${rowBg}">
-                <td style="font-weight:700; text-align:center;">${r.no}</td>
-                <td style="text-align:center; font-family:monospace; font-size:0.85rem; color:#64748b;">${r.student_id}</td>
-                <td>
-                    <strong style="color:#0f172a;">${r.name}</strong>
-                    ${isMe ? '<span style="background:#f59e0b; color:#fff; padding:2px 8px; border-radius:10px; font-size:0.72rem; font-weight:700; margin-left:6px;">คุณ / บุตรหลาน</span>' : ''}
-                    ${isTreasurer ? '<span style="background:#fef08a; color:#854d0e; padding:2px 8px; border-radius:10px; font-size:0.72rem; font-weight:700; margin-left:6px;">🪙 เหรัญญิก</span>' : ''}
-                </td>
-                <td style="text-align:center; font-weight:600; color:#475569;">${r.nickname || '-'}</td>
-                <td style="text-align:center;">${mayBtn}</td>
-                <td style="text-align:center;">${juneBtn}</td>
-                <td style="text-align:center; font-weight:800; font-size:0.9rem; color:${fullyPaid ? '#059669' : (partlyPaid ? '#d97706' : '#e11d48')};">
-                    ${paidSum}.-
-                </td>
-                <td style="text-align:center;">
-                    ${fullyPaid 
-                        ? '<span style="background:#059669; color:#fff; padding:3px 8px; border-radius:10px; font-size:0.75rem; font-weight:700;">🟢 ครบถ้วน</span>' 
-                        : (partlyPaid 
-                            ? '<span style="background:#d97706; color:#fff; padding:3px 8px; border-radius:10px; font-size:0.75rem; font-weight:700;">🟡 ค้าง 1 เดือน</span>' 
-                            : '<span style="background:#e11d48; color:#fff; padding:3px 8px; border-radius:10px; font-size:0.75rem; font-weight:700;">🔴 ค้าง 2 เดือน</span>')}
-                </td>
-            </tr>
-        `;
+        studentRowsHtml += '<tr class="' + rowClass + '">' +
+            '<td style="font-weight:700; text-align:center !important; width:55px; color:#475569;">' + r.no + '</td>' +
+            '<td style="text-align:center !important; font-family:ui-monospace, monospace; font-size:0.84rem; width:85px; color:#64748b;">' + r.student_id + '</td>' +
+            '<td style="text-align:left !important; min-width:220px;">' +
+                '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; text-align:left;">' +
+                    '<strong style="color:#0f172a; font-size:0.9rem;">' + r.name + '</strong>' +
+                    (isMe ? '<span style="background:#f59e0b; color:#ffffff; padding:2px 8px; border-radius:12px; font-size:0.72rem; font-weight:700; display:inline-flex; align-items:center; gap:3px;"><i class="fa-solid fa-user"></i> คุณ / บุตรหลาน</span>' : '') +
+                    (isTreasurer ? '<span style="background:#fef08a; color:#854d0e; border:1px solid #fde047; padding:2px 8px; border-radius:12px; font-size:0.72rem; font-weight:700; display:inline-flex; align-items:center; gap:3px;">🪙 เหรัญญิก</span>' : '') +
+                '</div>' +
+            '</td>' +
+            '<td style="text-align:center !important; width:80px;">' +
+                '<span style="background:#f1f5f9; color:#334155; padding:3px 10px; border-radius:12px; font-weight:600; font-size:0.82rem; display:inline-block;">' + (r.nickname || '-') + '</span>' +
+            '</td>' +
+            '<td style="text-align:center !important; width:130px;">' + mayBtn + '</td>' +
+            '<td style="text-align:center !important; width:130px;">' + juneBtn + '</td>' +
+            '<td style="text-align:center !important; font-weight:800; font-size:0.92rem; width:90px; color:' + (fullyPaid ? '#059669' : (partlyPaid ? '#d97706' : '#e11d48')) + ';">' +
+                paidSum + '.-' +
+            '</td>' +
+            '<td style="text-align:center !important; width:115px;">' +
+                (fullyPaid 
+                    ? '<span class="fund-status-pill" style="background:#059669; color:#ffffff;"><i class="fa-solid fa-check"></i> ครบถ้วน</span>' 
+                    : (partlyPaid 
+                        ? '<span class="fund-status-pill" style="background:#d97706; color:#ffffff;"><i class="fa-solid fa-clock"></i> ค้าง 1 ด.</span>' 
+                        : '<span class="fund-status-pill" style="background:#e11d48; color:#ffffff;"><i class="fa-solid fa-triangle-exclamation"></i> ค้าง 2 ด.</span>')) +
+            '</td>' +
+        '</tr>';
     });
 
     // Personal highlight banner in parent portal
@@ -1228,223 +1217,322 @@ window.renderClassroomFundFullView = function(containerId, options) {
         if (myRec) {
             var myPaid = (myRec.may ? 20 : 0) + (myRec.june ? 20 : 0);
             var myFull = myRec.may && myRec.june;
-            personalBannerHtml = `
-                <div style="background:${myFull ? '#f0fdf4' : '#fffbeb'}; border:2px solid ${myFull ? '#86efac' : '#fde68a'}; border-radius:14px; padding:14px 18px; margin-bottom:1.2rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <div style="width:44px; height:44px; border-radius:50%; background:${myFull ? '#22c55e' : '#f59e0b'}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
-                            <i class="fa-solid ${myFull ? 'fa-circle-check' : 'fa-clock'}"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight:800; font-size:1rem; color:#0f172a;">
-                                สถานะการชำระเงินห้องของ: เลขที่ ${myRec.no} ${myRec.name} (${myRec.nickname})
-                            </div>
-                            <div style="font-size:0.84rem; color:${myFull ? '#15803d' : '#92400e'}; font-weight:600; margin-top:2px;">
-                                ${myFull 
+            personalBannerHtml = 
+                '<div style="background:' + (myFull ? '#f0fdf4' : '#fffbeb') + '; border:2px solid ' + (myFull ? '#86efac' : '#fde68a') + '; border-radius:14px; padding:14px 18px; margin-bottom:1.2rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">' +
+                    '<div style="display:flex; align-items:center; gap:12px;">' +
+                        '<div style="width:44px; height:44px; border-radius:50%; background:' + (myFull ? '#22c55e' : '#f59e0b') + '; color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">' +
+                            '<i class="fa-solid ' + (myFull ? 'fa-circle-check' : 'fa-clock') + '"></i>' +
+                        '</div>' +
+                        '<div>' +
+                            '<div style="font-weight:800; font-size:1rem; color:#0f172a;">' +
+                                'สถานะการชำระเงินห้องของ: เลขที่ ' + myRec.no + ' ' + myRec.name + ' (' + myRec.nickname + ')' +
+                            '</div>' +
+                            '<div style="font-size:0.84rem; color:' + (myFull ? '#15803d' : '#92400e') + '; font-weight:600; margin-top:2px;">' +
+                                (myFull 
                                     ? '🎉 ชำระเงินห้องเรียนครบถ้วนทั้ง 2 เดือน (40 บาท) เรียบร้อยแล้ว ขอบคุณครับ 👍' 
-                                    : `⚠️ มียอดค้างชำระ: ${40 - myPaid} บาท (พ.ค.: ${myRec.may ? '✔️ จ่ายแล้ว' : '❌ ค้างชำระ'} | มิ.ย.: ${myRec.june ? '✔️ จ่ายแล้ว' : '❌ ค้างชำระ'})`}
-                            </div>
-                        </div>
-                    </div>
-                    <div style="font-size:1.15rem; font-weight:800; color:${myFull ? '#15803d' : '#d97706'}; background:#ffffff; padding:6px 14px; border-radius:10px; border:1px solid #cbd5e1;">
-                        ชำระแล้ว ${myPaid} / 40 บาท
-                    </div>
-                </div>
-            `;
+                                    : '⚠️ มียอดค้างชำระ: ' + (40 - myPaid) + ' บาท (พ.ค.: ' + (myRec.may ? '✔️ จ่ายแล้ว' : '❌ ค้างชำระ') + ' | มิ.ย.: ' + (myRec.june ? '✔️ จ่ายแล้ว' : '❌ ค้างชำระ') + ')') +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="font-size:1.15rem; font-weight:800; color:' + (myFull ? '#15803d' : '#d97706') + '; background:#ffffff; padding:6px 14px; border-radius:10px; border:1px solid #cbd5e1;">' +
+                        'ชำระแล้ว ' + myPaid + ' / 40 บาท' +
+                    '</div>' +
+                '</div>';
         }
     }
 
-    container.innerHTML = `
-        <!-- Header -->
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
-            <div>
-                <h3 style="font-size:1.25rem; color:#0369a1; margin:0; display:flex; align-items:center; gap:8px;">
-                    <i class="fa-solid fa-coins" style="color:#f59e0b;"></i> บัญชีเงินห้องเรียน ชั้น ม.1/4 SMT
-                </h3>
-                <span style="font-size:0.84rem; color:#64748b; font-weight:600;">
-                    ภาคเรียนที่ 2/2569 • ตรวจสอบรายรับ-รายจ่ายและเงินคงเหลือได้แบบโปร่งใส 100%
-                </span>
-            </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <button type="button" onclick="openImageLightbox('fund_record_sheet.jpg', 'ใบบันทึกลายมือชื่อการเก็บเงินห้องเรียน ม.1/4 SMT')" class="btn" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:0.84rem; font-weight:700; cursor:pointer; padding:6px 14px; border-radius:10px; display:inline-flex; align-items:center; gap:6px;">
-                    <i class="fa-solid fa-file-invoice-dollar"></i> 🖼️ ดูใบบัญชีจริงลายมือเหรัญญิก
-                </button>
-            </div>
-        </div>
+    container.innerHTML = 
+        '<style>' +
+        '.fund-modern-card {' +
+        '    background: #ffffff !important;' +
+        '    border: 1px solid #e2e8f0 !important;' +
+        '    border-radius: 14px !important;' +
+        '    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04) !important;' +
+        '    overflow: hidden !important;' +
+        '    margin-bottom: 1.2rem !important;' +
+        '}' +
+        '.fund-table-scroll {' +
+        '    width: 100% !important;' +
+        '    overflow-x: auto !important;' +
+        '    -webkit-overflow-scrolling: touch !important;' +
+        '}' +
+        '.fund-table {' +
+        '    width: 100% !important;' +
+        '    min-width: 860px !important;' +
+        '    border-collapse: collapse !important;' +
+        '    font-size: 0.86rem !important;' +
+        '    text-align: left !important;' +
+        '    background: #ffffff !important;' +
+        '    margin: 0 !important;' +
+        '    border: none !important;' +
+        '}' +
+        '.fund-table th {' +
+        '    background: #f8fafc !important;' +
+        '    color: #0369a1 !important;' +
+        '    font-size: 0.84rem !important;' +
+        '    font-weight: 700 !important;' +
+        '    padding: 13px 14px !important;' +
+        '    border: none !important;' +
+        '    border-bottom: 2px solid #bae6fd !important;' +
+        '    vertical-align: middle !important;' +
+        '    white-space: nowrap !important;' +
+        '    box-sizing: border-box !important;' +
+        '}' +
+        '.fund-table td {' +
+        '    padding: 12px 14px !important;' +
+        '    border: none !important;' +
+        '    border-bottom: 1px solid #f1f5f9 !important;' +
+        '    vertical-align: middle !important;' +
+        '    font-size: 0.86rem !important;' +
+        '    line-height: 1.45 !important;' +
+        '    color: #334155 !important;' +
+        '    box-sizing: border-box !important;' +
+        '}' +
+        '.fund-table tbody tr {' +
+        '    transition: background 0.15s ease !important;' +
+        '    background: #ffffff;' +
+        '}' +
+        '.fund-table tbody tr:nth-child(even) {' +
+        '    background: #fafcff !important;' +
+        '}' +
+        '.fund-table tbody tr:hover {' +
+        '    background: #f0f9ff !important;' +
+        '}' +
+        '.fund-table tbody tr.row-is-me td {' +
+        '    background: #fffbeb !important;' +
+        '    border-bottom: 1px solid #fde68a !important;' +
+        '}' +
+        '.fund-table tbody tr.row-is-me td:first-child {' +
+        '    border-left: 4px solid #f59e0b !important;' +
+        '}' +
+        '.fund-table tbody tr.row-is-treasurer td {' +
+        '    background: #fefce8 !important;' +
+        '}' +
+        '.fund-table tfoot td {' +
+        '    background: #f8fafc !important;' +
+        '    border: none !important;' +
+        '    border-top: 2px solid #cbd5e1 !important;' +
+        '    padding: 14px !important;' +
+        '    vertical-align: middle !important;' +
+        '}' +
+        '.fund-badge-pill {' +
+        '    display: inline-flex !important;' +
+        '    align-items: center !important;' +
+        '    justify-content: center !important;' +
+        '    gap: 5px !important;' +
+        '    width: 98px !important;' +
+        '    height: 32px !important;' +
+        '    border-radius: 8px !important;' +
+        '    font-weight: 700 !important;' +
+        '    font-size: 0.8rem !important;' +
+        '    box-sizing: border-box !important;' +
+        '    white-space: nowrap !important;' +
+        '    text-align: center !important;' +
+        '}' +
+        '.fund-status-pill {' +
+        '    display: inline-flex !important;' +
+        '    align-items: center !important;' +
+        '    justify-content: center !important;' +
+        '    gap: 4px !important;' +
+        '    min-width: 92px !important;' +
+        '    height: 28px !important;' +
+        '    border-radius: 14px !important;' +
+        '    font-size: 0.75rem !important;' +
+        '    font-weight: 700 !important;' +
+        '    white-space: nowrap !important;' +
+        '    text-align: center !important;' +
+        '    padding: 0 10px !important;' +
+        '}' +
+        '</style>' +
 
-        ${personalBannerHtml}
+        '<!-- Header -->' +
+        '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">' +
+            '<div>' +
+                '<h3 style="font-size:1.25rem; color:#0369a1; margin:0; display:flex; align-items:center; gap:8px;">' +
+                    '<i class="fa-solid fa-coins" style="color:#f59e0b;"></i> บัญชีเงินห้องเรียน ชั้น ม.1/4 SMT' +
+                '</h3>' +
+                '<span style="font-size:0.84rem; color:#64748b; font-weight:600;">' +
+                    'ภาคเรียนที่ 2/2569 • ตรวจสอบรายรับ-รายจ่ายและเงินคงเหลือได้แบบโปร่งใส 100%' +
+                '</span>' +
+            '</div>' +
+            '<div style="display:flex; gap:8px; flex-wrap:wrap;">' +
+                '<button type="button" onclick="openImageLightbox(\'fund_record_sheet.jpg\', \'ใบบันทึกลายมือชื่อการเก็บเงินห้องเรียน ม.1/4 SMT\')" class="btn" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:0.84rem; font-weight:700; cursor:pointer; padding:6px 14px; border-radius:10px; display:inline-flex; align-items:center; gap:6px;">' +
+                    '<i class="fa-solid fa-file-invoice-dollar"></i> 🖼️ ดูใบบัญชีจริงลายมือเหรัญญิก' +
+                '</button>' +
+            '</div>' +
+        '</div>' +
 
-        <!-- 🌟 HERO CASH BALANCE CARD -->
-        <div style="background:linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%); color:#ffffff; border-radius:18px; padding:20px 24px; box-shadow:0 10px 25px rgba(5,150,105,0.22); margin-bottom:1.4rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:18px;">
-            <div>
-                <div style="font-size:0.86rem; font-weight:700; color:#a7f3d0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <i class="fa-solid fa-vault" style="font-size:1.1rem; color:#34d399;"></i>
-                    <span>ยอดเงินห้องเรียนคงเหลือสุทธิ (CURRENT CASH BALANCE)</span>
-                    <span style="background:rgba(255,255,255,0.22); color:#ffffff; padding:2px 10px; border-radius:12px; font-size:0.75rem; font-weight:700;">
-                        📅 อัปเดตล่าสุด: ${summary.as_of_date || '2 พ.ย. 2569'}
-                    </span>
-                </div>
-                <div style="display:flex; align-items:baseline; gap:10px; margin:8px 0 4px 0;">
-                    <span style="font-size:2.8rem; font-weight:900; letter-spacing:-1px; text-shadow:0 2px 5px rgba(0,0,0,0.2);">
-                        ${summary.remaining_balance.toLocaleString()}.-
-                    </span>
-                    <span style="font-size:1.2rem; font-weight:700; color:#d1fae5;">บาท</span>
-                    <span style="background:#10b981; color:#fff; padding:4px 10px; border-radius:8px; font-size:0.78rem; font-weight:800; display:inline-flex; align-items:center; gap:4px; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
-                        <i class="fa-solid fa-circle-check"></i> ตรงตามสมุดบัญชีจริง
-                    </span>
-                </div>
-                <div style="font-size:0.84rem; color:#d1fae5; line-height:1.4;">
-                    คำนวณจาก: รายรับสะสม <strong>${summary.total_income.toLocaleString()}</strong> บาท หัก รายจ่ายสะสม <strong>${summary.total_expense.toLocaleString()}</strong> บาท
-                </div>
-            </div>
+        personalBannerHtml +
 
-            <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                <div style="background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.25); border-radius:14px; padding:12px 16px; min-width:130px; text-align:center;">
-                    <div style="font-size:0.78rem; color:#a7f3d0; font-weight:600;">📥 รายรับสะสมรวม</div>
-                    <div style="font-size:1.45rem; font-weight:800; color:#ffffff; margin-top:2px;">${summary.total_income.toLocaleString()}.-</div>
-                    <div style="font-size:0.72rem; color:#d1fae5;">พ.ค. ${mayPaidCount * 20} | มิ.ย. ${junePaidCount * 20}</div>
-                </div>
-                <div style="background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.25); border-radius:14px; padding:12px 16px; min-width:130px; text-align:center;">
-                    <div style="font-size:0.78rem; color:#fecdd3; font-weight:600;">📤 รายจ่ายสะสมรวม</div>
-                    <div style="font-size:1.45rem; font-weight:800; color:#ffe4e6; margin-top:2px;">${summary.total_expense.toLocaleString()}.-</div>
-                    <div style="font-size:0.72rem; color:#ffe4e6;">${txs.filter(function(t) { return t.type === 'expense'; }).length} รายการเบิกจ่าย</div>
-                </div>
-            </div>
-        </div>
+        '<!-- 🌟 HERO CASH BALANCE CARD -->' +
+        '<div style="background:linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%); color:#ffffff; border-radius:18px; padding:20px 24px; box-shadow:0 10px 25px rgba(5,150,105,0.22); margin-bottom:1.4rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:18px;">' +
+            '<div>' +
+                '<div style="font-size:0.86rem; font-weight:700; color:#a7f3d0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">' +
+                    '<i class="fa-solid fa-vault" style="font-size:1.1rem; color:#34d399;"></i>' +
+                    '<span>ยอดเงินห้องเรียนคงเหลือสุทธิ (CURRENT CASH BALANCE)</span>' +
+                    '<span style="background:rgba(255,255,255,0.22); color:#ffffff; padding:2px 10px; border-radius:12px; font-size:0.75rem; font-weight:700;">' +
+                        '📅 อัปเดตล่าสุด: ' + (summary.as_of_date || '2 พ.ย. 2569') +
+                    '</span>' +
+                '</div>' +
+                '<div style="display:flex; align-items:baseline; gap:10px; margin:8px 0 4px 0;">' +
+                    '<span style="font-size:2.8rem; font-weight:900; letter-spacing:-1px; text-shadow:0 2px 5px rgba(0,0,0,0.2);">' +
+                        summary.remaining_balance.toLocaleString() + '.-' +
+                    '</span>' +
+                    '<span style="font-size:1.2rem; font-weight:700; color:#d1fae5;">บาท</span>' +
+                    '<span style="background:#10b981; color:#fff; padding:4px 10px; border-radius:8px; font-size:0.78rem; font-weight:800; display:inline-flex; align-items:center; gap:4px; box-shadow:0 2px 6px rgba(0,0,0,0.15);">' +
+                        '<i class="fa-solid fa-circle-check"></i> ตรงตามสมุดบัญชีจริง' +
+                    '</span>' +
+                '</div>' +
+                '<div style="font-size:0.84rem; color:#d1fae5; line-height:1.4;">' +
+                    'คำนวณจาก: รายรับสะสม <strong>' + summary.total_income.toLocaleString() + '</strong> บาท หัก รายจ่ายสะสม <strong>' + summary.total_expense.toLocaleString() + '</strong> บาท' +
+                '</div>' +
+            '</div>' +
 
-        <!-- Treasurer Profile Card -->
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:12px 18px; margin-bottom:1.4rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-            <div style="display:flex; align-items:center; gap:14px;">
-                <img src="${treasurer.photo_url || 'photos/19192.jpg'}" onerror="this.src='https://ui-avatars.com/api/?name=N+B&background=eab308&color=fff'" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid #eab308; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
-                <div>
-                    <div style="display:flex; align-items:center; gap:6px;">
-                        <span style="background:#fef08a; color:#854d0e; padding:2px 8px; border-radius:8px; font-size:0.75rem; font-weight:700;">🪙 เหรัญญิกประจำห้องเรียน</span>
-                        <strong style="font-size:1rem; color:#0f172a;">${treasurer.name} (${treasurer.nickname})</strong>
-                    </div>
-                    <div style="font-size:0.82rem; color:#64748b; margin-top:2px;">
-                        เลขที่ ${treasurer.no} | รหัสประจำตัว: ${treasurer.student_id} | ผู้ดูแลสมุดบันทึกบัญชีและการเบิกจ่ายเงินห้อง ม.1/4 SMT
-                    </div>
-                </div>
-            </div>
-            <div style="font-size:0.82rem; color:#475569; background:#ffffff; padding:6px 14px; border-radius:10px; border:1px solid #cbd5e1;">
-                <i class="fa-solid fa-circle-check" style="color:#059669;"></i> นักเรียนและผู้ปกครองทุกคนสามารถตรวจสอบความเคลื่อนไหวทางบัญชีได้แบบเรียลไทม์
-            </div>
-        </div>
+            '<div style="display:flex; gap:12px; flex-wrap:wrap;">' +
+                '<div style="background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.25); border-radius:14px; padding:12px 16px; min-width:130px; text-align:center;">' +
+                    '<div style="font-size:0.78rem; color:#a7f3d0; font-weight:600;">📥 รายรับสะสมรวม</div>' +
+                    '<div style="font-size:1.45rem; font-weight:800; color:#ffffff; margin-top:2px;">' + summary.total_income.toLocaleString() + '.-</div>' +
+                    '<div style="font-size:0.72rem; color:#d1fae5;">พ.ค. ' + (mayPaidCount * 20) + ' | มิ.ย. ' + (junePaidCount * 20) + '</div>' +
+                '</div>' +
+                '<div style="background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.25); border-radius:14px; padding:12px 16px; min-width:130px; text-align:center;">' +
+                    '<div style="font-size:0.78rem; color:#fecdd3; font-weight:600;">📤 รายจ่ายสะสมรวม</div>' +
+                    '<div style="font-size:1.45rem; font-weight:800; color:#ffffff; margin-top:2px;">' + summary.total_expense.toLocaleString() + '.-</div>' +
+                    '<div style="font-size:0.72rem; color:#ffe4e6;">ค่าอุปกรณ์ทำพานไหว้ครู</div>' +
+                '</div>' +
+                '<div style="background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.25); border-radius:14px; padding:12px 16px; min-width:130px; text-align:center;">' +
+                    '<div style="font-size:0.78rem; color:#fed7aa; font-weight:600;">👥 สถิติการชำระ</div>' +
+                    '<div style="font-size:1.45rem; font-weight:800; color:#ffffff; margin-top:2px;">' + bothPaidCount + ' / ' + records.length + '</div>' +
+                    '<div style="font-size:0.72rem; color:#ffedd5;">จ่ายครบ 2 เดือนแล้ว</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
 
-        <!-- 📑 SUB-TAB NAVIGATION -->
-        <div style="display:flex; gap:8px; border-bottom:2px solid #e2e8f0; padding-bottom:8px; margin-bottom:16px; flex-wrap:wrap;">
-            <button type="button" onclick="setFundSubTab('ledger')" style="background:${window._fundActiveSubTab === 'ledger' ? '#0369a1' : '#f1f5f9'}; color:${window._fundActiveSubTab === 'ledger' ? '#fff' : '#475569'}; border:none; padding:8px 18px; border-radius:10px; font-weight:700; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:${window._fundActiveSubTab === 'ledger' ? '0 4px 12px rgba(3,105,161,0.25)' : 'none'};">
-                <i class="fa-solid fa-receipt"></i> 📋 1. บัญชีรายรับ - รายจ่าย (${txs.length} รายการ)
-            </button>
-            <button type="button" onclick="setFundSubTab('students')" style="background:${window._fundActiveSubTab === 'students' ? '#0369a1' : '#f1f5f9'}; color:${window._fundActiveSubTab === 'students' ? '#fff' : '#475569'}; border:none; padding:8px 18px; border-radius:10px; font-weight:700; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:${window._fundActiveSubTab === 'students' ? '0 4px 12px rgba(3,105,161,0.25)' : 'none'};">
-                <i class="fa-solid fa-users"></i> 👥 2. เช็คการจ่ายเงินห้องรายบุคคล (${records.length} คน)
-            </button>
-        </div>
+        '<!-- Treasurer Box -->' +
+        '<div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:10px 16px; margin-bottom:1.2rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">' +
+            '<div style="display:flex; align-items:center; gap:10px;">' +
+                '<span style="background:#fef08a; color:#854d0e; padding:4px 10px; border-radius:20px; font-weight:800; font-size:0.78rem; border:1px solid #fde047;">🪙 เหรัญญิกห้องเรียน</span>' +
+                '<strong style="color:#0f172a; font-size:0.92rem;">' + treasurer.name + ' (น้อง' + treasurer.nickname + ')</strong>' +
+                '<span style="color:#64748b; font-size:0.8rem;">เลขที่ ' + treasurer.no + ' | รหัส: ' + treasurer.student_id + '</span>' +
+            '</div>' +
+            '<div style="font-size:0.8rem; color:#475569;">' +
+                '<i class="fa-solid fa-calculator"></i> อัตราเก็บเงินห้อง: <strong>คนละ 20 บาท / เดือน</strong>' +
+            '</div>' +
+        '</div>' +
 
-        <!-- VIEW 1: TRANSACTIONS LEDGER -->
-        ${window._fundActiveSubTab === 'ledger' ? `
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
-                <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                    <button type="button" onclick="setFundLedgerFilter('all')" class="btn" style="background:${window._fundLedgerFilter === 'all' ? '#0369a1' : '#f1f5f9'}; color:${window._fundLedgerFilter === 'all' ? '#fff' : '#475569'}; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">
-                        ทั้งหมด (${txs.length})
-                    </button>
-                    <button type="button" onclick="setFundLedgerFilter('income')" class="btn" style="background:${window._fundLedgerFilter === 'income' ? '#059669' : '#f1f5f9'}; color:${window._fundLedgerFilter === 'income' ? '#fff' : '#475569'}; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">
-                        🟢 เฉพาะรายรับ (+${summary.total_income.toLocaleString()}.-)
-                    </button>
-                    <button type="button" onclick="setFundLedgerFilter('expense')" class="btn" style="background:${window._fundLedgerFilter === 'expense' ? '#dc2626' : '#f1f5f9'}; color:${window._fundLedgerFilter === 'expense' ? '#fff' : '#475569'}; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">
-                        🔴 เฉพาะรายจ่าย (-${summary.total_expense.toLocaleString()}.-)
-                    </button>
-                </div>
+        '<!-- Sub-Tab Switcher -->' +
+        '<div style="display:flex; gap:8px; border-bottom:2px solid #e2e8f0; margin-bottom:16px; padding-bottom:8px; flex-wrap:wrap;">' +
+            '<button type="button" onclick="setFundSubTab(\'students\')" style="background:' + (window._fundActiveSubTab === 'students' ? '#0369a1' : '#f1f5f9') + '; color:' + (window._fundActiveSubTab === 'students' ? '#ffffff' : '#475569') + '; border:none; padding:9px 18px; border-radius:10px; font-weight:700; font-size:0.88rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:' + (window._fundActiveSubTab === 'students' ? '0 4px 12px rgba(3,105,161,0.25)' : 'none') + '; transition:all 0.15s ease;">' +
+                '<i class="fa-solid fa-users"></i> 👥 1. เช็คการจ่ายเงินห้องรายบุคคล (' + records.length + ' คน)' +
+            '</button>' +
+            '<button type="button" onclick="setFundSubTab(\'ledger\')" style="background:' + (window._fundActiveSubTab === 'ledger' ? '#0369a1' : '#f1f5f9') + '; color:' + (window._fundActiveSubTab === 'ledger' ? '#ffffff' : '#475569') + '; border:none; padding:9px 18px; border-radius:10px; font-weight:700; font-size:0.88rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:' + (window._fundActiveSubTab === 'ledger' ? '0 4px 12px rgba(3,105,161,0.25)' : 'none') + '; transition:all 0.15s ease;">' +
+                '<i class="fa-solid fa-book"></i> 📋 2. บัญชีรายรับ - รายจ่ายห้อง (' + txs.length + ' รายการ)' +
+            '</button>' +
+        '</div>' +
 
-                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                    <input type="text" placeholder="🔍 ค้นหารายการ..." value="${window._fundLedgerSearch}" oninput="handleFundLedgerSearch(event)" class="form-control" style="font-size:0.85rem; padding:6px 12px; border-radius:8px; min-width:200px;">
-                    ${canEdit ? `
-                        <button type="button" onclick="openAddFundTransactionModal('${role}')" class="btn-primary" style="background:#0284c7; border:none; padding:6px 14px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 3px 10px rgba(2,132,199,0.3);">
-                            <i class="fa-solid fa-plus-circle"></i> ➕ เพิ่มรายการ
-                        </button>
-                    ` : ''}
-                </div>
-            </div>
+        (window._fundActiveSubTab === 'ledger' ? 
+            '<!-- VIEW 1: TRANSACTION LEDGER -->' +
+            '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">' +
+                '<div style="display:flex; gap:6px; flex-wrap:wrap;">' +
+                    '<button type="button" onclick="setFundLedgerFilter(\'all\')" class="btn" style="background:' + (window._fundLedgerFilter === 'all' ? '#0369a1' : '#f1f5f9') + '; color:' + (window._fundLedgerFilter === 'all' ? '#fff' : '#475569') + '; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">' +
+                        'ทั้งหมด (' + txs.length + ')' +
+                    '</button>' +
+                    '<button type="button" onclick="setFundLedgerFilter(\'income\')" class="btn" style="background:' + (window._fundLedgerFilter === 'income' ? '#059669' : '#f1f5f9') + '; color:' + (window._fundLedgerFilter === 'income' ? '#fff' : '#475569') + '; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">' +
+                        '🟢 เฉพาะรายรับ (+' + summary.total_income.toLocaleString() + '.-)' +
+                    '</button>' +
+                    '<button type="button" onclick="setFundLedgerFilter(\'expense\')" class="btn" style="background:' + (window._fundLedgerFilter === 'expense' ? '#dc2626' : '#f1f5f9') + '; color:' + (window._fundLedgerFilter === 'expense' ? '#fff' : '#475569') + '; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">' +
+                        '🔴 เฉพาะรายจ่าย (-' + summary.total_expense.toLocaleString() + '.-)' +
+                    '</button>' +
+                '</div>' +
 
-            <!-- Ledger Table -->
-            <div class="table-responsive" style="border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; margin-bottom:12px;">
-                <table style="width:100%; border-collapse:collapse; font-size:0.86rem;">
-                    <thead>
-                        <tr style="background:#f0f9ff; color:#0369a1; text-align:center;">
-                            <th style="padding:10px; width:45px;">ที่</th>
-                            <th style="padding:10px; width:100px;">วันที่</th>
-                            <th style="padding:10px; width:95px;">ประเภท</th>
-                            <th style="padding:10px; width:140px; text-align:left;">หมวดหมู่</th>
-                            <th style="padding:10px; text-align:left;">รายการ / วัตถุประสงค์</th>
-                            <th style="padding:10px; width:110px; text-align:right;">จำนวนเงิน (บาท)</th>
-                            <th style="padding:10px; width:150px; text-align:left;">ผู้เบิก / ผู้รับผิดชอบ</th>
-                            ${canEdit ? '<th style="padding:10px; width:70px;">จัดการ</th>' : ''}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${txRowsHtml}
-                    </tbody>
-                    <tfoot>
-                        <tr style="background:#f8fafc; font-weight:700; border-top:2px solid #cbd5e1;">
-                            <td colspan="5" style="padding:10px; text-align:right; color:#475569;">
-                                ยอดรวมรายรับ: <span style="color:#059669;">+${summary.total_income.toLocaleString()}.-</span> | 
-                                ยอดรวมรายจ่าย: <span style="color:#dc2626;">-${summary.total_expense.toLocaleString()}.-</span> | 
-                                <span style="color:#0f172a; font-size:0.95rem;">ยอดเงินห้องคงเหลือสุทธิ:</span>
-                            </td>
-                            <td style="padding:10px; text-align:right; font-size:1.15rem; font-weight:900; color:#059669; white-space:nowrap;">
-                                ${summary.remaining_balance.toLocaleString()}.-
-                            </td>
-                            <td colspan="${canEdit ? 2 : 1}" style="padding:10px; font-size:0.75rem; color:#64748b;">
-                                (อัปเดต ณ 2 พ.ย. 69)
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        ` : `
-            <!-- VIEW 2: INDIVIDUAL STUDENTS CHECKLIST -->
-            <!-- Filter & Search Controls -->
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
-                <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                    <button type="button" onclick="setFundStudentFilter('all')" class="btn" style="background:${window._fundStudentFilter === 'all' ? '#0369a1' : '#f1f5f9'}; color:${window._fundStudentFilter === 'all' ? '#fff' : '#475569'}; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">
-                        ทั้งหมด (${records.length})
-                    </button>
-                    <button type="button" onclick="setFundStudentFilter('paid')" class="btn" style="background:${window._fundStudentFilter === 'paid' ? '#059669' : '#f1f5f9'}; color:${window._fundStudentFilter === 'paid' ? '#fff' : '#475569'}; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">
-                        🟢 จ่ายครบแล้ว (${bothPaidCount})
-                    </button>
-                    <button type="button" onclick="setFundStudentFilter('pending')" class="btn" style="background:${window._fundStudentFilter === 'pending' ? '#e11d48' : '#f1f5f9'}; color:${window._fundStudentFilter === 'pending' ? '#fff' : '#475569'}; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">
-                        🔴 ค้างชำระ (${records.length - bothPaidCount})
-                    </button>
-                </div>
+                '<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">' +
+                    '<input type="text" placeholder="🔍 ค้นหารายการ..." value="' + (window._fundLedgerSearch || '') + '" oninput="handleFundLedgerSearch(event)" class="form-control" style="font-size:0.85rem; padding:6px 12px; border-radius:8px; min-width:200px;">' +
+                    (canEdit ? 
+                        '<button type="button" onclick="openAddFundTransactionModal(\'' + role + '\')" class="btn-primary" style="background:#0284c7; border:none; padding:6px 14px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 3px 10px rgba(2,132,199,0.3);">' +
+                            '<i class="fa-solid fa-plus-circle"></i> ➕ เพิ่มรายการ' +
+                        '</button>' : '') +
+                '</div>' +
+            '</div>' +
 
-                <div style="position:relative; min-width:240px;">
-                    <input type="text" placeholder="🔍 ค้นหาเลขที่ / ชื่อเล่น / ชื่อ-สกุล..." value="${window._fundStudentSearch}" oninput="handleFundStudentSearch(event)" class="form-control" style="font-size:0.85rem; padding:6px 12px; border-radius:8px;">
-                </div>
-            </div>
+            '<div class="fund-modern-card">' +
+                '<div class="fund-table-scroll">' +
+                    '<table class="fund-table">' +
+                        '<thead>' +
+                            '<tr>' +
+                                '<th style="width:45px; text-align:center !important;">ที่</th>' +
+                                '<th style="width:110px; text-align:center !important;">วันที่</th>' +
+                                '<th style="width:95px; text-align:center !important;">ประเภท</th>' +
+                                '<th style="width:145px; text-align:left !important;">หมวดหมู่</th>' +
+                                '<th style="text-align:left !important; min-width:250px;">รายการ / วัตถุประสงค์</th>' +
+                                '<th style="width:125px; text-align:right !important;">จำนวนเงิน (บาท)</th>' +
+                                '<th style="width:160px; text-align:left !important;">ผู้เบิก / ผู้รับผิดชอบ</th>' +
+                                (canEdit ? '<th style="width:75px; text-align:center !important;">จัดการ</th>' : '') +
+                            '</tr>' +
+                        '</thead>' +
+                        '<tbody>' +
+                            txRowsHtml +
+                        '</tbody>' +
+                        '<tfoot>' +
+                            '<tr>' +
+                                '<td colspan="5" style="text-align:right !important; color:#475569; font-size:0.88rem;">' +
+                                    'ยอดรวมรายรับ: <span style="color:#059669; font-weight:800;">+' + summary.total_income.toLocaleString() + '.-</span> &nbsp;|&nbsp; ' +
+                                    'ยอดรวมรายจ่าย: <span style="color:#dc2626; font-weight:800;">-' + summary.total_expense.toLocaleString() + '.-</span> &nbsp;|&nbsp; ' +
+                                    '<span style="color:#0f172a; font-weight:800; font-size:0.95rem;">ยอดเงินห้องคงเหลือสุทธิ:</span>' +
+                                '</td>' +
+                                '<td style="text-align:right !important; font-size:1.2rem; font-weight:900; color:#059669; white-space:nowrap;">' +
+                                    summary.remaining_balance.toLocaleString() + '.-' +
+                                '</td>' +
+                                '<td colspan="' + (canEdit ? 2 : 1) + '" style="text-align:center !important; font-size:0.78rem; color:#64748b;">' +
+                                    '(อัปเดต ณ 2 พ.ย. 69)' +
+                                '</td>' +
+                            '</tr>' +
+                        '</tfoot>' +
+                    '</table>' +
+                '</div>' +
+            '</div>'
+        : 
+            '<!-- VIEW 2: INDIVIDUAL STUDENTS CHECKLIST -->' +
+            '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">' +
+                '<div style="display:flex; gap:6px; flex-wrap:wrap;">' +
+                    '<button type="button" onclick="setFundStudentFilter(\'all\')" class="btn" style="background:' + (window._fundStudentFilter === 'all' ? '#0369a1' : '#f1f5f9') + '; color:' + (window._fundStudentFilter === 'all' ? '#fff' : '#475569') + '; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">' +
+                        'ทั้งหมด (' + records.length + ')' +
+                    '</button>' +
+                    '<button type="button" onclick="setFundStudentFilter(\'paid\')" class="btn" style="background:' + (window._fundStudentFilter === 'paid' ? '#059669' : '#f1f5f9') + '; color:' + (window._fundStudentFilter === 'paid' ? '#fff' : '#475569') + '; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">' +
+                        '🟢 จ่ายครบแล้ว (' + bothPaidCount + ')' +
+                    '</button>' +
+                    '<button type="button" onclick="setFundStudentFilter(\'pending\')" class="btn" style="background:' + (window._fundStudentFilter === 'pending' ? '#e11d48' : '#f1f5f9') + '; color:' + (window._fundStudentFilter === 'pending' ? '#fff' : '#475569') + '; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; border:none; cursor:pointer;">' +
+                        '🔴 ค้างชำระ (' + (records.length - bothPaidCount) + ')' +
+                    '</button>' +
+                '</div>' +
 
-            <!-- Student Table Container -->
-            <div class="table-responsive" style="border:1px solid #e2e8f0; border-radius:12px; overflow:hidden;">
-                <table style="width:100%; border-collapse:collapse; font-size:0.86rem;">
-                    <thead>
-                        <tr style="background:#f0f9ff; color:#0369a1; text-align:center;">
-                            <th style="padding:10px; width:55px;">เลขที่</th>
-                            <th style="padding:10px; width:90px;">รหัส</th>
-                            <th style="padding:10px; text-align:left;">ชื่อ - สกุล</th>
-                            <th style="padding:10px; width:75px;">ชื่อเล่น</th>
-                            <th style="padding:10px; width:120px;">พฤษภาคม (20.-)</th>
-                            <th style="padding:10px; width:120px;">มิถุนายน (20.-)</th>
-                            <th style="padding:10px; width:90px;">ยอดชำระ</th>
-                            <th style="padding:10px; width:100px;">สถานะ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${studentRowsHtml}
-                    </tbody>
-                </table>
-            </div>
-        `}
+                '<div style="position:relative; min-width:240px;">' +
+                    '<input type="text" placeholder="🔍 ค้นหาเลขที่ / ชื่อเล่น / ชื่อ-สกุล..." value="' + (window._fundStudentSearch || '') + '" oninput="handleFundStudentSearch(event)" class="form-control" style="font-size:0.85rem; padding:6px 12px; border-radius:8px;">' +
+                '</div>' +
+            '</div>' +
 
-        <div style="font-size:0.76rem; color:#94a3b8; margin-top:10px; text-align:right;">
-            * ข้อมูลอ้างอิงจากสมุดบันทึกบัญชีเงินห้องเรียน ม.1/4 SMT ภาคเรียนที่ 2/2569 • ซิงค์เรียลไทม์ออนไลน์
-        </div>
-    `;
+            '<div class="fund-modern-card">' +
+                '<div class="fund-table-scroll">' +
+                    '<table class="fund-table">' +
+                        '<thead>' +
+                            '<tr>' +
+                                '<th style="width:55px; text-align:center !important;">เลขที่</th>' +
+                                '<th style="width:85px; text-align:center !important;">รหัส</th>' +
+                                '<th style="text-align:left !important; min-width:220px;">ชื่อ - สกุล</th>' +
+                                '<th style="width:85px; text-align:center !important;">ชื่อเล่น</th>' +
+                                '<th style="width:130px; text-align:center !important;">พฤษภาคม (20.-)</th>' +
+                                '<th style="width:130px; text-align:center !important;">มิถุนายน (20.-)</th>' +
+                                '<th style="width:95px; text-align:center !important;">ยอดชำระ</th>' +
+                                '<th style="width:115px; text-align:center !important;">สถานะ</th>' +
+                            '</tr>' +
+                        '</thead>' +
+                        '<tbody>' +
+                            studentRowsHtml +
+                        '</tbody>' +
+                    '</table>' +
+                '</div>' +
+            '</div>'
+        ) +
+
+        '<div style="font-size:0.76rem; color:#94a3b8; margin-top:10px; text-align:right;">' +
+            '* ข้อมูลอ้างอิงจากสมุดบันทึกบัญชีเงินห้องเรียน ม.1/4 SMT ภาคเรียนที่ 2/2569 • ซิงค์เรียลไทม์ออนไลน์' +
+        '</div>';
 };

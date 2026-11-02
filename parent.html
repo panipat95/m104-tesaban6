@@ -273,11 +273,11 @@
             box-shadow: 0 2px 8px rgba(244, 63, 94, 0.05);
         }
 
-        /* Table Cute */
-        .table-responsive { overflow-x: auto; border-radius: 12px; border: 1px solid #cbd5e1; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th, td { border: 1px solid #cbd5e1; padding: 9px; text-align: center; }
-        th { background: #e0f2fe; color: #0369a1; font-weight: 700; }
+        /* Timetable Table Styling */
+        .table-responsive { overflow-x: auto; border-radius: 12px; }
+        .timetable-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .timetable-table th, .timetable-table td { border: 1px solid #cbd5e1; padding: 9px; text-align: center; vertical-align: middle; }
+        .timetable-table th { background: #e0f2fe; color: #0369a1; font-weight: 700; }
 
         /* Scores Grid */
 
@@ -599,8 +599,8 @@
                         </button>
                     </div>
 
-                    <div class="table-responsive">
-                        <table style="min-width:860px; text-align:center;">
+                    <div class="table-responsive" style="border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden;">
+                        <table class="timetable-table" style="min-width:860px; text-align:center;">
                             <thead>
                                 <tr style="background:#f0f9ff; color:#0369a1;">
                                     <th style="width:85px;">วัน / เวลา</th>

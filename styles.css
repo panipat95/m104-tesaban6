@@ -908,4 +908,122 @@ body {
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* =======================================================
+   💰 Classroom Fund Modern Table Styles
+   ======================================================= */
+.fund-modern-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04) !important;
+    overflow: hidden !important;
+    margin-bottom: 1.2rem !important;
+}
+
+.fund-table-scroll {
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+.fund-table {
+    width: 100% !important;
+    min-width: 860px !important;
+    border-collapse: collapse !important;
+    font-size: 0.86rem !important;
+    text-align: left !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+    border: none !important;
+}
+
+.fund-table th {
+    background: #f8fafc !important;
+    color: #0369a1 !important;
+    font-size: 0.84rem !important;
+    font-weight: 700 !important;
+    padding: 13px 14px !important;
+    border: none !important;
+    border-bottom: 2px solid #bae6fd !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+}
+
+.fund-table td {
+    padding: 12px 14px !important;
+    border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    vertical-align: middle !important;
+    font-size: 0.86rem !important;
+    line-height: 1.45 !important;
+    color: #334155 !important;
+    box-sizing: border-box !important;
+}
+
+.fund-table tbody tr {
+    transition: background 0.15s ease !important;
+    background: #ffffff;
+}
+
+.fund-table tbody tr:nth-child(even) {
+    background: #fafcff !important;
+}
+
+.fund-table tbody tr:hover {
+    background: #f0f9ff !important;
+}
+
+.fund-table tbody tr.row-is-me td {
+    background: #fffbeb !important;
+    border-bottom: 1px solid #fde68a !important;
+}
+
+.fund-table tbody tr.row-is-me td:first-child {
+    border-left: 4px solid #f59e0b !important;
+}
+
+.fund-table tbody tr.row-is-treasurer td {
+    background: #fefce8 !important;
+}
+
+.fund-table tfoot td {
+    background: #f8fafc !important;
+    border: none !important;
+    border-top: 2px solid #cbd5e1 !important;
+    padding: 14px !important;
+    vertical-align: middle !important;
+}
+
+.fund-badge-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    width: 98px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+    font-size: 0.8rem !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+}
+
+.fund-status-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    min-width: 92px !important;
+    height: 28px !important;
+    border-radius: 14px !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    padding: 0 10px !important;
+}
+
+
 

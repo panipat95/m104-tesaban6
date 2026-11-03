@@ -1025,5 +1025,29 @@ body {
     padding: 0 10px !important;
 }
 
+/* Modern Grade Filter Pills for Teacher Dashboard */
+.grade-filter-pill {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.grade-filter-pill:hover {
+    border-color: #0284c7;
+    color: #0284c7;
+}
+.grade-filter-pill.active {
+    background: #0284c7;
+    border-color: #0284c7;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+}
+
+
 
 

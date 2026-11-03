@@ -27,13 +27,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const titles = {
                 'tab-overview': 'ภาพรวมข้อมูลนักเรียน ห้อง ม.1.4',
                 'tab-students': 'คลังข้อมูลนักเรียน 360 องศา (ม.1.4)',
-                'tab-midterm': 'ตารางตรวจสอบคะแนนสอบกลางภาคเรียนที่ 1 / 2569 (ม.1.4)',
+                'tab-midterm': 'รายงานผลการเรียน ภาคเรียนที่ 1/2569 & คะแนนสอบกลางภาค (ม.1/4)',
                 'tab-pending-tasks': 'ระบบบันทึกเช็คงานค้างรายวิชา (ม.1.4)',
                 'tab-schedule': 'ตารางเรียน ชั้น ม.1.4 ห้องประจำ 332 (ภาคเรียนที่ 2/2569)',
                 'tab-fund': 'ตรวจสอบบัญชีเงินห้องเรียน ชั้น ม.1/4 SMT (ภาคเรียนที่ 2/2569)',
                 'tab-duty': 'ตารางเวรประจำวัน & เวรจิตอาสาศูนย์จีน (ม.1.4)'
             };
             if (titles[targetTab] && pageTitle) pageTitle.textContent = titles[targetTab];
+            if (targetTab === 'tab-midterm') {
+                renderTerm1GradesTable();
+                renderMidtermTable();
+            }
             if (targetTab === 'tab-pending-tasks') {
                 renderTaskChecklist();
                 renderActiveTasksBoard();
@@ -135,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderStats();
         renderOverviewTable();
         renderStudentCards();
+        renderTerm1GradesTable();
         renderMidtermTable();
         renderTaskChecklist();
         renderActiveTasksBoard();
@@ -226,6 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const pendingTasksForStudent = pendingHomeworkTasks.filter(t => (t.pendingStudentIds || []).map(String).includes(String(s.student_id)));
             const pendingCount = pendingTasksForStudent.length;
+            const grade = typeof window.getStudentGradeData === 'function' ? window.getStudentGradeData(s.student_id) : null;
 
             tr.innerHTML = `
                 <td style="vertical-align:middle; text-align:center;"><strong>${s.no}</strong></td>
@@ -242,15 +248,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td class="admin-only" style="vertical-align:middle;">${s.guardian_name || '-'}<br><small style="color:var(--text-muted)">📞 ${s.guardian_phone || '-'}</small></td>
                 <td style="vertical-align:middle;"><span class="badge badge-purple">วัน${s.duty_day || 'จันทร์'}</span></td>
-                <td style="vertical-align:middle;">
+                <td style="vertical-align:middle; text-align:center;">
+                    ${grade ? `
+                        <span class="badge" style="background:#f0fdf4; color:#15803d; border:1px solid #86efac; font-weight:800; font-size:0.82rem; white-space:nowrap;">
+                            ${grade.gpa.toFixed(2)} <small style="color:#0369a1; font-weight:700;">(ที่ ${grade.rank})</small>
+                        </span>
+                    ` : '<span style="color:#94a3b8;">-</span>'}
+                </td>
+                <td style="vertical-align:middle; text-align:center;">
                     <span class="badge ${pendingCount > 0 ? 'badge-danger' : 'badge-success'}">
                         ${pendingCount > 0 ? `ค้าง ${pendingCount} งาน` : 'ส่งครบแล้ว'}
                     </span>
                 </td>
                 <td style="vertical-align:middle;">
-                    <button class="btn-primary btn-sm-action admin-only" onclick="renderPersonalHomeworkLookup('${s.student_id}'); document.querySelector('[data-tab=\\'tab-pending-tasks\\']').click();" style="background:#0284c7; border:none; padding:4px 10px; border-radius:6px; color:#fff; cursor:pointer; font-size:0.8rem; font-weight:600;">
-                        <i class="fa-solid fa-list-check"></i> เช็คงาน
-                    </button>
+                    <div style="display:flex; gap:4px; align-items:center;">
+                        <button class="btn-primary btn-sm-action admin-only" onclick="renderPersonalHomeworkLookup('${s.student_id}'); document.querySelector('[data-tab=\\'tab-pending-tasks\\']').click();" style="background:#0284c7; border:none; padding:4px 8px; border-radius:6px; color:#fff; cursor:pointer; font-size:0.78rem; font-weight:600;" title="เช็คงานค้างรายบุคคล">
+                            <i class="fa-solid fa-list-check"></i> งาน
+                        </button>
+                        ${grade && grade.pdf_file ? `
+                        <button type="button" onclick="openPdfModal('${grade.pdf_file}', 'ใบแจ้งผลการเรียน ${s.fullname}')" title="เปิดดูใบแจ้งผลการเรียน ปพ. ทางการ (PDF)" style="background:#fef9c3; color:#854d0e; border:1px solid #fde047; padding:4px 8px; border-radius:6px; font-size:0.78rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:3px;">
+                            <i class="fa-solid fa-file-pdf" style="color:#d97706;"></i> ปพ.
+                        </button>` : ''}
+                    </div>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -314,6 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isLS = s.ls_status && s.ls_status.includes('LS');
             const isPending = s.pending_work && s.pending_work.includes('ค้าง');
             const photoSrc = s.photo_url || `photos/${s.student_id}.jpg`;
+            const grade = typeof window.getStudentGradeData === 'function' ? window.getStudentGradeData(s.student_id) : null;
 
             card.innerHTML = `
                 <div class="student-card-header">
@@ -329,6 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div><i class="fa-solid fa-cake-candles"></i> วันเกิด: ${s.birthdate || '-'}</div>
                 </div>
                 <div style="margin-top:10px; display:flex; gap:6px; flex-wrap:wrap;">
+                    ${grade ? `<span class="badge" style="background:#f0fdf4; color:#15803d; border:1px solid #86efac; font-weight:800; font-size:0.78rem;"><i class="fa-solid fa-award" style="color:#eab308;"></i> GPA ${grade.gpa.toFixed(2)} (ที่ ${grade.rank})</span>` : ''}
                     <span class="badge ${isPending ? 'badge-danger' : 'badge-success'}">${s.pending_work || 'งานครบ'}</span>
                     <span class="badge badge-purple">เวร${s.duty_day || 'จันทร์'}</span>
                     ${isLS ? '<span class="badge badge-warning">เด็ก LS / ห่วงใย</span>' : ''}
@@ -338,6 +359,236 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(card);
         });
     }
+
+    // ==========================================
+    // Academic Performance & Term 1 Grades View
+    // ==========================================
+    let currentGradeFilter = 'all';
+
+    window.switchAcademicSubTab = function(subTab) {
+        const btnGrades = document.getElementById('subtab-btn-grades');
+        const btnMidterm = document.getElementById('subtab-btn-midterm');
+        const contentGrades = document.getElementById('subtab-content-grades');
+        const contentMidterm = document.getElementById('subtab-content-midterm');
+
+        if (subTab === 'grades') {
+            if (btnGrades) {
+                btnGrades.style.background = '#0284c7';
+                btnGrades.style.color = '#ffffff';
+                btnGrades.style.borderColor = '#0284c7';
+            }
+            if (btnMidterm) {
+                btnMidterm.style.background = '#f1f5f9';
+                btnMidterm.style.color = '#475569';
+                btnMidterm.style.borderColor = '#cbd5e1';
+            }
+            if (contentGrades) contentGrades.style.display = 'block';
+            if (contentMidterm) contentMidterm.style.display = 'none';
+            renderTerm1GradesTable();
+        } else {
+            if (btnMidterm) {
+                btnMidterm.style.background = '#0284c7';
+                btnMidterm.style.color = '#ffffff';
+                btnMidterm.style.borderColor = '#0284c7';
+            }
+            if (btnGrades) {
+                btnGrades.style.background = '#f1f5f9';
+                btnGrades.style.color = '#475569';
+                btnGrades.style.borderColor = '#cbd5e1';
+            }
+            if (contentGrades) contentGrades.style.display = 'none';
+            if (contentMidterm) contentMidterm.style.display = 'block';
+            renderMidtermTable();
+        }
+    };
+
+    window.filterGradesTable = function(filter) {
+        if (filter) {
+            currentGradeFilter = filter;
+            document.querySelectorAll('.grade-filter-pill').forEach(btn => {
+                if (btn.getAttribute('data-grade-filter') === filter) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+        }
+        renderTerm1GradesTable();
+    };
+
+    function renderTerm1GradesTable() {
+        const tbody = document.querySelector('#table-term1-grades tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        if (!window.TERM1_GRADES_DATA || !Array.isArray(window.TERM1_GRADES_DATA)) return;
+
+        let list = [...window.TERM1_GRADES_DATA];
+
+        // Search query
+        const searchInput = document.getElementById('grades-search-input');
+        const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
+        if (q) {
+            list = list.filter(s => 
+                (s.name && s.name.toLowerCase().includes(q)) ||
+                (s.nickname && s.nickname.toLowerCase().includes(q)) ||
+                (s.student_id && s.student_id.toString().includes(q)) ||
+                (s.no && s.no.toString() === q)
+            );
+        }
+
+        // Filter
+        if (currentGradeFilter === 'top') {
+            list = list.filter(s => s.gpa === 4.00);
+        } else if (currentGradeFilter === 'honors') {
+            list = list.filter(s => s.gpa >= 3.50);
+        } else if (currentGradeFilter === 'good') {
+            list = list.filter(s => s.gpa >= 3.00 && s.gpa < 3.50);
+        } else if (currentGradeFilter === 'moderate') {
+            list = list.filter(s => s.gpa < 3.00);
+        }
+
+        // Sort by rank
+        list.sort((a, b) => (a.rank || 99) - (b.rank || 99));
+
+        if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:2.5rem; color:#64748b; font-size:0.95rem;">🔍 ไม่พบข้อมูลผลการเรียนที่ตรงกับเงื่อนไขการค้นหา</td></tr>`;
+            return;
+        }
+
+        list.forEach(st => {
+            const tr = document.createElement('tr');
+            
+            // Rank medal
+            let rankBadge = `<strong>${st.rank}</strong>`;
+            if (st.rank === 1) rankBadge = `<span style="font-size:1.15rem;" title="อันดับที่ 1 (เกียรตินิยม)">🥇 1</span>`;
+            else if (st.rank === 2) rankBadge = `<span style="font-size:1.1rem;" title="อันดับที่ 2">🥈 2</span>`;
+            else if (st.rank === 3) rankBadge = `<span style="font-size:1.1rem;" title="อันดับที่ 3">🥉 3</span>`;
+            else if (st.rank <= 10) rankBadge = `<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:800;">🎖️ ${st.rank}</span>`;
+
+            // GPA Badge
+            let gpaBadge = `<span class="badge" style="background:#f0fdf4; color:#15803d; font-size:0.92rem; font-weight:800; border:1px solid #86efac;">${st.gpa.toFixed(2)}</span>`;
+            if (st.gpa === 4.00) {
+                gpaBadge = `<span class="badge" style="background:#fef08a; color:#854d0e; font-size:0.95rem; font-weight:800; border:1px solid #eab308; box-shadow:0 2px 6px rgba(234,179,8,0.25);">⭐ 4.00</span>`;
+            } else if (st.gpa < 3.00) {
+                gpaBadge = `<span class="badge" style="background:#fff7ed; color:#c2410c; font-size:0.92rem; font-weight:800; border:1px solid #fdba74;">${st.gpa.toFixed(2)}</span>`;
+            }
+
+            // Quality badge
+            let qBadge = `<span class="badge badge-success" style="font-size:0.78rem;">ดีเยี่ยม</span>`;
+            if (st.quality === 'ดี') qBadge = `<span class="badge badge-purple" style="font-size:0.78rem;">ดี</span>`;
+            else if (st.quality === 'ปานกลาง') qBadge = `<span class="badge badge-warning" style="font-size:0.78rem;">ปานกลาง</span>`;
+
+            const photoSrc = `photos/${st.student_id}.jpg`;
+            const matchedStudent = studentData.find(s => s.student_id.toString() === st.student_id.toString());
+
+            tr.innerHTML = `
+                <td style="vertical-align:middle; text-align:center;">${rankBadge}</td>
+                <td style="vertical-align:middle; text-align:center;"><strong>${st.no}</strong></td>
+                <td style="vertical-align:middle; text-align:center;"><span class="badge badge-purple">${st.student_id}</span></td>
+                <td style="vertical-align:middle;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <img src="${photoSrc}" onerror="this.outerHTML='<i class=\\'fa-solid fa-user-graduate\\' style=\\'color:#94a3b8; font-size:1.2rem;\\'></i>'" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:1px solid #0284c7; flex-shrink:0;">
+                        <div>
+                            <strong style="color:#0f172a; font-size:0.9rem;">${st.name}</strong>
+                            ${st.nickname ? `<span style="color:#64748b; font-size:0.8rem; margin-left:2px;">(${st.nickname})</span>` : ''}
+                        </div>
+                    </div>
+                </td>
+                <td style="vertical-align:middle; text-align:center;">${gpaBadge}</td>
+                <td style="vertical-align:middle; text-align:center; font-weight:700; color:#334155;">${st.gpax ? st.gpax.toFixed(2) : st.gpa.toFixed(2)}</td>
+                <td style="vertical-align:middle; text-align:center; font-weight:600; color:#475569;">${st.earned_credits || 18.0} / 18.0</td>
+                <td style="vertical-align:middle; text-align:center;">${qBadge}</td>
+                <td style="vertical-align:middle; text-align:center;"><span class="badge badge-success" style="font-size:0.78rem;">ผ่านครบ 4/4</span></td>
+                <td style="vertical-align:middle; text-align:center;">
+                    <div style="display:flex; gap:5px; justify-content:center; align-items:center;">
+                        <button type="button" onclick="openPdfModal('${st.pdf_file}', 'ใบแจ้งผลการเรียน ${st.name}')" title="เปิดดูใบ ปพ. ฉบับทางการ" class="btn" style="background:#fef08a; color:#854d0e; border:1px solid #fde047; padding:4px 10px; border-radius:6px; font-weight:800; font-size:0.76rem; cursor:pointer; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                            <i class="fa-solid fa-file-pdf" style="color:#d97706;"></i> เปิดดู ปพ.
+                        </button>
+                        <a href="${st.pdf_file}" download title="ดาวน์โหลดไฟล์ PDF รายคน" class="btn" style="background:#f8fafc; color:#475569; border:1px solid #cbd5e1; padding:4px 8px; border-radius:6px; font-size:0.76rem; text-decoration:none; display:inline-flex; align-items:center;">
+                            <i class="fa-solid fa-download"></i>
+                        </a>
+                    </div>
+                </td>
+                <td style="vertical-align:middle; text-align:center;">
+                    <button type="button" onclick="openStudentModal(studentData.find(s=>s.student_id=='${st.student_id}') || {fullname:'${st.name}', student_id:'${st.student_id}', no:${st.no}})" class="btn" style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; padding:4px 8px; border-radius:6px; font-size:0.76rem; font-weight:700; cursor:pointer;" title="ดูผลการเรียน 23 วิชา">
+                        <i class="fa-solid fa-eye"></i> ดูวิชา
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    window.exportGradesToCSV = function() {
+        if (!window.TERM1_GRADES_DATA || !Array.isArray(window.TERM1_GRADES_DATA)) {
+            alert('ไม่พบข้อมูลผลการเรียนสำหรับส่งออก');
+            return;
+        }
+
+        const headers = ["อันดับ", "เลขที่", "รหัสประจำตัว", "ชื่อ-นามสกุล", "ชื่อเล่น", "GPA_ภาค1_2569", "GPAX", "หน่วยกิตที่ได้", "ระดับคุณภาพ"];
+        const rows = window.TERM1_GRADES_DATA.map(st => [
+            st.rank || '',
+            st.no || '',
+            st.student_id || '',
+            st.name || '',
+            st.nickname || '',
+            st.gpa ? st.gpa.toFixed(2) : '',
+            st.gpax ? st.gpax.toFixed(2) : '',
+            st.earned_credits || '18.0',
+            st.quality || ''
+        ]);
+
+        let csvContent = "\uFEFF"; // UTF-8 BOM for Thai Excel
+        csvContent += headers.join(",") + "\r\n";
+        rows.forEach(r => {
+            const escaped = r.map(v => `"${String(v).replace(/"/g, '""')}"`);
+            csvContent += escaped.join(",") + "\r\n";
+        });
+
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `ผลการเรียน_ม1.4_ภาคเรียนที่1_2569.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    window.openPdfModal = function(pdfUrl, title) {
+        const overlay = document.getElementById('pdf-modal-overlay');
+        const iframe = document.getElementById('pdf-modal-iframe');
+        const titleEl = document.getElementById('pdf-modal-title');
+        const dlBtn = document.getElementById('pdf-modal-download-btn');
+        const extBtn = document.getElementById('pdf-modal-external-btn');
+        if (!overlay || !iframe) return;
+
+        if (titleEl) titleEl.textContent = title || 'ใบแจ้งผลการเรียนทางการ (PDF)';
+        iframe.src = pdfUrl;
+        if (dlBtn) {
+            dlBtn.href = pdfUrl;
+            dlBtn.setAttribute('download', decodeURIComponent(pdfUrl.split('/').pop()));
+        }
+        if (extBtn) extBtn.href = pdfUrl;
+
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.closePdfModal = function() {
+        const overlay = document.getElementById('pdf-modal-overlay');
+        const iframe = document.getElementById('pdf-modal-iframe');
+        if (overlay) overlay.style.display = 'none';
+        if (iframe) iframe.src = '';
+        document.body.style.overflow = 'auto';
+    };
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            window.closePdfModal();
+            const studentModal = document.getElementById('student-modal');
+            if (studentModal) studentModal.classList.remove('open');
+        }
+    });
 
     // Render Midterm Scores Table (275 Max Score)
     function renderMidtermTable() {
@@ -622,6 +873,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const pct = ((sc.total_score / 185) * 100).toFixed(1);
 
         const myPendingTasks = pendingHomeworkTasks.filter(t => t.pendingStudentIds.includes(s.student_id.toString()));
+        const grade = typeof window.getStudentGradeData === 'function' ? window.getStudentGradeData(s.student_id) : null;
 
         const body = document.getElementById('modal-body-content');
         if (body) {
@@ -634,8 +886,81 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div><strong>เบอร์โทรผู้ปกครอง:</strong> 📞 ${s.guardian_phone || '-'} (${s.relation || 'ผู้ปกครอง'})</div>
                 <div><strong>เวรประจำวัน:</strong> วัน${s.duty_day || 'จันทร์'}</div>
                 <div><strong>เด็กกลุ่มห่วงใย (LS):</strong> ${s.ls_status || 'ทั่วไป'}</div>
-                <div><strong>เกรดเฉลี่ยเดิม (GPA):</strong> ${s.gpa || '-'}</div>
+                <div><strong>GPA ภาค 1/2569:</strong> <strong style="color:#15803d; font-size:1.05rem;">${grade ? grade.gpa.toFixed(2) : (s.gpa || '-')}</strong> ${grade ? `<span style="color:#0369a1; font-weight:700;">(อันดับ ${grade.rank}/39)</span>` : ''}</div>
                 <div><strong>ความฝันในอนาคต:</strong> ${s.dream || '-'}</div>
+                
+                ${grade ? `
+                <div style="grid-column: 1 / -1; background:linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border:1.5px solid #86efac; border-radius:12px; padding:16px; margin-top:6px; box-shadow:0 3px 10px rgba(34,197,94,0.08);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px; border-bottom:1px dashed #bbf7d0; padding-bottom:10px;">
+                        <div>
+                            <span style="font-size:0.78rem; font-weight:700; color:#166534; background:#dcfce7; padding:2px 8px; border-radius:6px;">ผลการเรียนปลายภาคฉบับทางการ</span>
+                            <h4 style="color:#14532d; font-size:1.1rem; margin:4px 0 0 0; display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-award" style="color:#eab308;"></i> ผลการเรียนภาคเรียนที่ 1 / 2569 (หลักสูตร SMT)
+                            </h4>
+                        </div>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            ${grade.pdf_file ? `
+                            <button type="button" onclick="openPdfModal('${grade.pdf_file}', 'ใบแจ้งผลการเรียน ${s.fullname}')" class="btn" style="background:#fef08a; color:#854d0e; border:1px solid #fde047; font-weight:800; font-size:0.8rem; padding:6px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+                                <i class="fa-solid fa-file-pdf" style="color:#d97706;"></i> เปิดดูใบ ปพ. (PDF)
+                            </button>
+                            <a href="${grade.pdf_file}" download class="btn" style="background:#ffffff; color:#334155; border:1px solid #cbd5e1; font-weight:700; font-size:0.8rem; padding:6px 10px; border-radius:8px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                                <i class="fa-solid fa-download"></i> โหลด
+                            </a>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:10px; text-align:center; margin-bottom:12px;">
+                        <div style="background:#ffffff; padding:10px; border-radius:10px; border:1px solid #bbf7d0;">
+                            <small style="color:#64748b; font-weight:600; display:block;">เกรดเฉลี่ย (GPA)</small>
+                            <strong style="font-size:1.4rem; color:#15803d;">${grade.gpa.toFixed(2)}</strong>
+                        </div>
+                        <div style="background:#ffffff; padding:10px; border-radius:10px; border:1px solid #bbf7d0;">
+                            <small style="color:#64748b; font-weight:600; display:block;">อันดับในห้อง</small>
+                            <strong style="font-size:1.4rem; color:#0369a1;">ที่ ${grade.rank} <span style="font-size:0.8rem; color:#64748b;">/ 39</span></strong>
+                        </div>
+                        <div style="background:#ffffff; padding:10px; border-radius:10px; border:1px solid #bbf7d0;">
+                            <small style="color:#64748b; font-weight:600; display:block;">เกรดสะสม (GPAX)</small>
+                            <strong style="font-size:1.4rem; color:#0f172a;">${grade.gpax ? grade.gpax.toFixed(2) : grade.gpa.toFixed(2)}</strong>
+                        </div>
+                        <div style="background:#ffffff; padding:10px; border-radius:10px; border:1px solid #bbf7d0;">
+                            <small style="color:#64748b; font-weight:600; display:block;">หน่วยกิตที่ได้</small>
+                            <strong style="font-size:1.4rem; color:#7e22ce;">${grade.earned_credits || 18.0} <span style="font-size:0.8rem; color:#64748b;">/ 18.0</span></strong>
+                        </div>
+                        <div style="background:#ffffff; padding:10px; border-radius:10px; border:1px solid #bbf7d0;">
+                            <small style="color:#64748b; font-weight:600; display:block;">ระดับคุณภาพ</small>
+                            <strong style="font-size:1.15rem; color:#166534; display:block; margin-top:3px;">${grade.quality || 'ดีเยี่ยม'}</strong>
+                        </div>
+                    </div>
+
+                    <!-- 23 Subjects Breakdown Accordion/Grid -->
+                    <details style="background:#ffffff; border:1px solid #bbf7d0; border-radius:10px; overflow:hidden;">
+                        <summary style="padding:10px 14px; font-weight:700; color:#166534; cursor:pointer; background:#f8fafc; font-size:0.88rem; display:flex; justify-content:space-between; align-items:center;">
+                            <span><i class="fa-solid fa-table-list"></i> ดูผลการเรียนรายวิชาทั้งหมด (${grade.subjects ? grade.subjects.length : 23} รายวิชา)</span>
+                            <span style="font-size:0.75rem; color:#0284c7; font-weight:600;">(คลิกเพื่อเปิดดูเกรดรายวิชา)</span>
+                        </summary>
+                        <div style="padding:12px; max-height:280px; overflow-y:auto;">
+                            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:6px;">
+                                ${(grade.subjects || []).map(sub => {
+                                    const gradeColor = sub.grade === '4' ? '#15803d' : sub.grade === '3.5' ? '#0369a1' : sub.grade === '3' ? '#7e22ce' : sub.grade === 'ผ' ? '#166534' : '#b45309';
+                                    return `
+                                        <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:6px 10px; font-size:0.82rem;">
+                                            <div>
+                                                <span style="font-weight:700; color:#334155;">${sub.code}</span>
+                                                <span style="color:#475569; margin-left:4px;">${sub.name}</span>
+                                                ${sub.teacher ? `<small style="display:block; color:#94a3b8; font-size:0.72rem;">${sub.teacher}</small>` : ''}
+                                            </div>
+                                            <span style="font-weight:800; font-size:0.95rem; color:${gradeColor}; background:#fff; padding:2px 8px; border-radius:4px; border:1px solid #cbd5e1;">
+                                                ${sub.grade}
+                                            </span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </details>
+                </div>
+                ` : ''}
                 
                 <div style="grid-column: 1 / -1; background:${myPendingTasks.length > 0 ? '#fff5f5' : '#f0fdf4'}; border:1px solid ${myPendingTasks.length > 0 ? '#fca5a5' : '#86efac'}; border-radius:10px; padding:12px; margin-top:4px;">
                     <h4 style="color:${myPendingTasks.length > 0 ? '#991b1b' : '#166534'}; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
@@ -649,7 +974,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <div style="grid-column: 1 / -1; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:14px; margin-top:4px;">
-                    <h4 style="color:#0369a1; margin-bottom:8px; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-square-poll-vertical"></i> ผลการเรียนสอบกลางภาคเรียนที่ 1/2569 (รวม ${sc.total_score}/185 - คิดเป็น ${pct}%)</h4>
+                    <h4 style="color:#0369a1; margin-bottom:8px; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-square-poll-vertical"></i> คะแนนสอบกลางภาคเรียนที่ 1/2569 (รวม ${sc.total_score}/185 - คิดเป็น ${pct}%)</h4>
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:8px; font-size:0.88rem;">
                         <div>• อ.สื่อสาร: <strong>${sc.eng_comm}/20</strong></div>
                         <div>• สังคมศึกษา: <strong>${sc.social}/20</strong></div>

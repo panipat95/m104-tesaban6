@@ -43,7 +43,7 @@
                     <i class="fa-solid fa-users-viewfinder"></i> ข้อมูลนักเรียน 360°
                 </button>
                 <button class="nav-btn" data-tab="tab-midterm">
-                    <i class="fa-solid fa-square-poll-vertical"></i> คะแนนกลางภาค 1/2569
+                    <i class="fa-solid fa-graduation-cap"></i> 📊 ผลการเรียน & คะแนน
                 </button>
                 <button class="nav-btn" data-tab="tab-pending-tasks">
                     <i class="fa-solid fa-clipboard-list"></i> เช็คงานค้างรายวิชา
@@ -160,6 +160,15 @@
                         </div>
                     </div>
 
+                    <div class="stat-card gold admin-only" style="border-left: 4px solid #eab308; background:#fffdf5; cursor:pointer;" onclick="document.querySelector('[data-tab=\'tab-midterm\']').click();" title="กดเพื่อดูรายงานผลการเรียนปลายภาค 1/2569 ฉบับเต็ม">
+                        <div class="stat-icon" style="color:#ca8a04; background:#fef08a;"><i class="fa-solid fa-award"></i></div>
+                        <div class="stat-details">
+                            <h3>ผลการเรียนปลายภาค 1/2569</h3>
+                            <span class="stat-value" id="stat-gpa-avg" style="color:#854d0e;">GPA 3.49</span>
+                            <small id="stat-gpa-subtext">เกียรตินิยม 4.00 | เกรด 3.50+ รวม 17 คน (คลิกดู)</small>
+                        </div>
+                    </div>
+
                     <div class="stat-card green admin-only">
                         <div class="stat-icon"><i class="fa-solid fa-graduation-cap"></i></div>
                         <div class="stat-details">
@@ -192,6 +201,7 @@
                                         <th>ชื่อ-นามสกุล</th>
                                         <th class="admin-only">ผู้ปกครอง / เบอร์โทร</th>
                                         <th>เวรประจำวัน</th>
+                                        <th>GPA 1/69 (อันดับ)</th>
                                         <th>สถานะงานค้าง</th>
                                         <th>จัดการ</th>
                                     </tr>
@@ -248,42 +258,165 @@
                 </div>
             </section>
 
-            <!-- Tab 3: Midterm Scores -->
+            <!-- Tab 3: Academic Performance & Grades (1/2569) -->
             <section id="tab-midterm" class="tab-content">
-                <div class="panel">
-                    <div class="panel-header">
-                        <h3><i class="fa-solid fa-square-poll-vertical"></i> ตารางตรวจสอบคะแนนสอบกลางภาคเรียนที่ 1 / 2569 (ห้อง ม.1/4 SMT)</h3>
-                        <div class="action-buttons">
-                            <button class="btn-secondary" id="btn-export-scores-csv"><i class="fa-solid fa-file-csv"></i> ส่งออกตารางคะแนน CSV</button>
+                <!-- Academic Header & Sub-Tab Switcher -->
+                <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:14px; padding:16px 20px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+                        <div>
+                            <h3 style="font-size:1.2rem; color:#0f172a; margin:0; display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-graduation-cap" style="color:#0284c7;"></i> ผลการเรียน & สรุปคะแนน ภาคเรียนที่ 1 / 2569
+                            </h3>
+                            <span style="font-size:0.85rem; color:#64748b; font-weight:600;">
+                                ชั้น มัธยมศึกษาปีที่ 1/4 หลักสูตร SMT • โรงเรียนเทศบาล 6 นครเชียงราย (39 คน)
+                            </span>
+                        </div>
+                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                            <button type="button" onclick="openPdfModal('grades_pdf/สรุปผลการเรียน_ม1.4_ภาคเรียนที่1_2569_ภาพรวม.pdf', 'ใบสรุปผลการเรียนรวม ม.1/4 ภาคเรียนที่ 1/2569 (ภาพรวมทั้งห้อง)')" class="btn" style="background:#fef08a; color:#854d0e; border:1px solid #fde047; padding:7px 14px; border-radius:8px; font-weight:700; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+                                <i class="fa-solid fa-file-pdf" style="color:#d97706;"></i> 📑 ดูรายงาน ปพ. ภาพรวมทั้งห้อง (PDF)
+                            </button>
                         </div>
                     </div>
-                    <div class="table-responsive">
-                        <table class="data-table" id="table-midterm-scores">
-                            <thead>
-                                <tr>
-                                    <th>เลขที่</th>
-                                    <th>ชื่อ-นามสกุล</th>
-                                    <th>อ.สื่อสาร (20)</th>
-                                    <th>สังคมฯ (20)</th>
-                                    <th style="background:#fef3c7; color:#92400e;">ประวัติฯ (20)</th>
-                                    <th>คณิตพื้นฯ (20)</th>
-                                    <th>ภาษาไทย (20)</th>
-                                    <th>คณิตเพิ่ม1 (20)</th>
-                                    <th>คณิตเพิ่ม2 (5)</th>
-                                    <th>จีน (20)</th>
-                                    <th>อ.พื้นฐาน (20)</th>
-                                    <th>วิทย์พื้นฯ (20)</th>
-                                    <th style="background:#d1fae5; color:#065f46;">วิทย์โลก (40)</th>
-                                    <th>อ.อ่าน-เขียน (20)</th>
-                                    <th style="background:#fef3c7; color:#92400e;">วิทย์ปฏิบัติ (30)</th>
-                                    <th>รวม (275)</th>
-                                    <th>เฉลี่ย (%)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Dynamic Rows -->
-                            </tbody>
-                        </table>
+
+                    <!-- Modern Sub-Tabs -->
+                    <div style="display:flex; gap:10px; border-bottom:2px solid #e2e8f0; padding-bottom:10px;">
+                        <button type="button" id="subtab-btn-grades" onclick="switchAcademicSubTab('grades')" style="background:#0284c7; color:#ffffff; border:none; padding:8px 18px; border-radius:10px; font-weight:700; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:all 0.2s;">
+                            <i class="fa-solid fa-award"></i> 📜 1. ผลการเรียนปลายภาค 1/2569 (GPA & ปพ. 39 คน)
+                        </button>
+                        <button type="button" id="subtab-btn-midterm" onclick="switchAcademicSubTab('midterm')" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:8px 18px; border-radius:10px; font-weight:700; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:all 0.2s;">
+                            <i class="fa-solid fa-square-poll-vertical"></i> 📝 2. คะแนนสอบกลางภาค 1/2569 (13 รายวิชา)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sub-Tab Content 1: Official Term 1 Grade Report -->
+                <div id="subtab-content-grades">
+                    <!-- Classroom Performance Summary KPIs -->
+                    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom:16px;">
+                        <div class="stat-card blue" style="padding:1rem;">
+                            <div class="stat-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fa-solid fa-chart-line"></i></div>
+                            <div class="stat-details">
+                                <h3 style="font-size:0.85rem;">GPA เฉลี่ยทั้งห้อง</h3>
+                                <span class="stat-value" style="color:#0369a1; font-size:1.5rem;">3.49</span>
+                                <small>เต็ม 4.00 (18.0 หน่วยกิต)</small>
+                            </div>
+                        </div>
+                        <div class="stat-card gold" style="padding:1rem; border-left:4px solid #eab308; background:#fffdf5;">
+                            <div class="stat-icon" style="background:#fef08a; color:#ca8a04;"><i class="fa-solid fa-crown"></i></div>
+                            <div class="stat-details">
+                                <h3 style="font-size:0.85rem;">GPA สูงสุดในห้อง</h3>
+                                <span class="stat-value" style="color:#854d0e; font-size:1.5rem;">4.00</span>
+                                <small>อันดับที่ 1 (เกียรตินิยม)</small>
+                            </div>
+                        </div>
+                        <div class="stat-card green" style="padding:1rem;">
+                            <div class="stat-icon" style="background:#dcfce7; color:#16a34a;"><i class="fa-solid fa-star"></i></div>
+                            <div class="stat-details">
+                                <h3 style="font-size:0.85rem;">เกรดดีเยี่ยม (3.50 - 4.00)</h3>
+                                <span class="stat-value" style="color:#15803d; font-size:1.5rem;">17 คน</span>
+                                <small>คิดเป็น 43.6% ของห้อง</small>
+                            </div>
+                        </div>
+                        <div class="stat-card purple" style="padding:1rem;">
+                            <div class="stat-icon" style="background:#f3e8ff; color:#9333ea;"><i class="fa-solid fa-thumbs-up"></i></div>
+                            <div class="stat-details">
+                                <h3 style="font-size:0.85rem;">เกรดดี (3.00 - 3.49)</h3>
+                                <span class="stat-value" style="color:#7e22ce; font-size:1.5rem;">19 คน</span>
+                                <small>คิดเป็น 48.7% ของห้อง</small>
+                            </div>
+                        </div>
+                        <div class="stat-card" style="padding:1rem; background:#fff7ed; border-left:4px solid #f97316;">
+                            <div class="stat-icon" style="background:#ffedd5; color:#ea580c;"><i class="fa-solid fa-user-graduate"></i></div>
+                            <div class="stat-details">
+                                <h3 style="font-size:0.85rem;">เกรดปานกลาง (2.50 - 2.99)</h3>
+                                <span class="stat-value" style="color:#c2410c; font-size:1.5rem;">3 คน</span>
+                                <small>คิดเป็น 7.7% ของห้อง</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Teacher Filter & Search Toolbar -->
+                    <div class="panel" style="margin-bottom:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; padding:12px 16px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                <span style="font-size:0.85rem; font-weight:700; color:#334155;"><i class="fa-solid fa-filter"></i> กรองระดับผลการเรียน:</span>
+                                <button type="button" class="grade-filter-pill active" data-grade-filter="all" onclick="filterGradesTable('all')">ทั้งหมด (39 คน)</button>
+                                <button type="button" class="grade-filter-pill" data-grade-filter="top" onclick="filterGradesTable('top')">🏆 เกรด 4.00</button>
+                                <button type="button" class="grade-filter-pill" data-grade-filter="honors" onclick="filterGradesTable('honors')">🟢 3.50 - 4.00 (17 คน)</button>
+                                <button type="button" class="grade-filter-pill" data-grade-filter="good" onclick="filterGradesTable('good')">🔵 3.00 - 3.49 (19 คน)</button>
+                                <button type="button" class="grade-filter-pill" data-grade-filter="moderate" onclick="filterGradesTable('moderate')">🟠 ต่ำกว่า 3.00 (3 คน)</button>
+                            </div>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <input type="text" id="grades-search-input" oninput="filterGradesTable()" placeholder="🔍 ค้นหาชื่อ / เลขที่ / รหัส..." style="padding:6px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.85rem; width:220px;">
+                                <button type="button" onclick="exportGradesToCSV()" class="btn-secondary" style="font-size:0.82rem; padding:6px 12px;">
+                                    <i class="fa-solid fa-file-csv"></i> ส่งออกตารางเกรด CSV
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Grades Ranking Table -->
+                        <div class="table-responsive">
+                            <table class="data-table" id="table-term1-grades" style="min-width:960px;">
+                                <thead>
+                                    <tr style="background:#f0f9ff; color:#0369a1;">
+                                        <th style="width:70px; text-align:center;">อันดับ</th>
+                                        <th style="width:60px; text-align:center;">เลขที่</th>
+                                        <th style="width:85px; text-align:center;">รหัส</th>
+                                        <th style="min-width:220px; text-align:left;">ชื่อ - สกุล (ชื่อเล่น)</th>
+                                        <th style="width:105px; text-align:center;">GPA 1/2569</th>
+                                        <th style="width:90px; text-align:center;">GPAX</th>
+                                        <th style="width:95px; text-align:center;">หน่วยกิต</th>
+                                        <th style="width:110px; text-align:center;">ระดับคุณภาพ</th>
+                                        <th style="width:110px; text-align:center;">กิจกรรม (4)</th>
+                                        <th style="min-width:180px; text-align:center;">ใบ ปพ. ทางการ (PDF)</th>
+                                        <th style="width:100px; text-align:center;">รายละเอียด</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-Tab Content 2: Midterm Scores View (Existing Table) -->
+                <div id="subtab-content-midterm" style="display:none;">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-square-poll-vertical"></i> ตารางตรวจสอบคะแนนสอบกลางภาคเรียนที่ 1 / 2569 (ห้อง ม.1/4 SMT)</h3>
+                            <div class="action-buttons">
+                                <button class="btn-secondary" id="btn-export-scores-csv"><i class="fa-solid fa-file-csv"></i> ส่งออกตารางคะแนน CSV</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table" id="table-midterm-scores">
+                                <thead>
+                                    <tr>
+                                        <th>เลขที่</th>
+                                        <th>ชื่อ-นามสกุล</th>
+                                        <th>อ.สื่อสาร (20)</th>
+                                        <th>สังคมฯ (20)</th>
+                                        <th style="background:#fef3c7; color:#92400e;">ประวัติฯ (20)</th>
+                                        <th>คณิตพื้นฯ (20)</th>
+                                        <th>ภาษาไทย (20)</th>
+                                        <th>คณิตเพิ่ม1 (20)</th>
+                                        <th>คณิตเพิ่ม2 (5)</th>
+                                        <th>จีน (20)</th>
+                                        <th>อ.พื้นฐาน (20)</th>
+                                        <th>วิทย์พื้นฯ (20)</th>
+                                        <th style="background:#d1fae5; color:#065f46;">วิทย์โลก (40)</th>
+                                        <th>อ.อ่าน-เขียน (20)</th>
+                                        <th style="background:#fef3c7; color:#92400e;">วิทย์ปฏิบัติ (30)</th>
+                                        <th>รวม (275)</th>
+                                        <th>เฉลี่ย (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -784,8 +917,32 @@
         </div>
     </div>
 
-    <script src="real_db.js?v=20261102_v4"></script>
-    <script src="grades_data.js?v=20261102_v1"></script>
-    <script src="app.js?v=20261102_v4"></script>
+    <!-- PDF Viewer Modal for Teacher Dashboard -->
+    <div id="pdf-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.75); z-index:999999; backdrop-filter:blur(5px); align-items:center; justify-content:center; padding:16px;">
+        <div style="background:#ffffff; width:100%; max-width:940px; border-radius:18px; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0,0,0,0.4); display:flex; flex-direction:column; max-height:92vh; border:1px solid rgba(255,255,255,0.2);">
+            <div style="background:linear-gradient(90deg, #0369a1 0%, #0284c7 100%); color:#ffffff; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div style="font-weight:700; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-file-pdf" style="color:#fde047; font-size:1.15rem;"></i>
+                    <span id="pdf-modal-title">ใบแจ้งผลการเรียนทางการ (Student Grade Report)</span>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <a id="pdf-modal-download-btn" href="#" download class="btn" style="background:#fef08a; color:#854d0e; padding:5px 12px; border-radius:8px; font-size:0.8rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
+                        <i class="fa-solid fa-download"></i> ดาวน์โหลด PDF
+                    </a>
+                    <a id="pdf-modal-external-btn" href="#" target="_blank" class="btn" style="background:rgba(255,255,255,0.18); color:#ffffff; padding:5px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:5px; border:1px solid rgba(255,255,255,0.3);">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดแท็บใหม่
+                    </a>
+                    <button type="button" onclick="closePdfModal()" style="background:transparent; border:none; color:#ffffff; font-size:1.6rem; cursor:pointer; line-height:1; margin-left:6px; opacity:0.85;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">&times;</button>
+                </div>
+            </div>
+            <div style="flex:1; overflow:hidden; position:relative; background:#f8fafc; min-height:500px;">
+                <iframe id="pdf-modal-iframe" src="" style="width:100%; height:75vh; border:none;"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script src="real_db.js?v=20261103_v5"></script>
+    <script src="grades_data.js?v=20261103_v5"></script>
+    <script src="app.js?v=20261103_v5"></script>
 </body>
 </html>

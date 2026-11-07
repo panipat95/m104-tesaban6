@@ -96,8 +96,23 @@ window.CLOUD_BACKUP_ENDPOINT = 'https://api.restful-api.dev/objects/ff808181a067
 window._lastKnownTasks = null;
 window._lastCloudSyncTime = 0;
 
-// Active real tasks for M.1/4 SMT (Currently all cleared: 0 pending tasks across all students)
-window.DEFAULT_PENDING_TASKS = [];
+// Active real tasks for M.1/4 SMT
+window.DEFAULT_PENDING_TASKS = [
+    {
+        id: "task_1794025098779",
+        subject: "วิทยาการคำนวณ/คอมพิวเตอร์ (ว21206) - ครูคอมพิวเตอร์",
+        title: "[ทำลงในสมุด] AI 20 อย่าง",
+        dueDate: "วันจันทร์ที่ 9 พ.ย. 69",
+        pendingStudentIds: [
+            "19168","19169","19170","19172","19173","19174","19175","19176","19177","19178",
+            "19179","19180","19181","19182","19183","19184","19185","19186","19187","19188",
+            "19189","19190","19191","19192","19193","19194","19195","19196","19197","19198",
+            "19199","19200","19201","19202","19203","19204","19205","19206","19207"
+        ],
+        createdAt: "7/11/2569",
+        attachedFiles: []
+    }
+];
 
 // Legacy sample task IDs that must never be resurrected
 window._LEGACY_PURGED_TASK_IDS = [
@@ -116,17 +131,14 @@ window._sanitizeTaskList = function(list) {
     });
 };
 
-// Automatic one-time migration / reset guard (2 Nov 2569) to clear all legacy tasks from browser storage
+// Automatic one-time migration / reset guard (Nov 2569) to clear legacy dummy tasks from browser storage
 (function() {
     var CLEARED_VERSION = '20261102_cleared_all_v1';
     try {
         if (typeof localStorage !== 'undefined') {
             var currentClearedVer = localStorage.getItem('m104_tasks_cleared_ver');
-            if (currentClearedVer !== CLEARED_VERSION) {
-                localStorage.setItem('pending_homework_tasks', JSON.stringify([]));
+            if (!currentClearedVer) {
                 localStorage.setItem('m104_tasks_cleared_ver', CLEARED_VERSION);
-                window._lastKnownTasks = null;
-                window.DEFAULT_PENDING_TASKS = [];
             }
         }
     } catch(e) {}
@@ -219,7 +231,7 @@ window.saveTasksToCloud = async function(tasks) {
 // Sync latest tasks from Cloud and merge into LocalStorage
 window.syncTasksWithCloud = async function(callback) {
     try {
-        var res = await fetch(window.CLOUD_TASKS_ENDPOINT + '/json?poll=1&t=' + Date.now());
+        var res = await fetch(window.CLOUD_TASKS_ENDPOINT + '/json?poll=1&since=all&_nocache=' + Date.now());
         var latestTasks = null;
         if (res.ok) {
             var text = await res.text();
@@ -391,8 +403,16 @@ window.getMergedPendingTasks = function() {
             var parsed = JSON.parse(local);
             if (Array.isArray(parsed)) {
                 var cleanedLocal = window._sanitizeTaskList ? window._sanitizeTaskList(parsed) : parsed;
-                window._lastKnownTasks = cleanedLocal;
-                return cleanedLocal;
+                var fallback = Array.isArray(window.DEFAULT_PENDING_TASKS) ? window.DEFAULT_PENDING_TASKS : [];
+                // Merge any newly deployed tasks from DEFAULT_PENDING_TASKS that do not exist locally yet
+                var merged = cleanedLocal.slice();
+                fallback.forEach(function(ft) {
+                    if (ft && ft.id && !merged.some(function(mt) { return String(mt.id) === String(ft.id); })) {
+                        merged.unshift(ft);
+                    }
+                });
+                window._lastKnownTasks = merged;
+                return merged;
             }
         }
     } catch(e) {}
@@ -765,7 +785,7 @@ window.saveClassroomFundData = async function(fundData) {
 
 window.syncFundWithCloud = async function(callback) {
     try {
-        var res = await fetch(window.CLOUD_FUND_ENDPOINT + '/json?poll=1&since=all&t=' + Date.now());
+        var res = await fetch(window.CLOUD_FUND_ENDPOINT + '/json?poll=1&since=all&_nocache=' + Date.now());
         if (res.ok) {
             var text = await res.text();
             var lines = text.trim().split('\n');
